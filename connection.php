@@ -1,6 +1,16 @@
-<?PHP
-# membuka hubungan antara laman dan pangkalan data.
-# menghantar 4 parameter asas iaitu
-# nama host - ("localhost"), username SQL ("root"), katalaluan SQL (""), nama pangkalan data ("kereta_terpakai_basic")
-$condb=mysqli_connect("localhost","root","","legacykueh");
+<?php
+// php & Oracle DB connection file  
+$user = "kuehlegacy"; // Oracle username  
+$pass = "kuehlegacy"; // Oracle password  
+$host = "localhost:1521/xe"; 
+
+
+$condb = oci_connect($user, $pass, $host); 
+
+if (!$condb) {
+    $e = oci_error();
+    echo "Connection failed: " . $e['message'];
+} else {
+    echo "";
+}
 ?>
