@@ -1,56 +1,134 @@
 <?PHP
 include('header_admin.php');
-
+include('connection.php');
 // Process form submission
 if (isset($_POST['submit'])) {
-    // Initialize arrays to store form data
-    $ingredients = [];
-    $steps = [];
-
-    // Process ingredients
-    if (isset($_POST['ingredients'])) {
-        foreach ($_POST['ingredients'] as $ingredient) {
-            if (!empty($ingredient)) {
-                $ingredients[] = $ingredient;
-            }
-        }
-    }
-
-    // Process steps
-    if (isset($_POST['steps'])) {
-        foreach ($_POST['steps'] as $step) {
-            if (!empty($step)) {
-                $steps[] = $step;
-            }
-        }
-    }
-
-    // Get other form data
+    // Process form data
     $kuehName = $_POST['kuehName'];
     $kuehDesc = $_POST['kuehDesc'];
-    $servings = $_POST['servings'];
-    $cookingTime = $_POST['cookingTime'];
+    $foodTypeCode = $_POST['foodtype'];
+    $methodId = $_POST['method'];
+    $popularId = $_POST['popular'];
+    $originId = $_POST['origin'];
+    $ingredients = $_POST['ingredients'] ?? [];
+    $steps = $_POST['steps'] ?? [];
 
-    // Here you can add your database insertion code
-    // For example:
-    /*
-    $sql = "INSERT INTO KUEH (name, description, servings, cooking_time) 
-            VALUES (:name, :desc, :servings, :time)";
-    // Execute query and get last insert ID
-    
-    // Then insert ingredients
-    foreach($ingredients as $ingredient) {
-        $sql = "INSERT INTO KUEH_INGREDIENTS (kueh_id, ingredient) 
-                VALUES (:kueh_id, :ingredient)";
+    // Validate uploaded image
+    if (!empty($_FILES['image']['tmp_name'])) {
+        // Initialize BLOB descriptor
+        $lob = oci_new_descriptor($condb, OCI_D_LOB);
+
+        // Read the image file
+        $imageData = file_get_contents($_FILES['image']['tmp_name']);
+
+        // Insert into KUEH table
+        $sql_kueh = "INSERT INTO KUEH (KUEHNAME, KUEHDESC, FOODTYPECODE, METHODID, POPULARID, ORIGINID, IMAGE) 
+                     VALUES (:kuehName, :kuehDesc, :foodTypeCode, :methodId, :popularId, :originId, EMPTY_BLOB())
+                     RETURNING IMAGE INTO :image";
+        $laksana_sql_kueh = oci_parse($condb, $sql_kueh);
+
+        // Bind parameters
+        oci_bind_by_name($laksana_sql_kueh, ":kuehName", $kuehName);
+        oci_bind_by_name($laksana_sql_kueh, ":kuehDesc", $kuehDesc);
+        oci_bind_by_name($laksana_sql_kueh, ":foodTypeCode", $foodTypeCode);
+        oci_bind_by_name($laksana_sql_kueh, ":methodId", $methodId);
+        oci_bind_by_name($laksana_sql_kueh, ":popularId", $popularId);
+        oci_bind_by_name($laksana_sql_kueh, ":originId", $originId);
+        oci_bind_by_name($laksana_sql_kueh, ":image", $lob, -1, SQLT_BLOB);
+
+        // Execute the query
+        if (oci_execute($laksana_sql_kueh, OCI_DEFAULT)) {
+            // Save the image data into the BLOB
+            $lob->save($imageData);
+
+            // Commit the transaction
+            oci_commit($condb);
+
+            // Get the last inserted KUEHID
+            $sql_get_kuehid = "SELECT MAX(KUEHID) AS KUEHID FROM KUEH";
+            $laksana_sql_get_kuehid = oci_parse($condb, $sql_get_kuehid);
+            oci_execute($laksana_sql_get_kuehid);
+            $kuehIdResult = oci_fetch_assoc($laksana_sql_get_kuehid);
+            $kuehId = $kuehIdResult['KUEHID'];
+
+
+            // Insert ingredients into ITEMS table
+            if (!empty($ingredients)) {
+                $sql_items = "INSERT INTO ITEMS (KUEHID, NAMEITEM) VALUES (:kuehId, :nameitem)";
+                $laksana_sql_items = oci_parse($condb, $sql_items);
+
+                foreach ($ingredients as $ingredient) {
+                    oci_bind_by_name($laksana_sql_items, ":kuehId", $kuehId);
+                    oci_bind_by_name($laksana_sql_items, ":nameitem", $ingredient);
+                    if (!oci_execute($laksana_sql_items)) {
+                        $e = oci_error($laksana_sql_items);
+                        echo "Error inserting ingredient: " . htmlentities($e['message']);
+                    }
+                }
+                oci_free_statement($laksana_sql_items);
+            }
+
+            // Insert steps into STEPS table
+            if (!empty($steps)) {
+                $sql_steps = "INSERT INTO STEPS (KUEHID, STEP) VALUES (:kuehId, :step)";
+                $laksana_sql_steps = oci_parse($condb, $sql_steps);
+
+                foreach ($steps as $step) {
+                    oci_bind_by_name($laksana_sql_steps, ":kuehId", $kuehId);
+                    oci_bind_by_name($laksana_sql_steps, ":step", $step);
+                    if (!oci_execute($laksana_sql_steps)) {
+                        $e = oci_error($laksana_sql_steps);
+                        echo "Error inserting step: " . htmlentities($e['message']);
+                    }
+                }
+                oci_free_statement($laksana_sql_steps);
+            }
+
+            oci_commit($condb);
+            echo "<script>
+                alert('Kueh details saved successfully!');
+                window.location.href = 'kueh_info.php';
+            </script>";
+        } else {
+            $e = oci_error($laksana_sql_kueh);
+            echo "<script>alert('Error saving kueh details: " . htmlentities($e['message']) . "');</script>";
+        }
+
+        // Free the BLOB descriptor
+        $lob->free();
+
+        // Free resources
+        oci_free_statement($laksana_sql_kueh);
+        if (isset($laksana_sql_get_kuehid)) {
+            oci_free_statement($laksana_sql_get_kuehid);
+        }
+    } else {
+        echo "<script>alert('Please Upload Image');</script>";
     }
-    
-    // Then insert steps
-    foreach($steps as $step) {
-        $sql = "INSERT INTO KUEH_STEPS (kueh_id, step) 
-                VALUES (:kueh_id, :step)";
-    }
-    */
 }
+
+
+
+function getOptionsWithIdAndName($query, $idField, $nameField)
+{
+    global $condb;
+    $stid = oci_parse($condb, $query);
+    oci_execute($stid);
+    $options = "";
+    while ($row = oci_fetch_assoc($stid)) {
+        $options .= "<option value='{$row[$idField]}'>{$row[$nameField]}</option>";
+    }
+    oci_free_statement($stid);
+    return $options;
+}
+
+// Populate dropdowns
+$foodtypeOptions = getOptionsWithIdAndName("SELECT FOODTYPECODE, TYPENAME FROM FOODTYPE", "FOODTYPECODE", "TYPENAME");
+$methodOptions = getOptionsWithIdAndName("SELECT METHODID, METHODNAME FROM METHOD", "METHODID", "METHODNAME");
+$popularOptions = getOptionsWithIdAndName("SELECT POPULARID, LEVELSTAR FROM POPULARITY", "POPULARID", "LEVELSTAR");
+$originOptions = getOptionsWithIdAndName("SELECT ORIGINCODE, NAMESTATE FROM ORIGIN", "ORIGINCODE", "NAMESTATE");
+
+oci_close($condb);
 ?>
 
 <body class="" style="background-color: #FFFAF0;">
@@ -68,21 +146,70 @@ if (isset($_POST['submit'])) {
 
     <!--CONTENT START HERE-->
     <div class="container w-75">
-        <form method="POST" action="<?php echo $_SERVER['PHP_SELF']; ?>">
+        <form method="POST" action="<?php echo $_SERVER['PHP_SELF']; ?>" enctype="multipart/form-data">
             <!-- Existing image and title section -->
             <div class="row">
-                <!-- Your existing image and title code -->
                 <div class="col-12 col-md-4 my-4">
-                    <img src="sources\kuehDetails\cekodokpisang.jpeg" class="img-fluid text-center rounded-3" alt="test image" style="min-height:380px; object-fit: cover;">
+                    <img id="previewImage"
+                        src="sources/uploadimage.jpg"
+                        class="img-fluid text-center rounded-3"
+                        alt="Uploaded Image Preview"
+                        style="min-height:380px; object-fit: cover;">
+                    <input type="file" name="image" id="imageUpload" class="form-control mt-3" accept="image/*" required>
                 </div>
                 <div class="col-12 col-md gy-4">
                     <div class="col-12 bg-primary">
-                        <input class="w-100 p-1 border-0 shadow-none fw-bolder fs-2" style="background-color: #FFFAF0;" type="text" name="kuehName" placeholder="Tajuk: Kuih Lapis Atok" required>
+                        <input class="w-100 p-1 border-0 shadow-none fw-bolder fs-2" style="background-color: #FFFAF0;" type="text" name="kuehName" placeholder="Tajuk: Kuih Lapis Atok">
                     </div>
-                    <!-- Rest of your title section -->
                     <div class="col-12">
-                        <textarea class="w-100 p-1 border-0 shadow-none" name="kuehDesc" style="background-color: #FFFAF0;" placeholder="Share kisah resepi anda" required></textarea>
+                        <div class="d-flex align-items-center my-2">
+                            <!-- Avatar -->
+                            <img src="sources\header\logo.png" alt="Profile Picture" class="rounded-circle border" width="50" height="50" style="">
+                            <!-- Text -->
+                            <div class="ms-3">
+                                <h6 class="mb-0">Haziq Akram</h6>
+                                <small class="text-muted">@cook_111408822</small>
+                            </div>
+                        </div>
                     </div>
+                    <div class="col-12">
+                        <textarea class="w-100 p-1 border-0 shadow-none" name="kuehDesc" style="background-color: #FFFAF0;" placeholder="Share kisah resepi anda"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dropdown Section -->
+            <div class="row mb-4">
+                <div class="col-12 col-md-6 col-lg-3">
+                    <label for="foodtype" class="form-label fw-bold">Food Type</label>
+                    <select name="foodtype" id="foodtype" class="form-select" required>
+                        <option value="" disabled selected>Select Food Type</option>
+                        <?= $foodtypeOptions ?>
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-3">
+                    <label for="method" class="form-label fw-bold">Cooking Method</label>
+                    <select name="method" id="method" class="form-select" required>
+                        <option value="" disabled selected>Select Cooking Method</option>
+                        <?= $methodOptions ?>
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-3">
+                    <label for="popular" class="form-label fw-bold">Popularity</label>
+                    <select name="popular" id="popular" class="form-select" required>
+                        <option value="" disabled selected>Select Popularity</option>
+                        <?= $popularOptions ?>
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-3">
+                    <label for="origin" class="form-label fw-bold">Origin</label>
+                    <select name="origin" id="origin" class="form-select" required>
+                        <option value="" disabled selected>Select Origin</option>
+                        <?= $originOptions ?>
+                    </select>
                 </div>
             </div>
 
@@ -94,10 +221,8 @@ if (isset($_POST['submit'])) {
                             <h1 class="fw-bolder m-0">Ramuan</h1>
                             <button type="button" class="btn btn-primary ms-3" id="addIngredientButton"><i class="bi bi-plus"></i></button>
                         </div>
-                        <div class="col mt-2">Sajian</div>
-                        <div class="col">
-                            <input type="text" name="servings" class="rounded" placeholder="2 Orang" required>
-                        </div>
+
+
                     </div>
                     <div id="ingredientContainer">
                         <div class="input-group mb-2">
@@ -115,10 +240,7 @@ if (isset($_POST['submit'])) {
                             <h1 class="fw-bolder m-0">Cara Memasak</h1>
                             <button type="button" class="btn btn-primary ms-3" id="addStepButton"><i class="bi bi-plus"></i></button>
                         </div>
-                        <div class="col mt-2">Tempoh Masak</div>
-                        <div class="col">
-                            <input type="text" name="cookingTime" class="rounded" placeholder="1 jam 30 minit" required>
-                        </div>
+
                     </div>
                     <div id="stepContainer">
                         <div class="input-group mb-2">
@@ -176,6 +298,17 @@ if (isset($_POST['submit'])) {
             button.addEventListener('click', function() {
                 button.closest('.input-group').remove();
             });
+        });
+
+        document.getElementById('imageUpload').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('previewImage').src = e.target.result;
+                };
+                reader.readAsDataURL(file); // Convert image to base64 for preview
+            }
         });
     </script>
 </body>
