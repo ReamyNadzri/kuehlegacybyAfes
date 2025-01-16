@@ -223,7 +223,7 @@ oci_free_statement($laksana_sql_bilcust);
         <a href="../index.php">
           <div class="w3-container w3-card-2 w3-border w3-round-xlarge w3-padding-16">
             <div class="w3-right w3-cell">
-              <img class="w3-col w3-margin w3-row-padding" style="height:90px; width: auto;" src='sources/logo.png'>
+              <img class="w3-col w3-margin w3-row-padding" style="height:90px; width: auto;" src='sources/logo1.png'>
             </div>
             <div class="w3-clear w3-cell">
               <h3>View the Website</h3>

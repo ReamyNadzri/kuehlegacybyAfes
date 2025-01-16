@@ -2,9 +2,9 @@
 # Start the session
 session_start();
 
-if ($_SESSION['adminid']) {
+/* if ($_SESSION['adminid']) {
   echo "<script>window.location.href='mainpage.php';</script>";
-} 
+}  */
 ?>
 
 <!DOCTYPE html>
@@ -53,7 +53,7 @@ if ($_SESSION['adminid']) {
 <br>
 <br>
 <footer class="w3-container w3-red w3-center">
-  <h5>ABE FIWAN AUTO SALES 2019 @ 2025</h5>
+  <h5>LEGACY OF KUEH 2019 @ 2025</h5>
 </footer>
 </div>
 </body>
