@@ -134,11 +134,11 @@ date_default_timezone_set("Asia/Kuala_Lumpur");
                                 
                                 <div class="w3-cell w3-left" style="width:35%;"> <!--IF CONDITION HERE (search hidden)-->
 
-                                    <form class="" method="GET" action='purchase_listing.php'>
+                                    <form class="" method="GET" action='kuehListing.php'>
                         
                                         <div class="w3-col w3-round w3-white w3-border w3-round-xxlarge w3-padding">
                                             <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAACXBIWXMAAAsTAAALEwEAmpwYAAADW0lEQVR4nO1ZTU9TQRSdLtStG8X4sVB/ggv8/gsmSo2Ksb47M/e9e6GQoEZiIroD/4CJK3VhYogLFcNawY1f/8CNW3GFARSKmDud1xIMhtJ5r9D0JJO8tK9n5szMvXPmVqkOOth6KDHvA8ugLT/VSF+0pR+AvOjbDCB/9t9FWg90qa0GQD4LSBNgaUkjr2ykybtg+bUxyZlWj18hlo9q5MlVA6xoS+8AaShC7k6SZC8i7pAmz8YkxzXyDUCecu/Wf/cmIjrSEhFguBcs/XSzizwHSKNRVN6z0d+LMG15TFua92JmTcyXVZ7QlkbqW4SfX4vjA5vlMqZ8UCOPr1qduyoPaEv3fYd/5FkpVQjBC5YGwdJyLmLAcK8P1GUTc09ofo1UTMWA7buksgrsekzQ7Uw6cWJ4uBYzpv9wFh1MpjGhskUhjRlAmgh+TrhZsjR/neiQyhiSPCQTauSVCPl0MGKZGT9DoyonuNSMbou9Cmg73IldaeScaBbunEGuiL2R56YJo5i0n5m3KmdopOlq30mpeTJn8ty2GlI5AyzdrAqhx02TORdbDbpulTOspZPeAn1smkysuBOSY3zU+tYDXX5FvjdPhvxbyIrF4k6VM8rl8i7vJH61hRCNPNsWWwuQvgYLdrkUBRldI33H/ad8jEy3RfoFy48CkDH4FDgVZHQN9U3v/YqcD7JPU4sSxCo0alEsLZVKg7uDkEq1o+p+eSwI4Ub6RH7gM9Z4QNK+E550IW8bbwwdC0qeWnk/Q0Hu6eugoJFe+IPwZXB2uXbKweTFDKuMAMh3fHKZAejbn0knUndKiw9SKAjNHxm+mBYfTMznVJaQUk1djFuZENusICtRr6DQslRsVNZIxaQxI0W2zXJJ8khjYk2raEyuqKwhdadazEjZ0/JYI+eMvOtT7EJqDNfUg52YXMqokgBWZTPXsTgAsRbuUqQHusQ1S5Nn+QyQb/krbG3QUmKSwJYVaJkYgZRspNrRyN8Kcj0A5Gdrzeh6YiCryuP6tiIpAfITbemTpFA/4DlA/gaWPwDSQxnU/64FPju2VkzgOvDSvwmArqp2EQN5pObQ0O0kxsTc0/ZidB6HZiZikBc7YrZFArA0orYjwCYX0m0GyPfUdoaJuSe3v7M76EA5/AVk6Osx7S8vQwAAAABJRU5ErkJggg==" alt="Cari Kueh" style="padding-bottom:3px;margin-right:8px;text-align:center; width:25px">
-                                            <input type="text" class="w3-cell w3-input" style="width: 85%; height: 25px;" placeholder="Cari kuih-muih dan resipi">
+                                            <input type="text" class="w3-cell w3-input" name="search" style="width: 85%; height: 25px;" placeholder="Cari kuih-muih dan resipi">
                                         
                                         </div>
                                     </form>
