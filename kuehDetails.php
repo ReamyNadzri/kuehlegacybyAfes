@@ -65,6 +65,7 @@ function isKuehInFavorites($conn, $kueh_id, $username)
     return ($row['COUNT'] > 0); // Returns true if the kueh is in favorites
 }
 
+//START============================================================================================================================
 // Get the username from the session (assuming the user is logged in)
 $username = $_SESSION['username'] ?? null;
 
@@ -118,7 +119,7 @@ if ($kueh_id) {
                     <div class="d-flex align-items-center my-2">
                         <img src="sources\header\logo.png" alt="Profile Picture" class="rounded-circle border" width="50" height="50">
                         <div class="ms-3">
-                            <h6 class="mb-0">Haziq Akram</h6>
+                            <h6 class="mb-0">Haziq Akram</h6> <!--NAMA ORANG SHARE KUIH -->
                             <small class="text-muted">@Uchu • Pahang, Malaysia</small>
                         </div>
                     </div>

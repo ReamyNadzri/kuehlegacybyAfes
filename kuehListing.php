@@ -74,13 +74,13 @@ oci_close($condb);
                         $recipe['IMAGE_DATA_URI'] = 'data:image/jpeg;base64,' . $base64Image;
                         ?>
                         <div class="col-12 mb-4" >
-                        <a href="kuehDetails.php?id=<?= $recipe['KUEHID'] ?>" class="text-decoration-none shadow-sm text-dark " >
-                        <div class="card card-hover-effect rounded shadow-sm" style="border :none">
+                            <a href="kuehDetails.php?id=<?= $recipe['KUEHID'] ?>" class="text-decoration-none shadow-sm text-dark w3-display-container">
+                                <div class="card card-hover-effect rounded shadow-sm" style="border :none">
                                     <div class="row g-0">
-                                        <div class="col-md-3">
-                                            <img src="<?= $recipe['IMAGE_DATA_URI'] ?>" class="img-fluid rounded-start"
+                                        <div class="col-md-3 w3-display-container">
+                                            <img src="<?= $recipe['IMAGE_DATA_URI'] ?>" class="img-fluid rounded-start "
                                                 alt="<?= htmlspecialchars($recipe['KUEHNAME']) ?>"
-                                                style="max-width: 100%; height: 100%;">
+                                                style="max-width: 100%;max-height:300px;object-fit: cover;">
                                         </div>
                                         <div class="col-md-9">
                                             <div class="card-body">
