@@ -108,7 +108,7 @@ if ($kueh_id) {
                 <div class="mt-auto">
                     <button type="button" class="btn btn-warning me-2 bg-white text-warning fw-bold"><i class="bi bi-bookmark"></i> Simpan Resipi</button>
                     <button type="button" class="btn btn-outline-secondary me-2 fw-bold"><i class="bi bi-folder-plus"></i> Tambah ke folder</button>
-                    <button type="button" class="btn btn-outline-secondary me-2 fw-bold"><i class="bi bi-upload"></i> Kongsi</button>
+                    <button type="button" class="btn btn-outline-secondary me-2 fw-bold" onclick="copyToClipboard()"><i class="bi bi-upload"></i> Kongsi</button>
                     <button type="button" class="btn btn-outline-secondary fw-bold"><i class="bi bi-printer"></i> Cetak</button>
                     <button type="button" class="btn btn-outline-secondary fw-bold border-0"><i class="bi bi-three-dots"></i></button>
                 </div>
@@ -149,6 +149,26 @@ if ($kueh_id) {
         </div>
     </div>
 </div>
+
+<script>
+    function copyToClipboard() {
+        // Get the current URL
+        const currentUrl = window.location.href;
+
+        // Copy the URL to the clipboard
+        navigator.clipboard.writeText(currentUrl)
+            .then(() => {
+                // Show a notification that the link has been copied
+                alert('Link has been copied to clipboard!');
+            })
+            .catch((error) => {
+                // Handle any errors
+                console.error('Failed to copy link: ', error);
+                alert('Failed to copy link. Please try again.');
+            });
+    }
+</script>
+
 
 <?php
 include('footer.php');
