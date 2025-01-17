@@ -1,14 +1,7 @@
 <?php
 include('header.php');
 
-// Sample user data
-$user = [
-    "userName" => "Johnny",
-    "email" => "johnny@example.com",
-    "phoneNum" => "123-456-7890",
-    "description" => "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    "profile_image" => "https://thumbs.dreamstime.com/b/cute-anime-girl-chef-kitchen-cute-anime-girl-chef-kitchen-generative-ai-342085902.jpg" // Avatar Profile
-];
+
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -22,6 +15,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user['profile_image'] = 'data:image/jpeg;base64,' . base64_encode(file_get_contents($_FILES['profileImage']['tmp_name']));
     }
 }
+
+if(isset($_SESSION['google_user'])){
+    $user = [
+    "userName" => $_SESSION['google_user']['name'],
+    "email" => $_SESSION['google_user']['email'],
+    "profile_image" => $_SESSION['google_user']['picture'] // Avatar Profile
+    ];
+}else{
+    $user['userName'] = $_SESSION['username'];
+    $user['email'] = $_SESSION['email'];
+    $user['phoneNum'] = $_SESSION['phoneNum'];
+    $user['profile_image'] = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAFdUlEQVR4nO1aS4hcRRR9UaPJxs9CVBT8oBmDEsVPFE0iGJxEMbixySKSTt+qe9+7t6dHRlQQlMadGozfGH8ouHAnoi5cmLjwFxJJ1CgiMaMjRpB8FxLJZybK7e6Zed0zk3RVve6ZhHegYJjX737Ou1V1696Kohw5cuTIkaOjIOq7FogTg7IBSDYZlEFAOQAkR2uj9jfv0mdA/JpBiSFJeqJTGdbKjUC8zqDsNiT/+Qwg/tOgPF+K+26IThHMMsQrgGSzr9NTDuRvrC3frzqimQgTxwsN8reZO94aFShbgMq3RDMFhYGBuUD8CiCPdNr5cRJ4BIhfKhaLc6bVeUiSHiD5oVuOT7JGfLcmjq+ZFudLJLcZ5H3T5XxqShwokSzqrvOY3GuQ/51u58cjQQ4ZkuXdcZ5kUbjz/Bcgvw8kTwMKAMlSnU7W9l3JzBfoUF0G5RcXEhD5jo46D0nSY4gPejmtOwRKnyZF7eozyM85RsL+jq0Jhdpq77Pg8Q79wt7R5ky0bO/I7gAor3oY83aIMYVC4UxDvMcj4l7MPMkB532e38wiazPE73oQMLyGyjdll96iW4anU6VSqZyThfJSqXIhED8CyIcdbdicSdpsiFe4fgFry8uijAHEFVc7dLvOQLG4HWxQdnbiwEJEs3X7dIyCr4OPtMaRdSB5NuoQgPgt5/XA8IIQheucwz+WB9IySjGvNsRDhvg9Q9IPxL3Wlufp3NZ1QncJY/ovMobn21geNCjPAMnPBmWg1R5DXPJYENd6E2B8ihmG5zeFrWdBRHcda/nmJnsML/CIyD8Csj5xNpyIzhszOO6700dGioRP0zYR0SU+cryyQ9Aanh8Bs8cIQH4ikICR1XF86ag8nTI+ciwxORNgUDb4KGuSQfJhCAH1UbYtMn3krHcngOTzcAJ4WygBgPJOMAHIG30i4PdQAoD472ACSL4IJ0AGPQhgr2pPi4zwognK7lACgGSvOwEkR0JDzZAcDyaA5EgLqRudCUA+7EwAOB4+Ws8AYGVVBs43Bj+UInV5dwgg2RuSA2gCkiEBQ6Nyi8WHz/d4f48zAQZl0FXRqkrl3BAC25nDSrL7+/yrTwRscjY2jheOEUjyVIYEPDkq19rkdg8Zn3WlBAbEr2eRTTbJtIItdr3hLAflZWcCDErsYfBwugBarVbPAOLfvAlAGVQZ44TKUtURSmJbsLY8zzNcD2nXaPyL8aMBBIwdiVVmowHiLsfI1c4EhGSDhuSj8VW7OEcvP3g4vzNdVwTiT3yjKPKFQX7Bk4Dj6QWxhHwXIB9ziKKj6X5fY+HzSqq0qONNACTJ9d7hS7yt6QsiS7vkpY+vtSMwynZfO6yV67wJUGhh0Z+E5mOozukT9Rcaz/qb3iFZ76s/uCg61gn2J0CNWBKlYGK5T1vak/xuf2uH19pkcYjuTMriCkD+yj8EJ/YItAucXtQA5eNiHF8x8XflZQFT8Mso0/s/5L7/6kDkW3316rteUYd8LPN7RIZkrcdXGCqKXDwqQ3sGWticSoc+S/cV9N16SX0G9CYKAwNzDfL37RnAu0oxm0KhcHZaRv2AxAeB5LF0sVP/NsiPN541FS9UhspqN5fQe0Nqa+YEKADk8hO2q1EGdQurVqtnRS3QlLbNaTScTn+b3+dCrWkypX7eV2K+KuokgGTJxJSUdxjilZMZ7nOO199OJadBxMq6zgkpeHcuS1mbLAbkf7QNrq0vvchwsnf0y7RLgO4SDrdSt6rz1iZ3R92EtZXLXLrA2uZqn4DmlthJMKthy8wGEPe2vZLH5Xui0w1A3NvOgai+h3NvdDqiqPt67TwgHwDxT7XOcX38qP/TZ+m8IUeOHDly5MiRI0fUOfwPWUs8T7LFLncAAAAASUVORK5CYII=";
+
+}
+
 
 $cooking_activity_uploaded = false; // Set this to true when activity is uploaded
 ?>
@@ -254,13 +262,14 @@ $cooking_activity_uploaded = false; // Set this to true when activity is uploade
     </style>
 </head>
 
-<body>
+<body><br><br>
 
     <div class="w3-container profile-container">
         <!-- Profile Header -->
         <div class="profile-header">
             <div class="profile-img-container">
                 <!-- Profile Image with Upload -->
+                 
                 <label for="fileInput">
                     <img src="<?php echo htmlspecialchars($user['profile_image']); ?>" alt="Profile Image"
                         class="profile-img" id="profileImage">
@@ -271,10 +280,17 @@ $cooking_activity_uploaded = false; // Set this to true when activity is uploade
                         onchange="previewImage(event)">
                 </form>
             </div>
-            <div class="description-container">
-                <p class="username"><?php echo htmlspecialchars($user['userName']); ?></p>
-                <p class="description"><?php echo htmlspecialchars($user['description']); ?></p>
-            </div>
+            
+                <div class="description-container">
+                    <p class="username"><?php echo htmlspecialchars($user['userName']); ?></p>
+                    <?php
+                        if(isset($_SESSION['google_user'])){ ?>
+                        <p class="description">You are currently logged in using a Google Account. All sensitive data is hidden as a security measure.</p>
+                    <?php } ?>
+                    
+                    </div>
+            
+            
         </div>
 
         <!-- Contact Info -->
@@ -283,18 +299,22 @@ $cooking_activity_uploaded = false; // Set this to true when activity is uploade
                 <i class="fa fa-envelope w3-text-orange" aria-hidden="true"></i>
                 <?php echo htmlspecialchars($user['email']); ?>
             </span>
+            <?php
+                        if(!isset($_SESSION['google_user'])){ ?>
             <span>
                 <i class="fa fa-phone w3-text-orange" aria-hidden="true"></i>
                 <?php echo htmlspecialchars($user['phoneNum']); ?>
             </span>
+            <?php } ?>
         </div>
 
-        <!-- Edit Profile Button -->
-        <div class="edit-profile" id="editProfileBtn">
-            Edit Profile
-            <i class="fa fa-pencil w3-margin-left"></i>
-        </div>
-
+        <?php if(!isset($_SESSION['google_user'])){ ?>
+            <!-- Edit Profile Button -->
+            <div class="edit-profile" id="editProfileBtn">
+                Edit Profile
+                <i class="fa fa-pencil w3-margin-left"></i>
+            </div>
+        <?php } ?>
         <!-- Edit Form -->
         <div class="edit-form" id="editForm" style="display: none;">
             <form method="POST" enctype="multipart/form-data">
@@ -319,12 +339,6 @@ $cooking_activity_uploaded = false; // Set this to true when activity is uploade
                         value="<?php echo htmlspecialchars($user['phoneNum']); ?>" required>
                 </div>
 
-                <!-- Description Field -->
-                <div class="form-group">
-                    <label for="description">Description</label>
-                    <textarea class="form-control" id="description" name="description" rows="4"
-                        required><?php echo htmlspecialchars($user['description']); ?></textarea>
-                </div>
 
                 <!-- Buttons -->
                 <div class="form-buttons">

@@ -11,6 +11,7 @@ include ('header.php');
         <title>Legacy Kueh System</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.0/css/all.css">
         <link href="https://fonts.cdnfonts.com/css/product-sans" rel="stylesheet">
 
         <div class="w3-row">
@@ -20,8 +21,8 @@ include ('header.php');
 
 
                 <div class="w3-container w3-center" style="margin-top: 2%;">
-                    <img src="sources/header/logo.png" alt="" width="100px">
-                    <h2><b>Legacy Kueh</b> by Abe Fiwan Expert Studios</h2>
+                    <img src="sources/header/logofull.svg" alt="" width="500px">
+                    
                     <form action="kuehListing.php" method="get">
                         <div class="w3-center" style="text-align: center">
                             <button class="w3-button w3-hover-green w3-border w3-round-large" name="search" value="a" id="">Mulakan Carian Resipi</button>

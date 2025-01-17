@@ -37,6 +37,10 @@ if (isset($_POST['login'])) {
     if ($user) {
         // Successful login
         $_SESSION['username'] = $user['USERNAME'];
+        $_SESSION['email'] = $user['EMAIL'];
+        $_SESSION['phoneNum'] = $user['USERNAME'];
+        $_SESSION['username'] = $user['USERNAME'];
+        $_SESSION['username'] = $user['USERNAME'];
         
         // Redirect to index page
         header("Location: index.php");
@@ -56,7 +60,7 @@ if (isset($_POST['login'])) {
         <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
         <link href="https://fonts.cdnfonts.com/css/product-sans" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-
+<br><br><br><br><br>
 <div class="w3-container w3-row">
     <div class="w3-cell" style="width:55%"></div>
     <div class="w3-container w3-cell" style="width: 400px; background-color: #fff; padding: 40px; border-radius: 8px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);">
@@ -205,9 +209,10 @@ if (isset($_POST['login'])) {
             </button>
         </a>
         <p class="w3-center w3-margin-top">Masih lagi tiada akaun? <a href="userRegister.php" class="w3-text-orange">Daftar Sekarang</a></p>
-    </div><br><br><br>
-    <?php 
-          include ('footer.php'); 
-        ?>
+    </div>
+
+    
 </div>
 </body>
+
+    <img src="sources/footer/footer.png" alt="" style="width: 100%;">
