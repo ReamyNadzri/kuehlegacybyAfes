@@ -68,14 +68,14 @@ function isKuehInFavorites($conn, $kueh_id, $username)
 // Get the username from the session (assuming the user is logged in)
 $username = $_SESSION['username'] ?? null;
 
+// Get kueh_id from query parameter
+$kueh_id = $_GET['id'] ?? null;
+
 // Check if the kueh is in the user's favorites
 $isFavorite = false;
 if ($username && $kueh_id) {
     $isFavorite = isKuehInFavorites($condb, $kueh_id, $username);
 }
-
-// Get kueh_id from query parameter
-$kueh_id = $_GET['id'] ?? null;
 
 if ($kueh_id) {
     $kuehDetails = fetchKuehDetails($condb, $kueh_id);

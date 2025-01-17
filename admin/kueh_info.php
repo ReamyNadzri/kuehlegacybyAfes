@@ -42,7 +42,7 @@ $execute_sql_cari = oci_execute($laksana_sql_cari);
             <h4>LIST OF KUEH</h4>
         </div>
         <div class="w3-col m6">
-            <a href="kueh_form.php" class="w3-button w3-blue w3-round-large w3-right">
+            <a href="kueh_form.php" class="w3-button w3-blue w3-round-large w3-right mb-3">
                 <i class="fas fa-plus"></i> Add New Kueh
             </a>
         </div>
