@@ -148,6 +148,40 @@ oci_close($condb);
             color: #6c757d;
             opacity: 1;
         }
+
+        /* Fixed size for the image container */
+        #imageContainer {
+            width: 300px;
+            /* Fixed width */
+            height: 300px;
+            /* Fixed height */
+            cursor: pointer;
+            overflow: hidden;
+            /* Optional: Add a border for better visibility */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Fixed size for the image */
+        #previewImage {
+            width: 100%;
+            /* Make the image fill the container */
+            height: 100%;
+            /* Make the image fill the container */
+            object-fit: cover;
+            /* Ensure the image covers the container without distortion */
+        }
+
+        /* Hide the file input */
+        #imageUpload {
+            display: none;
+        }
+
+        /* Add a pointer cursor to the image container */
+        #imageContainer {
+            cursor: pointer;
+        }
     </style>
 
 
@@ -156,13 +190,19 @@ oci_close($condb);
         <form method="POST" action="<?php echo $_SERVER['PHP_SELF']; ?>" enctype="multipart/form-data">
             <!-- Existing image and title section -->
             <div class="row">
-                <div class="col-12 col-md-4 my-4">
+                <div class="col-12 col-md-4 my-4" id="imageContainer">
+                    <!-- Image Preview -->
                     <img id="previewImage"
                         src="sources/uploadimage.jpg"
                         class="img-fluid text-center rounded-3"
-                        alt="Uploaded Image Preview"
-                        style="min-height:380px; object-fit: cover;">
-                    <input type="file" name="image" id="imageUpload" class="form-control mt-3" accept="image/*" required>
+                        alt="Uploaded Image Preview">
+
+                    <!-- Hidden File Input -->
+                    <input type="file"
+                        name="image"
+                        id="imageUpload"
+                        accept="image/*"
+                        required>
                 </div>
                 <div class="col-12 col-md gy-4">
                     <div class="col-12 bg-primary">
@@ -307,6 +347,23 @@ oci_close($condb);
             });
         });
 
+        document.getElementById('imageUpload').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('previewImage').src = e.target.result;
+                };
+                reader.readAsDataURL(file); // Convert image to base64 for preview
+            }
+        });
+
+        // Trigger the file input when the image container is clicked
+        document.getElementById('imageContainer').addEventListener('click', function() {
+            document.getElementById('imageUpload').click();
+        });
+
+        // Update the image preview when a file is selected
         document.getElementById('imageUpload').addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {
