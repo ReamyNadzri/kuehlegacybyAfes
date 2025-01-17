@@ -42,9 +42,7 @@ if (isset($_POST['login'])) {
         $_SESSION['username'] = $user['USERNAME'];
         $_SESSION['username'] = $user['USERNAME'];
         
-        // Redirect to index page
-        header("Location: index.php");
-        exit();
+        echo "<script>window.location.href = 'index.php';</script>";
     } else {
         // Login failed
         $errorMessage = "Invalid email or password.";
