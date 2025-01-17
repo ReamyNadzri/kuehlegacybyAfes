@@ -5,9 +5,13 @@ include('connection.php'); // Include the database connection
 
 
 $foodName = $_GET['search']; // Example variable
+
 $sql = "SELECT * FROM KUEH WHERE UPPER(KUEHNAME) LIKE '%' || UPPER(:search) || '%'";
+
 $stid = oci_parse($condb, $sql);
+
 oci_bind_by_name($stid, ':search', $foodName);
+
 oci_execute($stid);
 
 $kuehName = ucfirst(strtolower($foodName)); // Convert first character to uppercase

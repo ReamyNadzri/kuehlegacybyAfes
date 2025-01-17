@@ -205,6 +205,9 @@ if (isset($_POST['login'])) {
             </button>
         </a>
         <p class="w3-center w3-margin-top">Masih lagi tiada akaun? <a href="userRegister.php" class="w3-text-orange">Daftar Sekarang</a></p>
-    </div>
-</div><br><br>
+    </div><br><br><br>
+    <?php 
+          include ('footer.php'); 
+        ?>
+</div>
 </body>

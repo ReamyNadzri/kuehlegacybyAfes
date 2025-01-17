@@ -39,7 +39,7 @@ include('connection.php');
     $emailGoogle = $userinfo->email;
     $nameGoogle = $userinfo->givenName;
     $usernameGoogle = $userinfo->name;
-
+    $pictureGoogle = $userinfo->picture;
 
     $sql = "SELECT * FROM users WHERE email = :email";
 
@@ -69,7 +69,6 @@ include('connection.php');
         if ($resultG) {
             // Store session data
              $_SESSION['username'] = $usernameGoogle;
-
 
             // Redirect to index page
             header("Location: index.php");

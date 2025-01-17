@@ -15,7 +15,7 @@ session_start();
 <body>
 
 <div class="w3-container w3-center w3-red">
-  <h5>KUEH LEGACY 2019 @ 2025</h5>
+  <h5>KUEH LEGACY @ 2025</h5>
 </div>
 <br>
 
@@ -53,7 +53,7 @@ session_start();
 <br>
 <br>
 <footer class="w3-container w3-red w3-center">
-  <h5>LEGACY OF KUEH 2019 @ 2025</h5>
+  <h5>LEGACY OF KUEH @ 2025</h5>
 </footer>
 </div>
 </body>
