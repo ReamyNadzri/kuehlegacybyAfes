@@ -205,7 +205,7 @@ date_default_timezone_set("Asia/Kuala_Lumpur");
                                     <h3>Development Phase Notification</h3>
                                     <p>This website is currently under development. Some features may not be fully functional or available at this time. We appreciate your understanding and welcome your feedback to improve the platform.</p>
                                     <?php 
-                                        include ('debug.html'); 
+                                        //include ('debug.html'); 
                                         //include ('popup.php'); 
                                     ?>
 
