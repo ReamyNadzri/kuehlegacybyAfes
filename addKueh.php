@@ -1,5 +1,5 @@
 <?PHP
-include('header_admin.php');
+include('header.php');
 include('connection.php');
 // Process form submission
 if (isset($_POST['submit'])) {
@@ -142,7 +142,13 @@ oci_close($condb);
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.cdnfonts.com/css/product-sans" rel="stylesheet">
-
+    <style>
+        input::placeholder {
+            font-size: 1.5rem;
+            color: #6c757d;
+            opacity: 1;
+        }
+    </style>
 
     <!--CONTENT START HERE-->
     <div class="container w-75">
@@ -312,3 +318,7 @@ oci_close($condb);
         });
     </script>
 </body>
+
+<?php
+include('footer.php');
+?>
