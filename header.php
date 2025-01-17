@@ -201,7 +201,7 @@ date_default_timezone_set("Asia/Kuala_Lumpur");
                                     <!--CONTENT START HERE-->
                                 <div class="w3-container w3-white" style="margin-top:5px;width: 100%; height: 100%;">
 
-                                <div href="debug.html" class="w3-panel w3-yellow w3-border w3-animate-fading">
+                                <!--<div href="debug.html" class="w3-panel w3-yellow w3-border w3-animate-fading">
                                     <h3>Development Phase Notification</h3>
                                     <p>This website is currently under development. Some features may not be fully functional or available at this time. We appreciate your understanding and welcome your feedback to improve the platform.</p>
                                     <?php 
@@ -211,7 +211,7 @@ date_default_timezone_set("Asia/Kuala_Lumpur");
 
 
 
-                                </div>
+                                </div>-->
                                     
 
 
