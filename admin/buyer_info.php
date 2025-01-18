@@ -1,42 +1,55 @@
-<?PHP
-# Memanggil fail header_admin.php
-include ('header_admin.php');
-# Memanggil fail connection dari folder luaran
-include ('../connection.php');
+<?php
+include('header_admin.php');
+include('connection.php');
 
-# arahan SQL mencari kereta yang masih belum dijual
-$arahan_sql_cari="SELECT * FROM customer";
-# Melaksanakan arahan SQL mencari kereta yang masih belum dijual
-$stmt = oci_parse($condb, $arahan_sql_cari);
+// Fetch all users from the database
+$sql = "SELECT USERNAME, PASSWORD, EMAIL, PHONENUM, NAME FROM USERS";
+$stmt = oci_parse($condb, $sql);
 oci_execute($stmt);
 ?>
-<!-- menyediakan header bagi jadual -->
-<h4>Customer List</h4>
-<table class="w3-table-all" id='saiz' border='1'>
-    <tr class="w3-light-blue">
-        <td>Bil</td>
-        <td>Customer</td>
-        <td>ID</td>
-        <td>Phone Number</td>
-        <td></td>
-    </tr>
-    <?PHP  
-    $bil=0;
-    # pemboleh ubah $rekod mengambail semua data yang ditemui oleh $stmt    
-    while ($rekod = oci_fetch_array($stmt, OCI_ASSOC+OCI_RETURN_NULLS))
-    {
-        # sistem akan memaparkan data $rekod baris demi baris sehingga habis
-        echo "
-        <tr>
-            <td>".++$bil."</td>
-            <td>".$rekod['CUSTOMERNAME']."</td>
-            <td>".$rekod['CUSTOMER_ID']."</td>
-            <td>".$rekod['CUSTOMERTELNUM']."</td>
-            <td><a href='hapus.php?jadual=customer&medan_kp=customer_ID&kp=".$rekod['CUSTOMER_ID']."' onClick=\"return confirm('Confirm delete this item??')\" >Delete</a></td>
-        </tr>";
-    }
+
+<body class="" style="background-color: #FFFAF0;">
+    <link rel="stylesheet" href="style.css">
+    <title>Admin Panel - User Management</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <h4>User List</h4>
+    <table class="w3-table-all" id='saiz' border='1'>
+        <tr class="w3-light-blue">
+            <td>Bil</td>
+            <td>Username</td>
+            <td>Email</td>
+            <td>Phone Number</td>
+            <td>Password</td>
+            <td>Full Name</td>
+            <td>Action</td>
+        </tr>
+        <?php
+        $bil = 0;
+        while ($row = oci_fetch_assoc($stmt)) {
+            echo "<tr>
+                    <td>" . ++$bil . "</td>
+                    <td>{$row['USERNAME']}</td>
+                    <td>{$row['EMAIL']}</td>
+                    <td>{$row['PHONENUM']}</td>
+                    <td>{$row['PASSWORD']}</td>
+                    <td>{$row['NAME']}</td>
+                    <td>
+                        <a href='edit_user.php?username={$row['USERNAME']}' class='w3-button w3-blue w3-small'>Edit</a>
+                        <a href='delete_user.php?username={$row['USERNAME']}' class='w3-button w3-red w3-small' onClick=\"return confirm('Confirm delete this item??')\">Delete</a>
+                    </td>
+                </tr>";
+        }
+        ?>
+    </table>
+
+    <?php
+    // Close the database connection
+    oci_free_statement($stmt);
+    oci_close($condb);
     ?>
-</table>
-<br>
-<br>
-<br>
+
+</body>
