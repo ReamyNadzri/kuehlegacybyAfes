@@ -109,13 +109,15 @@ if (!empty($recipes)) {
     foreach ($recipes as $recipe): ?>
         <div class="col-12 mb-4">
             <a href="kuehDetails.php?id=<?= $recipe['KUEHID'] ?>"
-                class="text-decoration-none shadow-sm text-dark w3-display-container">
-                <div class="card card-hover-effect rounded shadow-sm" style="border: none; height: 190px">
+                class="text-decoration-none shadow-sm text-dark" style="height:100px">
+                <div class="card card-hover-effect rounded shadow-sm" style="border: none;">
                     <div class="row g-0">
                         <div class="col-md-3 w3-display-container">
-                            <img src="<?= $recipe['IMAGE_DATA_URI'] ?>" class="img-fluid rounded-start"
-                                alt="<?= htmlspecialchars($recipe['KUEHNAME']) ?>"
-                                style="max-width: 100%; max-height: 300px; object-fit: cover;">
+                            <div class="card-img-container">
+                                <img src="<?= $recipe['IMAGE_DATA_URI'] ?>" class="img-fluid rounded-start"
+                                    alt="<?= htmlspecialchars($recipe['KUEHNAME']) ?>"
+                                    style="max-width: 100%; max-height: 175px; object-fit: cover;">
+                            </div>
                         </div>
                         <div class="col-md-9">
                             <div class="card-body">
@@ -141,7 +143,7 @@ if (!empty($recipes)) {
                 </div>
             </a>
         </div>
-    <?php endforeach;
+<?php endforeach;
     $response['recipes'] = ob_get_clean();
 } else {
     $response['recipes'] = '<div class="col-12"><p>No recipes found for "' . htmlspecialchars($foodName) . '".</p></div>';

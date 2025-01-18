@@ -216,8 +216,6 @@ $filterOptions = [
             height: 200px;
             /* Fixed height for the image container */
             overflow: hidden;
-            /* Hide any overflow */
-            display: flex;
             align-items: center;
             justify-content: center;
         }
@@ -229,6 +227,10 @@ $filterOptions = [
             /* Make the image fill the container */
             object-fit: cover;
             /* Ensure the image covers the container without distortion */
+        }
+
+        .card {
+            height: 175px;
         }
     </style>
 </head>
@@ -248,13 +250,14 @@ $filterOptions = [
                             <div class="col-12 mb-4">
                                 <a href="kuehDetails.php?id=<?= $recipe['KUEHID'] ?>"
                                     class="text-decoration-none shadow-sm text-dark">
-                                    <div class="card card-hover-effect rounded shadow-sm  border-0" style="height: 200px">
+                                    <div class="card card-hover-effect rounded shadow-sm  border-0">
                                         <div class="row g-0">
                                             <div class="col-md-3">
                                                 <div class="card-img-container">
                                                     <img src="<?= $recipe['IMAGE_DATA_URI'] ?? 'path/to/default/image.jpg' ?>"
                                                         class="img-fluid rounded-start"
-                                                        alt="<?= htmlspecialchars($recipe['KUEHNAME']) ?>">
+                                                        alt="<?= htmlspecialchars($recipe['KUEHNAME']) ?>"
+                                                        style="max-width: 100%; max-height: 175px; object-fit: cover;">>
                                                 </div>
                                             </div>
                                             <div class="col-md-9">
@@ -295,20 +298,6 @@ $filterOptions = [
             <!-- Sidebar Column -->
             <div class="col-md-4">
                 <div class="sticky-sidebar w-100" style="max-width: 300px;">
-                    <!-- Related Searches -->
-
-                    <div class="card-body" style="   border-top: 1px solid gray;">
-                        <h5 class="card-title mb-4">Carian Berkaitan</h5>
-                        <div class="d-flex flex-wrap">
-                            <?php foreach ($relatedSearches as $related): ?>
-                                <a href="?search=<?= urlencode($related) ?>" class="btn related-search-btn">
-                                    <?= htmlspecialchars($related) ?>
-                                </a>
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
-
-
                     <!-- Filter -->
 
                     <div class="card-body">

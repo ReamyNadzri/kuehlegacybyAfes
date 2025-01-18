@@ -129,6 +129,37 @@ $methodOptions = getOptionsWithIdAndName("SELECT METHODID, METHODNAME FROM METHO
 $popularOptions = getOptionsWithIdAndName("SELECT POPULARID, LEVELSTAR FROM POPULARITY", "POPULARID", "LEVELSTAR");
 $originOptions = getOptionsWithIdAndName("SELECT ORIGINCODE, NAMESTATE FROM ORIGIN", "ORIGINCODE", "NAMESTATE");
 
+if (isset($_SESSION['adminid'])) {
+    $adminId = $_SESSION['adminid'];
+    $sql = "SELECT USERNAME, EMAIL, IMAGE FROM admin WHERE USERNAME = :adminid";
+    $stmt = oci_parse($condb, $sql);
+    oci_bind_by_name($stmt, ":adminid", $adminId);
+    oci_execute($stmt);
+    $adminData = oci_fetch_assoc($stmt);
+
+    if ($adminData) {
+        $username = $adminData['USERNAME'];
+        $email = $adminData['EMAIL'];
+        $imageBlob = $adminData['IMAGE']; // This is the BLOB data
+
+        // Convert BLOB to base64
+        if ($imageBlob) {
+            $imageData = base64_encode($imageBlob->load()); // Load the BLOB and encode it
+            $imageSrc = 'data:image/jpeg;base64,' . $imageData; // Create a data URL
+        } else {
+            $imageSrc = 'sources/header/logo.png'; // Default image if no BLOB is found
+        }
+    } else {
+        $username = "Unknown";
+        $email = "unknown@example.com";
+        $imageSrc = 'sources/header/logo.png'; // Default image if no data is found
+    }
+} else {
+    $username = "Unknown";
+    $email = "unknown@example.com";
+    $imageSrc = 'sources/header/logo.png'; // Default image if no session is found
+}
+
 oci_close($condb);
 ?>
 
@@ -212,11 +243,11 @@ oci_close($condb);
                     <div class="col-12">
                         <div class="d-flex align-items-center my-2">
                             <!-- Avatar -->
-                            <img src="sources\header\logo.png" alt="Profile Picture" class="rounded-circle border" width="50" height="50" style="">
+                            <img src="<?php echo $image; ?>" alt="Profile Picture" class="rounded-circle border" width="50" height="50">
                             <!-- Text -->
                             <div class="ms-3">
-                                <h6 class="mb-0">Haziq Akram</h6>
-                                <small class="text-muted">@cook_111408822</small>
+                                <h6 class="mb-0"><?php echo htmlspecialchars($username); ?></h6>
+                                <small class="text-muted"><?php echo htmlspecialchars($email); ?></small>
                             </div>
                         </div>
                     </div>
