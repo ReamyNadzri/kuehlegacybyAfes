@@ -20,8 +20,9 @@ if (isset($_GET['jadual']) && isset($_GET['medan_kp']) && isset($_GET['kp'])) {
     // Execute the query
     if (oci_execute($stmt)) {
         oci_commit($condb);
-        echo "<script>alert('Delete Record Successfully');
-            window.location.href='mainpage.php';</script>";
+        echo "<script>
+        	window.location.href='kueh_info.php?msg=delete_success';
+    	</script>";
     } else {
         $e = oci_error($stmt);
         oci_rollback($condb);

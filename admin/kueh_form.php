@@ -86,9 +86,9 @@ if (isset($_POST['submit'])) {
 
             oci_commit($condb);
             echo "<script>
-                alert('Kueh details saved successfully!');
-                window.location.href = 'kueh_info.php';
+                window.location.href = 'kueh_info.php?msg=add_success';
             </script>";
+            exit();
         } else {
             $e = oci_error($laksana_sql_kueh);
             echo "<script>alert('Error saving kueh details: " . htmlentities($e['message']) . "');</script>";
