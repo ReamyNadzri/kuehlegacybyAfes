@@ -3,18 +3,35 @@ include('header_admin.php');
 include('connection.php');
 // Process form submission
 if (isset($_POST['submit'])) {
-    // Process form data
-    $kuehName = $_POST['kuehName'];
-    $kuehDesc = $_POST['kuehDesc'];
-    $foodTypeCode = $_POST['foodtype'];
-    $methodId = $_POST['method'];
-    $popularId = $_POST['popular'];
-    $originId = $_POST['origin'];
-    $ingredients = $_POST['ingredients'] ?? [];
-    $steps = $_POST['steps'] ?? [];
+    // Check if an image is uploaded
+    if (empty($_FILES['image']['tmp_name'])) {
+        // Show SweetAlert2 toast if no image is uploaded
+        echo "<script>
+            Swal.fire({
+                toast: true,
+                position: 'top',
+                icon: 'error',
+                title: 'Please Insert Image',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                }
+            });
+        </script>";
+    } else {
+        // Process form data if image is uploaded
+        $kuehName = $_POST['kuehName'];
+        $kuehDesc = $_POST['kuehDesc'];
+        $foodTypeCode = $_POST['foodtype'];
+        $methodId = $_POST['method'];
+        $popularId = $_POST['popular'];
+        $originId = $_POST['origin'];
+        $ingredients = $_POST['ingredients'] ?? [];
+        $steps = $_POST['steps'] ?? [];
 
-    // Validate uploaded image
-    if (!empty($_FILES['image']['tmp_name'])) {
         // Initialize BLOB descriptor
         $lob = oci_new_descriptor($condb, OCI_D_LOB);
 
@@ -51,7 +68,6 @@ if (isset($_POST['submit'])) {
             oci_execute($laksana_sql_get_kuehid);
             $kuehIdResult = oci_fetch_assoc($laksana_sql_get_kuehid);
             $kuehId = $kuehIdResult['KUEHID'];
-
 
             // Insert ingredients into ITEMS table
             if (!empty($ingredients)) {
@@ -103,10 +119,9 @@ if (isset($_POST['submit'])) {
         if (isset($laksana_sql_get_kuehid)) {
             oci_free_statement($laksana_sql_get_kuehid);
         }
-    } else {
-        echo "<script>alert('Please Upload Image');</script>";
     }
 }
+
 
 
 
@@ -140,24 +155,7 @@ if (isset($_SESSION['adminid'])) {
     if ($adminData) {
         $username = $adminData['USERNAME'];
         $email = $adminData['EMAIL'];
-        $imageBlob = $adminData['IMAGE']; // This is the BLOB data
-
-        // Convert BLOB to base64
-        if ($imageBlob) {
-            $imageData = base64_encode($imageBlob->load()); // Load the BLOB and encode it
-            $imageSrc = 'data:image/jpeg;base64,' . $imageData; // Create a data URL
-        } else {
-            $imageSrc = 'sources/header/logo.png'; // Default image if no BLOB is found
-        }
-    } else {
-        $username = "Unknown";
-        $email = "unknown@example.com";
-        $imageSrc = 'sources/header/logo.png'; // Default image if no data is found
     }
-} else {
-    $username = "Unknown";
-    $email = "unknown@example.com";
-    $imageSrc = 'sources/header/logo.png'; // Default image if no session is found
 }
 
 oci_close($condb);
@@ -219,7 +217,7 @@ oci_close($condb);
 
     <!--CONTENT START HERE-->
     <div class="container w-75">
-        <form method="POST" action="<?php echo $_SERVER['PHP_SELF']; ?>" enctype="multipart/form-data">
+        <form id="kuehForm" method="POST" action="<?php echo $_SERVER['PHP_SELF']; ?>" enctype="multipart/form-data">
             <!-- Existing image and title section -->
             <div class="row">
                 <div class="col-12 col-md-4 my-4" id="imageContainer">
@@ -233,8 +231,7 @@ oci_close($condb);
                     <input type="file"
                         name="image"
                         id="imageUpload"
-                        accept="image/*"
-                        required>
+                        accept="image/*">
                 </div>
                 <div class="col-12 col-md gy-4">
                     <div class="col-12 bg-primary">
@@ -243,7 +240,7 @@ oci_close($condb);
                     <div class="col-12">
                         <div class="d-flex align-items-center my-2">
                             <!-- Avatar -->
-                            <img src="<?php echo $image; ?>" alt="Profile Picture" class="rounded-circle border" width="50" height="50">
+                            <img src="sources/profile-icon.png" alt="Profile Picture" class="rounded-circle border" width="50" height="50">
                             <!-- Text -->
                             <div class="ms-3">
                                 <h6 class="mb-0"><?php echo htmlspecialchars($username); ?></h6>
@@ -404,6 +401,34 @@ oci_close($condb);
                     document.getElementById('previewImage').src = e.target.result;
                 };
                 reader.readAsDataURL(file); // Convert image to base64 for preview
+            }
+        });
+
+        document.getElementById('kuehForm').addEventListener('submit', function(event) {
+
+            // Check if an image is uploaded
+            const imageInput = document.getElementById('imageUpload');
+            if (!imageInput.files || imageInput.files.length === 0) {
+                // Prevent the form from submitting if no image is uploaded
+                event.preventDefault();
+
+                // Show SweetAlert2 toast if no image is uploaded
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'error',
+                    title: 'Please Insert Image',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer);
+                        toast.addEventListener('mouseleave', Swal.resumeTimer);
+                    }
+                });
+            } else {
+                // If an image is uploaded, submit the form
+                this.submit();
             }
         });
     </script>
