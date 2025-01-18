@@ -1,47 +1,3 @@
-<?php
-// Include the connection file
-include('connection.php');
-
-// Start the session
-session_start();
-
-// Check if form is submitted
-if (isset($_POST['register'])) {
-   
-    $username = $_POST['username'];
-    $password = $_POST['password'];  
-    $email = $_POST['email'];
-    $phoneNum = $_POST['phoneNum'];
-    $name = $_POST['name'];
-
-    $sql = "INSERT INTO users (username, password, email, phoneNum, name) VALUES (:username, :password, :email, :phoneNum, :name)";
-
-    // Prepare the statement
-    $stmt = oci_parse($condb, $sql);
-
-    // Bind the parameters
-    oci_bind_by_name($stmt, ':username', $username);
-    oci_bind_by_name($stmt, ':password', $password);  
-    oci_bind_by_name($stmt, ':email', $email);
-    oci_bind_by_name($stmt, ':phoneNum', $phoneNum);
-    oci_bind_by_name($stmt, ':name', $name);
-
-    // Execute the query
-    $result = oci_execute($stmt);
-
-    if ($result) {
-        // Store session data
-        $_SESSION['username'] = $username;
-        
-        // Redirect to userLogin.php
-        header("Location: userLogin.php");
-        exit();
-    } else {
-        echo "Error: Registration failed.";
-    }
-}
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -64,12 +20,16 @@ if (isset($_POST['register'])) {
         }
 
         .form-container {
-            background-color: white;
-            padding: 30px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
             border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
             width: 100%;
             max-width: 400px;
+            position: relative;
+            z-index: 2;
         }
 
         .form-container h2 {
@@ -136,36 +96,80 @@ if (isset($_POST['register'])) {
             color: orange;
             text-decoration: none;
         }
+
+        .image-side {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 25%;
+            /* Reduce the width of the image containers */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+            /* Images are behind the login form */
+        }
+
+        .image-side img {
+            max-width: 100%;
+            /* Ensure the image doesn't exceed the width of its container */
+            max-height: 100%;
+            /* Ensure the image doesn't exceed the height of its container */
+            object-fit: cover;
+            /* Ensure the image covers the container without distortion */
+            border-radius: 10px;
+            /* Optional: Add rounded corners */
+        }
+
+        .left-image {
+            left: 400px;
+            /* Adjust the position of the left image */
+        }
+
+        .right-image {
+            right: 400px;
+            /* Adjust the position of the right image */
+        }
     </style>
 </head>
 
 <body>
-    <div class="form-container">
-        <h2>Daftar Akaun Baharu</h2>
-        <form method="post" action="">
-            <div class="input-container">
-                <i class="fas fa-user"></i>
-                <input type="text" name="username" placeholder="Nama Pengguna" required>
-            </div>
-            <div class="input-container">
-                <i class="fas fa-lock"></i>
-                <input type="password" name="password" placeholder="Kata laluan" required>
-            </div>
-            <div class="input-container">
-                <i class="fas fa-envelope"></i>
-                <input type="email" name="email" placeholder="Email" required>
-            </div>
-            <div class="input-container">
-                <i class="fas fa-phone"></i>
-                <input type="text" name="phoneNum" placeholder="Nombor Telefon" required>
-            </div>
-            <div class="input-container">
-                <i class="fas fa-user"></i>
-                <input type="text" name="name" placeholder="Nama Penuh" required>
-            </div>
-            <button type="submit" name="register" class="w3-button">Register</button>
-        </form>
-        <p class="footer-text">Sudah ada akaun? <a href="userLogin.php">Log masuk</a></p>
+    <div class="container-fluid">
+        <div class="image-side left-image">
+            <img src="sources/register/kueh2.png" alt="Left Image" class="img-fluid">
+        </div>
+
+        <div class="form-container">
+            <h2>Daftar Akaun Baharu</h2>
+            <form method="post" action="">
+                <div class="input-container">
+                    <i class="fas fa-user"></i>
+                    <input type="text" name="username" placeholder="Nama Pengguna" required>
+                </div>
+                <div class="input-container">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" name="password" placeholder="Kata laluan" required>
+                </div>
+                <div class="input-container">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" name="email" placeholder="Email" required>
+                </div>
+                <div class="input-container">
+                    <i class="fas fa-phone"></i>
+                    <input type="text" name="phoneNum" placeholder="Nombor Telefon" required>
+                </div>
+                <div class="input-container">
+                    <i class="fas fa-user"></i>
+                    <input type="text" name="name" placeholder="Nama Penuh" required>
+                </div>
+                <button type="submit" name="register" class="w3-button">Register</button>
+            </form>
+            <p class="footer-text">Sudah ada akaun? <a href="userLogin.php">Log masuk</a></p>
+        </div>
+
+        <div class="image-side right-image">
+            <img src="sources/register/kueh1.png" alt="Right Image" class="img-fluid">
+        </div>
     </div>
 </body>
 

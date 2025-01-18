@@ -127,7 +127,7 @@ oci_free_statement($laksana_sql_bilcust);
   <div style=" margin:0 auto; width:80%;">
 
     <header class="w3-container" style="padding: top 5px;">
-      <h3><i class="fa fa-dashboard"></i> Quick Overview</h3>
+      <h2><i class="fa fa-dashboard"></i> Quick Overview</h2><br>
     </header>
 
     <div class="w3-row-padding w3-margin-bottom">
@@ -219,11 +219,11 @@ oci_free_statement($laksana_sql_bilcust);
           <h3>Total Admin</h3>
         </div>
       </div>
-      <div class="w3-half w3-container" style="height:60px">
+      <div class="w3-half w3-container" style="height:50px">
         <a href="../index.php">
           <div class="w3-container w3-card-2 w3-border w3-round-xlarge w3-padding-16">
             <div class="w3-right w3-cell">
-              <img class="w3-col w3-margin w3-row-padding" style="height:90px; width: auto;" src='sources/logo1.png'>
+              <img class="w3-col w3-margin w3-row-padding" style="height:66px; width: auto;" src='sources/logo1.png'>
             </div>
             <div class="w3-clear w3-cell">
               <h3>View the Website</h3>

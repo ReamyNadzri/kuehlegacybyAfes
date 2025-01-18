@@ -136,7 +136,9 @@ if ($kueh_id) {
                         <i class="bi <?php echo $isFavorite ? 'bi-bookmark-fill' : 'bi-bookmark'; ?>"></i> Simpan Resipi
                     </button>
                     <button type="button" class="btn btn-outline-secondary me-2 fw-bold"><i class="bi bi-folder-plus"></i> Tambah ke folder</button>
-                    <button type="button" class="btn btn-outline-secondary me-2 fw-bold" onclick="copyToClipboard()"><i class="bi bi-upload"></i> Kongsi</button>
+                    <button type="button" class="btn btn-outline-secondary me-2 fw-bold" onclick="copyToClipboard()">
+                        <i class="bi bi-upload"></i> Kongsi
+                    </button>
                     <button type="button" class="btn btn-outline-secondary fw-bold"><i class="bi bi-printer"></i> Cetak</button>
                     <button type="button" class="btn btn-outline-secondary fw-bold border-0"><i class="bi bi-three-dots"></i></button>
                 </div>
@@ -185,13 +187,37 @@ if ($kueh_id) {
         // Copy the URL to the clipboard
         navigator.clipboard.writeText(currentUrl)
             .then(() => {
-                // Show a notification that the link has been copied
-                alert('Link has been copied to clipboard!');
+                // Show a SweetAlert2 success notification
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'success',
+                    title: 'Link has been copied to clipboard!',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer);
+                        toast.addEventListener('mouseleave', Swal.resumeTimer);
+                    }
+                });
             })
             .catch((error) => {
-                // Handle any errors
+                // Show a SweetAlert2 error notification if copying fails
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'error',
+                    title: 'Failed to copy link to clipboard!',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer);
+                        toast.addEventListener('mouseleave', Swal.resumeTimer);
+                    }
+                });
                 console.error('Failed to copy link: ', error);
-                alert('Failed to copy link. Please try again.');
             });
     }
 

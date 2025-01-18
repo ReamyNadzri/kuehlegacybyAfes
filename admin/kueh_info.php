@@ -29,7 +29,7 @@ $execute_sql_cari = oci_execute($laksana_sql_cari);
         width: 1000px;
     }
 
-    img {
+    .imgkueh {
         width: 100px;
         height: 100px;
         object-fit: cover;
@@ -54,7 +54,6 @@ $execute_sql_cari = oci_execute($laksana_sql_cari);
                     <th class="w3-center">Bil</th>
                     <th>Name</th>
                     <th class="w3-hide-small">Description</th>
-                    <th>Tag</th>
                     <th>Type</th>
                     <th>Origin</th>
                     <th>Method</th>
@@ -78,13 +77,12 @@ $execute_sql_cari = oci_execute($laksana_sql_cari);
                         <td class='w3-center'>" . ++$bil . "</td>
                         <td>" . htmlspecialchars($rekod['KUEHNAME']) . "</td>
                         <td class='w3-hide-small'>" . htmlspecialchars($rekod['KUEHDESC']) . "</td>
-                        <td>" . htmlspecialchars($rekod['TAGKUEH']) . "</td>
                         <td>" . htmlspecialchars($rekod['TYPENAME']) . "</td>
                         <td>" . htmlspecialchars($rekod['ORIGIN']) . "</td>
                         <td>" . htmlspecialchars($rekod['METHODNAME']) . "</td>
                         <td>";
                     if ($base64Image) {
-                        echo "<img src='data:image/jpeg;base64," . $base64Image . "' alt='Kueh Image'>";
+                        echo "<img class='imgkueh' src='data:image/jpeg;base64," . $base64Image . "' alt='Kueh Image'>";
                     } else {
                         echo "No Image";
                     }
@@ -130,7 +128,7 @@ if (isset($_GET['msg'])) {
         document.addEventListener('DOMContentLoaded', function() {
             Swal.fire({
                 toast: true,
-                position: 'top-end',
+                position: 'top',
                 icon: '$icon',
                 title: '$toastMessage',
                 showConfirmButton: false,
