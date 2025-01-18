@@ -11,6 +11,8 @@ date_default_timezone_set("Asia/Kuala_Lumpur");
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link href="https://fonts.cdnfonts.com/css/product-sans" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
@@ -196,7 +198,7 @@ date_default_timezone_set("Asia/Kuala_Lumpur");
 
                         </div>
                         <a href='userProfile.php'>
-                            <div class="w3-cell w3-right" style="margin-right: 15px; "> <!--PROFILE (HIDDEN)-->
+                            <div class="w3-cell w3-right text-black" style="margin-right: 15px; "> <!--PROFILE (HIDDEN)-->
                                 <?php
                                 if (isset($_SESSION['google_user'])) {
                                     $profilegambor = $_SESSION['google_user']['picture'];
