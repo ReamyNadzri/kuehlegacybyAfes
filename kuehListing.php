@@ -209,6 +209,27 @@ $filterOptions = [
             margin-top: 0;
             /* Ensure no extra space at the top */
         }
+
+        .card-img-container {
+            width: 100%;
+            /* Fixed width for the image container */
+            height: 200px;
+            /* Fixed height for the image container */
+            overflow: hidden;
+            /* Hide any overflow */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-img-container img {
+            width: 100%;
+            /* Make the image fill the container */
+            height: 100%;
+            /* Make the image fill the container */
+            object-fit: cover;
+            /* Ensure the image covers the container without distortion */
+        }
     </style>
 </head>
 
@@ -227,12 +248,14 @@ $filterOptions = [
                             <div class="col-12 mb-4">
                                 <a href="kuehDetails.php?id=<?= $recipe['KUEHID'] ?>"
                                     class="text-decoration-none shadow-sm text-dark">
-                                    <div class="card card-hover-effect rounded shadow-sm  border-0">
+                                    <div class="card card-hover-effect rounded shadow-sm  border-0" style="height: 200px">
                                         <div class="row g-0">
-                                            <div class="col-md-3 ">
-                                                <img src="<?= $recipe['IMAGE_DATA_URI'] ?>" class="img-fluid rounded-start"
-                                                    alt="<?= htmlspecialchars($recipe['KUEHNAME']) ?>"
-                                                    style="max-width: 100%; max-height: 100%; object-fit: cover;">
+                                            <div class="col-md-3">
+                                                <div class="card-img-container">
+                                                    <img src="<?= $recipe['IMAGE_DATA_URI'] ?? 'path/to/default/image.jpg' ?>"
+                                                        class="img-fluid rounded-start"
+                                                        alt="<?= htmlspecialchars($recipe['KUEHNAME']) ?>">
+                                                </div>
                                             </div>
                                             <div class="col-md-9">
                                                 <div class="card-body">
@@ -323,7 +346,7 @@ $filterOptions = [
     <?php include('footer.php'); ?>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const withInput = document.getElementById('withInput');
             const withoutInput = document.getElementById('withoutInput');
             const withTagsContainer = document.getElementById('withTags');
@@ -381,7 +404,7 @@ $filterOptions = [
             }
 
             // Handle "With" input
-            withInput.addEventListener('keydown', function (e) {
+            withInput.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') {
                     e.preventDefault(); // Prevent form submission
                     const value = withInput.value.trim();
@@ -394,7 +417,7 @@ $filterOptions = [
             });
 
             // Handle "Without" input
-            withoutInput.addEventListener('keydown', function (e) {
+            withoutInput.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') {
                     e.preventDefault(); // Prevent form submission
                     const value = withoutInput.value.trim();

@@ -22,8 +22,8 @@ if (isset($_POST['submit'])) {
         $imageData = file_get_contents($_FILES['image']['tmp_name']);
 
         // Insert into KUEH table
-        $sql_kueh = "INSERT INTO KUEH (KUEHNAME, KUEHDESC, FOODTYPECODE, METHODID, POPULARID, ORIGINID, IMAGE) 
-                     VALUES (:kuehName, :kuehDesc, :foodTypeCode, :methodId, :popularId, :originId, EMPTY_BLOB())
+        $sql_kueh = "INSERT INTO KUEH (KUEHNAME, KUEHDESC, FOODTYPECODE, METHODID, POPULARID, ORIGINID, IMAGE, USERNAME) 
+                     VALUES (:kuehName, :kuehDesc, :foodTypeCode, :methodId, :popularId, :originId, EMPTY_BLOB(), :username)
                      RETURNING IMAGE INTO :image";
         $laksana_sql_kueh = oci_parse($condb, $sql_kueh);
 
@@ -35,6 +35,7 @@ if (isset($_POST['submit'])) {
         oci_bind_by_name($laksana_sql_kueh, ":popularId", $popularId);
         oci_bind_by_name($laksana_sql_kueh, ":originId", $originId);
         oci_bind_by_name($laksana_sql_kueh, ":image", $lob, -1, SQLT_BLOB);
+        oci_bind_by_name($laksana_sql_kueh, ":username", $_SESSION['adminid']);
 
         // Execute the query
         if (oci_execute($laksana_sql_kueh, OCI_DEFAULT)) {
