@@ -1,5 +1,6 @@
 <?php 
-include ('header.php'); 
+include ('topheader.php'); 
+include ('bottomheader.php'); 
 //include ('popup.php'); 
 ?>
 

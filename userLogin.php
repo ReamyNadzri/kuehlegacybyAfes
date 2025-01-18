@@ -177,7 +177,7 @@ if (isset($_POST['login'])) {
             z-index: 2;
         }
 
-        .w3-input {
+        .w3-input1 {
             width: 100%;
             padding: 10px;
             margin-bottom: 15px;
@@ -186,7 +186,7 @@ if (isset($_POST['login'])) {
             font-size: 16px;
         }
 
-        .w3-button {
+        .w3-button1 {
             width: 100%;
             padding: 10px;
             background-color: orange;
@@ -197,7 +197,7 @@ if (isset($_POST['login'])) {
             cursor: pointer;
         }
 
-        .w3-button:hover {
+        .w3-button1:hover {
             background-color: #e95b4f;
         }
 
@@ -278,13 +278,13 @@ if (isset($_POST['login'])) {
         <form method="post" action="">
             <div class="w3-margin-bottom">
                 <div class="input-container">
-                    <input type="email" name="email" class="w3-input w3-border w3-round-large" placeholder="Email" required>
+                    <input type="email" name="email" class="w3-input1 w3-border w3-round-large" placeholder="Email" required>
                 </div>
             </div>
             <div class="w3-margin-bottom">
-                <input type="password" name="password" class="w3-input w3-border w3-round-large" placeholder="Kata laluan" required>
+                <input type="password" name="password" class="w3-input1 w3-border w3-round-large" placeholder="Kata laluan" required>
             </div>
-            <button type="submit" name="login" class="w3-button w3-block w3-round-large w3-blue w3-margin-top w3-orange">Login</button>
+            <button type="submit" name="login" class="w3-button1 w3-block w3-round-large w3-blue w3-margin-top w3-orange">Login</button>
         </form>
         <hr>
 
