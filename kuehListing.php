@@ -3,9 +3,6 @@ include('connection.php'); // Include the database connection
 
 // Fetch data from the KUEH table
 $foodName = $_GET['search'] ?? ''; // Use null coalescing operator to avoid undefined index notice
-$withIngredients = isset($_GET['with']) ? explode(',', $_GET['with']) : [];
-$withoutIngredients = isset($_GET['without']) ? explode(',', $_GET['without']) : [];
-
 // Validate and sanitize input
 $foodName = trim($foodName);
 $foodName = htmlspecialchars($foodName, ENT_QUOTES, 'UTF-8');
@@ -16,43 +13,11 @@ $sql = "SELECT k.KUEHID, k.KUEHNAME, LISTAGG(i.NAMEITEM, ', ') WITHIN GROUP (ORD
         JOIN ITEMS i ON k.KUEHID = i.KUEHID
         WHERE UPPER(k.KUEHNAME) LIKE '%' || UPPER(:search) || '%'";
 
-// Add "WITH" conditions (untuk filter kueh)
-if (!empty($withIngredients)) {
-    $sql .= " AND (";
-    foreach ($withIngredients as $index => $ingredient) {
-        if ($index > 0)
-            $sql .= " OR ";
-        $sql .= "UPPER(i.NAMEITEM) LIKE '%' || UPPER(:with$index) || '%'";
-    }
-    $sql .= ")";
-}
-
-// Add "WITHOUT" conditions (untuk filter kueh)
-if (!empty($withoutIngredients)) {
-    $sql .= " AND NOT (";
-    foreach ($withoutIngredients as $index => $ingredient) {
-        if ($index > 0)
-            $sql .= " OR ";
-        $sql .= "UPPER(i.NAMEITEM) LIKE '%' || UPPER(:without$index) || '%'";
-    }
-    $sql .= ")";
-}
-
 $sql .= " GROUP BY k.KUEHID, k.KUEHNAME";
 $stid = oci_parse($condb, $sql);
 
 // Bind search parameter
 oci_bind_by_name($stid, ':search', $foodName);
-
-// Bind "WITH" parameters
-foreach ($withIngredients as $index => $ingredient) {
-    oci_bind_by_name($stid, ":with$index", $ingredient);
-}
-
-// Bind "WITHOUT" parameters
-foreach ($withoutIngredients as $index => $ingredient) {
-    oci_bind_by_name($stid, ":without$index", $ingredient);
-}
 
 // Execute the query
 if (oci_execute($stid)) {
@@ -368,86 +333,89 @@ $filterOptions = [
             const withoutInput = document.getElementById('withoutInput');
             const withTagsContainer = document.getElementById('withTags');
             const withoutTagsContainer = document.getElementById('withoutTags');
-            const recipeContainer = document.getElementById('recipeContainer'); // Container for recipes
+            const recipeContainer = document.getElementById('recipeContainer');
 
             let withTags = [];
             let withoutTags = [];
 
-            // Function to create a tag
-            function createTag(value, container, tagArray) {
+            function createTag(value, container, tagArray, isWithout = false) {
                 const tag = document.createElement('div');
                 tag.className = 'related-search-btn me-2 mb-2';
                 tag.textContent = value;
 
-                // Add a remove button
                 const removeButton = document.createElement('span');
                 removeButton.className = 'ms-2';
                 removeButton.innerHTML = '&times;';
                 removeButton.style.cursor = 'pointer';
-                removeButton.addEventListener('click', () => {
+                removeButton.onclick = function(e) {
+                    e.preventDefault();
                     container.removeChild(tag);
                     const index = tagArray.indexOf(value);
                     if (index !== -1) {
                         tagArray.splice(index, 1);
-                        updateRecipes(); // Update recipes when a tag is removed
                     }
-                });
+                    updateRecipes();
+                };
 
                 tag.appendChild(removeButton);
                 container.appendChild(tag);
-
-                // Add to the tag array
                 tagArray.push(value);
             }
 
-            // Function to update recipes dynamically
             function updateRecipes() {
-                const params = new URLSearchParams();
-                params.append('search', '<?= $foodName ?>'); // Pass the search term
-                if (withTags.length > 0) params.append('with', withTags.join(','));
-                if (withoutTags.length > 0) params.append('without', withoutTags.join(','));
+                const searchParams = new URLSearchParams();
+                searchParams.append('search', '<?= $foodName ?>');
 
-                fetch(`fetchrecipes.php?${params.toString()}`)
-                    .then(response => response.json()) // Expect JSON response
+                if (withTags.length > 0) {
+                    searchParams.append('with', withTags.join(','));
+                }
+
+                if (withoutTags.length > 0) {
+                    searchParams.append('without', withoutTags.join(','));
+                }
+
+                // Debug log
+                console.log('Sending parameters:', {
+                    withTags,
+                    withoutTags,
+                    queryString: searchParams.toString()
+                });
+
+                fetch('fetchrecipes.php?' + searchParams.toString())
+                    .then(response => response.json())
                     .then(data => {
-                        // Update the recipe listing
                         recipeContainer.innerHTML = data.recipes;
-
-                        // Update the recipe count in the heading
-                        const recipeCountHeading = document.getElementById('recipeCountHeading');
-                        recipeCountHeading.textContent = `(${data.total_recipes}) resipi <?= htmlspecialchars($kuehName) ?>`;
+                        document.getElementById('recipeCountHeading').textContent =
+                            `(${data.total_recipes}) resipi <?= htmlspecialchars($kuehName) ?>`;
                     })
-                    .catch(error => console.error('Error fetching recipes:', error));
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
             }
 
-            // Handle "With" input
             withInput.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') {
-                    e.preventDefault(); // Prevent form submission
-                    const value = withInput.value.trim();
+                    e.preventDefault();
+                    const value = this.value.trim();
                     if (value && !withTags.includes(value)) {
-                        createTag(value, withTagsContainer, withTags);
-                        withInput.value = ''; // Clear the input field
-                        updateRecipes(); // Update recipes when a new tag is added
+                        createTag(value, withTagsContainer, withTags, false);
+                        this.value = '';
+                        updateRecipes();
                     }
                 }
             });
 
-            // Handle "Without" input
             withoutInput.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') {
-                    e.preventDefault(); // Prevent form submission
-                    const value = withoutInput.value.trim();
+                    e.preventDefault();
+                    const value = this.value.trim();
                     if (value && !withoutTags.includes(value)) {
-                        createTag(value, withoutTagsContainer, withoutTags);
-                        withoutInput.value = ''; // Clear the input field
-                        updateRecipes(); // Update recipes when a new tag is added
+                        createTag(value, withoutTagsContainer, withoutTags, true);
+                        this.value = '';
+                        updateRecipes();
                     }
                 }
             });
-
-            // Initial load of recipes
-            updateRecipes();
         });
 
         function toggleFavorite(kueh_id, event) {

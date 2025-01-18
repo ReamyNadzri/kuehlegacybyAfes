@@ -4,53 +4,52 @@ include('connection.php'); // Include the database connection
 
 // Fetch data from the KUEH table
 $foodName = $_GET['search'] ?? ''; // Use null coalescing operator to avoid undefined index notice
-$withIngredients = isset($_GET['with']) ? explode(',', $_GET['with']) : [];
-$withoutIngredients = isset($_GET['without']) ? explode(',', $_GET['without']) : [];
+$withIngredients = isset($_GET['with']) ? array_filter(explode(',', $_GET['with'])) : [];
+$withoutIngredients = isset($_GET['without']) ? array_filter(explode(',', $_GET['without'])) : [];
 
 // Validate and sanitize input
 $foodName = trim($foodName);
 $foodName = htmlspecialchars($foodName, ENT_QUOTES, 'UTF-8');
 
 // Prepare SQL statement
-$sql = "SELECT k.KUEHID, k.KUEHNAME, LISTAGG(i.NAMEITEM, ', ') WITHIN GROUP (ORDER BY i.NAMEITEM) AS ITEMS
+$sql = "SELECT DISTINCT k.KUEHID, k.KUEHNAME, LISTAGG(i.NAMEITEM, ', ') WITHIN GROUP (ORDER BY i.NAMEITEM) AS ITEMS
         FROM KUEH k
         JOIN ITEMS i ON k.KUEHID = i.KUEHID
         WHERE UPPER(k.KUEHNAME) LIKE '%' || UPPER(:search) || '%'";
 
-// Add "WITH" conditions
+// Add WITH conditions
 if (!empty($withIngredients)) {
-    $sql .= " AND (";
-    foreach ($withIngredients as $index => $ingredient) {
-        if ($index > 0)
-            $sql .= " OR ";
-        $sql .= "UPPER(i.NAMEITEM) LIKE '%' || UPPER(:with$index) || '%'";
-    }
-    $sql .= ")";
+    $sql .= " AND k.KUEHID IN (
+        SELECT KUEHID 
+        FROM ITEMS 
+        WHERE " . implode(" OR ", array_map(function ($i) {
+        return "UPPER(NAMEITEM) LIKE '%' || UPPER(:with$i) || '%'";
+    }, array_keys($withIngredients))) . ")";
 }
 
-// Add "WITHOUT" conditions
+// Add WITHOUT conditions
 if (!empty($withoutIngredients)) {
-    $sql .= " AND NOT (";
     foreach ($withoutIngredients as $index => $ingredient) {
-        if ($index > 0)
-            $sql .= " OR ";
-        $sql .= "UPPER(i.NAMEITEM) LIKE '%' || UPPER(:without$index) || '%'";
+        $sql .= " AND k.KUEHID NOT IN (
+            SELECT KUEHID 
+            FROM ITEMS 
+            WHERE UPPER(NAMEITEM) LIKE '%' || UPPER(:without$index) || '%'
+        )";
     }
-    $sql .= ")";
 }
 
 $sql .= " GROUP BY k.KUEHID, k.KUEHNAME";
+
+// Prepare and execute the statement
 $stid = oci_parse($condb, $sql);
 
-// Bind search parameter
+// Bind parameters
 oci_bind_by_name($stid, ':search', $foodName);
 
-// Bind "WITH" parameters
 foreach ($withIngredients as $index => $ingredient) {
     oci_bind_by_name($stid, ":with$index", $ingredient);
 }
 
-// Bind "WITHOUT" parameters
 foreach ($withoutIngredients as $index => $ingredient) {
     oci_bind_by_name($stid, ":without$index", $ingredient);
 }
