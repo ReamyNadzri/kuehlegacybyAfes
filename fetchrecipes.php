@@ -1,4 +1,5 @@
 <?php
+session_start();
 include('connection.php'); // Include the database connection
 
 // Fetch data from the KUEH table
@@ -86,6 +87,21 @@ if (oci_execute($stid)) {
         }
 
         oci_free_statement($blobStmt);
+
+        // Check if the kueh is in the user's favorites
+        $username = $_SESSION['username'] ?? null;
+        $isFavorite = false;
+        if ($username) {
+            $sql_check = "SELECT COUNT(*) AS count FROM FAVORITE WHERE KUEHID = :kueh_id AND USERNAME = :username";
+            $stid_check = oci_parse($condb, $sql_check);
+            oci_bind_by_name($stid_check, ':kueh_id', $row['KUEHID']);
+            oci_bind_by_name($stid_check, ':username', $username);
+            oci_execute($stid_check);
+            $favoriteRow = oci_fetch_array($stid_check, OCI_ASSOC);
+            $isFavorite = ($favoriteRow['COUNT'] > 0);
+        }
+
+        $row['IS_FAVORITE'] = $isFavorite; // Add the favorite status to the row
         $recipes[] = $row;
         $total_recipes++;
     }
@@ -116,7 +132,7 @@ if (!empty($recipes)) {
                             <div class="card-img-container">
                                 <img src="<?= $recipe['IMAGE_DATA_URI'] ?>" class="img-fluid rounded-start"
                                     alt="<?= htmlspecialchars($recipe['KUEHNAME']) ?>"
-                                    style="max-width: 100%; max-height: 175px; object-fit: cover;">
+                                    style="max-width: 100%; max-height: 200px; object-fit: cover;">
                             </div>
                         </div>
                         <div class="col-md-9">
@@ -125,14 +141,16 @@ if (!empty($recipes)) {
                                     <strong>
                                         <h2 class="card-title"><?= htmlspecialchars($recipe['KUEHNAME']) ?></h2>
                                     </strong>
-                                    <button class="btn btn-light"><i class="far fa-bookmark"></i></button>
+                                    <button class="btn btn-light" onclick="toggleFavorite(<?= $recipe['KUEHID'] ?>, event)">
+                                        <i class="bi <?= $recipe['IS_FAVORITE'] ? 'bi-bookmark-fill' : 'bi-bookmark' ?>"></i>
+                                    </button>
                                 </div>
                                 <p class="card-text" style="font-size: 1.1rem;">
                                     <?= htmlspecialchars($recipe['ITEMS']) ?>
                                 </p>
-                                <div class="d-flex align-items-center">
-                                    <img src="sources\header\logo.png" alt="Profile Picture" class="rounded-circle me-2 border"
-                                        width="40" height="40">
+                                <div class="d-flex align-items-center mt-auto"> <!-- Add mt-auto here -->
+                                    <img src="sources\header\logo.png" alt="Profile Picture"
+                                        class="rounded-circle me-2 border" width="40" height="40">
                                     <p class="card-text" style="font-size: 1.1rem;">
                                         <?= htmlspecialchars($recipe['NAMECREATOR']) ?>
                                     </p>

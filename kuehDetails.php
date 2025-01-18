@@ -106,7 +106,13 @@ if ($kueh_id) {
         <div class="row">
             <div class="col-12 col-md-4 my-4">
                 <?php if (isset($kuehDetails['KUEH_IMAGE_BASE64'])): ?>
-                    <img src="<?php echo $kuehDetails['KUEH_IMAGE_BASE64']; ?>" class="img-fluid text-center rounded-3" alt="<?php echo $kuehDetails['KUEHNAME']; ?>" style="min-height:380px; object-fit: cover;">
+                    <!-- Fixed size image container -->
+                    <div style="width: 300px; height: 300px; overflow: hidden; border-radius: 10px;">
+                        <img src="<?php echo $kuehDetails['KUEH_IMAGE_BASE64']; ?>"
+                            class="img-fluid text-center rounded-3"
+                            alt="<?php echo $kuehDetails['KUEHNAME']; ?>"
+                            style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
                 <?php else: ?>
                     <p>No image available.</p>
                 <?php endif; ?>
@@ -245,7 +251,7 @@ if ($kueh_id) {
                         // Show success toast for adding to favorites
                         Swal.fire({
                             toast: true,
-                            position: 'top-end',
+                            position: 'top',
                             icon: 'success',
                             title: 'Added to favorites!',
                             showConfirmButton: false,
@@ -264,7 +270,7 @@ if ($kueh_id) {
                         // Show success toast for removing from favorites
                         Swal.fire({
                             toast: true,
-                            position: 'top-end',
+                            position: 'top',
                             icon: 'success',
                             title: 'Removed from favorites!',
                             showConfirmButton: false,
@@ -280,7 +286,7 @@ if ($kueh_id) {
                     // Show error toast if the operation failed
                     Swal.fire({
                         toast: true,
-                        position: 'top-end',
+                        position: 'top',
                         icon: 'error',
                         title: 'Failed to toggle favorite status: ' + data.message,
                         showConfirmButton: false,
@@ -299,7 +305,7 @@ if ($kueh_id) {
                 // Show error toast for unexpected errors
                 Swal.fire({
                     toast: true,
-                    position: 'top-end',
+                    position: 'top',
                     icon: 'error',
                     title: 'An error occurred while toggling favorite status.',
                     showConfirmButton: false,
