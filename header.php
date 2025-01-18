@@ -134,7 +134,7 @@ date_default_timezone_set("Asia/Kuala_Lumpur");
                 </a>
                 <a href="favorite.php" class="w3-bar-item w3-button w3-round w3-large" style="margin-left :6px; margin-right: 10px ;width: 94%; text-align: left; color: #181513;">
                     <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAACXBIWXMAAAsTAAALEwEAmpwYAAABEElEQVR4nO2aMQ4CIRBFuYceyFNswRc2TOKRLOxMLPVEa6XGQi+gMbpZCxKbAYT8l9Ay+8KfKWCNIZWyXK7m1oUdvNzh5ZF7GTUJL9cSAtAU+ZzEw/qw7/p+ZjICTZExTrklUojobVayNiKbwcvC+nBU7QUnw2vfvCLvovqN7WTIK5IgbkhdhyJVnIhrp0cW6jKuwNTKBSgSgSeiABitCIyWAmC0IjBaCoDRisBoKQBGKwKjpQAYrQiMlgJgtCJMFwRhbb1cktye/FhGgxIfjpQiJd5HVBlFqpb4Fnk9wZmawZTVQ9UyaK3Z0YqI5dT6E6yTUxtTy8mmianV9f0MPpyrb/bppxrZwoVb1SLE5OEJ3fVbDkbibuIAAAAASUVORK5CYII=" alt="book-stack" style="padding-bottom:3px;margin-right:8px;text-align:center; width:25px">
-                    Koleksi Anda
+                    Kegemaran 
                 </a><br>
                 <?PHP
                 if (empty($_SESSION['username'])) {

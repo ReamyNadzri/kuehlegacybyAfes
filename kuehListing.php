@@ -238,7 +238,7 @@ $filterOptions = [
 <body>
     <?php include('header.php'); ?>
     <div class="container py-4">
-        <h2 id="recipeCountHeading" class="mb-4">(<?= $total_recipes ?>) resipi <?= htmlspecialchars($kuehName) ?></h2>
+        <h2 id="recipeCountHeading" class="mb-4">(<?= $total_recipes ?>) resipi <?= htmlspecialchars($kuehName) ?></h2><hr>
 
         <div class="row">
             <!-- Main Content Column -->
