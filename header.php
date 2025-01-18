@@ -126,6 +126,10 @@ date_default_timezone_set("Asia/Kuala_Lumpur");
                     Cari
                 </a><br>
 
+                <?PHP
+                    if (!empty($_SESSION['username'])) {
+                    ?>
+
                 <a href="index.php" class="w3-bar-item w3-button w3-round w3-large" style="margin-left :6px; margin-right: 10px ;width: 94%; text-align: left; color: #181513;">
                     <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAABpUlEQVR4nO1bQUoEMRDML/QPih72EfoLMZ2Um1b8gPgG96DCnHyZ+guV3UNLEFFkJ8m6C7KxGnKaYSZddLqrq4lzW2gCvZaYXgRqY8vHtBDozPVoAn0tOf8NhDfXo0mD85/L9WhScZAAgBFgPAJgDjAmQbAKmOvRhGVQt5MHnKjuhpAmpZXf6TICBHrsofMqf4fOQzg/6g4Aj3S/Aoe/6w+AqEMrAPndrgHwSxwMSCAAYAQYjwCYA4xJMLIKDKWKwjII8gAjEQKZoJEKg72A/aZK/In5bW2GTs8uDvOUNW9qbOX+PQseXQIgUZ+bevis9sjlTn8AoH0SmzW9rgHwy8P//wDgKs8JQGAETMYiiUcgMgcMTIJgFTCWQZAHGIlQJBMcfvIEUmGwFwCbIbAbNLbDoB5gFEQiFaFhUypVm+5VMEpioCZoFEVBVdgoi4NzAatVCc4FQudzAdnQcLQ6aV4BgNpaGwD/cQu7EQDdK2x6tsLGi7e+azfHv4BMi7UBkJhu8i3s2o8E6aH4HUkHHumpuvGoj3463a/s6arl+ryPeltz8B08HyWRfLUk0QAAAABJRU5ErkJggg==" alt="external-bar-cryp-finance-line-line-icons-royyan-wijaya-4" style="padding-bottom:3px;margin-right:8px;text-align:center; width:25px">
                     Statistik Resipi
@@ -139,9 +143,9 @@ date_default_timezone_set("Asia/Kuala_Lumpur");
                     Kegemaran 
                 </a><br>
                 <?PHP
-                if (empty($_SESSION['username'])) {
+                }if (empty($_SESSION['username'])) {
                 ?>
-                    <p class="w3-small" style="padding-left: 5px;">Untuk mulakan perkongsian anda dan simpan resipi yang anda minat, sila <a href="register.php">daftar atau log masuk.</a></p>
+                    <br><p class="w3-small" style="padding-left: 5px;">Untuk mulakan perkongsian anda dan simpan resipi yang anda minat, sila <a href="register.php">daftar atau log masuk.</a></p>
                 <?PHP
                 }
                 ?>

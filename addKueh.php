@@ -1,6 +1,16 @@
 <?PHP
 include('header.php');
 include('connection.php');
+
+
+                    if (empty($_SESSION['username'])) {
+                    
+                        echo"<script>
+                            alert('Sila log masuk untuk mengakses laman ini');
+                            window.location.href = 'userLogin.php';
+                        </script>";}
+
+                        
 // Process form submission
 if (isset($_POST['submit'])) {
     // Process form data
