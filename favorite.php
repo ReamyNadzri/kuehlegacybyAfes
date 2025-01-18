@@ -214,59 +214,7 @@ usort($favorites, function ($a, $b) use ($sortOrder) {
 
 <body>
     <div class="container">
-        <!-- Favorite Kueh Content -->
-        <div class="content">
-            <!-- Display Total Favorites -->
-            <div class="w3-padding-32">
-                <h3>Total Items in Favorites: <?php echo count($favorites); ?></h3>
-            </div>
-
-            <!-- Sort Buttons and Search Bar -->
-            <div class="w3-bar w3-padding">
-                <!-- Search Bar -->
-                <form method="get" action="">
-                    <div style="position: relative; display: inline-block;">
-                        <!-- Magnifying Glass Icon -->
-                        <i class="fa fa-search"
-                            style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%);"></i>
-                        <!-- Input Field -->
-                        <input type="text" class="w3-input w3-bar-item" name="search" placeholder="Cari..."
-                            value="<?php echo htmlspecialchars($searchQuery); ?>" style="padding-left: 30px;">
-                    </div>
-                </form>
-
-                <!-- Sort Buttons -->
-                <div>
-                    <a href="?sort=desc" class="w3-button">Cari Yang Terkini</a>
-                    <a href="?sort=asc" class="w3-button">Cari Yang Terlama</a>
-                </div>
-            </div>
-
-            <!-- content -->
-            <?php if (empty($favorites)): ?>
-                <div class="w3-center w3-padding-32">
-                    <i class="fa fa-heart w3-xxlarge" style="color: #f57c00;"></i>
-                    <h3>Tiada kueh kegemaran dijumpai</h3>
-                </div>
-            <?php else: ?>
-                <?php foreach ($favorites as $favorite): ?>
-                    <a href="kueh_details.php?kuehID=<?php echo $favorite['kuehID']; ?>" style="text-decoration: none;">
-                        <div class="favorite-item">
-                            <img src="<?php echo htmlspecialchars($favorite['image']); ?>"
-                                alt="<?php echo htmlspecialchars($favorite['kuehName']); ?>">
-                            <div class="favorite-item-details">
-                                <h3><?php echo htmlspecialchars($favorite['kuehName']); ?></h3>
-                                <p><?php echo htmlspecialchars($favorite['kuehDesc']); ?></p>
-                                <div class="tag"><?php echo htmlspecialchars($favorite['tagKueh']); ?></div>
-                                <p>Date Added: <?php echo htmlspecialchars($favorite['date']); ?></p>
-                            </div>
-                            <i class="fa fa-bookmark bookmark-icon" aria-hidden="true"></i>
-                        </div>
-                    </a>
-                <?php endforeach; ?>
-            <?php endif; ?>
-        </div>
-
+       
         <!-- Comment Section -->
         <div class="comment-section">
             <h4>Berikan Maklum Balas:</h4>

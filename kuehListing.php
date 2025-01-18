@@ -16,7 +16,7 @@ $sql = "SELECT k.KUEHID, k.KUEHNAME, LISTAGG(i.NAMEITEM, ', ') WITHIN GROUP (ORD
         JOIN ITEMS i ON k.KUEHID = i.KUEHID
         WHERE UPPER(k.KUEHNAME) LIKE '%' || UPPER(:search) || '%'";
 
-// Add "WITH" conditions
+// Add "WITH" conditions (untuk filter kueh)
 if (!empty($withIngredients)) {
     $sql .= " AND (";
     foreach ($withIngredients as $index => $ingredient) {
@@ -27,7 +27,7 @@ if (!empty($withIngredients)) {
     $sql .= ")";
 }
 
-// Add "WITHOUT" conditions
+// Add "WITHOUT" conditions (untuk filter kueh)
 if (!empty($withoutIngredients)) {
     $sql .= " AND NOT (";
     foreach ($withoutIngredients as $index => $ingredient) {
@@ -238,7 +238,7 @@ $filterOptions = [
 <body>
     <?php include('header.php'); ?>
     <div class="container py-4">
-        <h1 id="recipeCountHeading" class="mb-4">(<?= $total_recipes ?>) resipi <?= htmlspecialchars($kuehName) ?></h1>
+        <h2 id="recipeCountHeading" class="mb-4">(<?= $total_recipes ?>) resipi <?= htmlspecialchars($kuehName) ?></h2>
 
         <div class="row">
             <!-- Main Content Column -->
@@ -421,6 +421,97 @@ $filterOptions = [
             // Initial load of recipes
             updateRecipes();
         });
+        function toggleFavorite(kueh_id) {
+        // Send an AJAX request to toggle the favorite status
+        fetch('toggleFavorite.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    kueh_id: kueh_id
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Toggle the button's appearance
+                    const saveRecipeButton = document.getElementById('saveRecipeButton');
+                    if (data.isFavorite) {
+                        saveRecipeButton.classList.remove('btn-outline-warning');
+                        saveRecipeButton.classList.add('btn-warning');
+                        saveRecipeButton.innerHTML = '<i class="bi bi-bookmark-fill"></i> Simpan Resipi';
+
+                        // Show success toast for adding to favorites
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'success',
+                            title: 'Added to favorites!',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true,
+                            didOpen: (toast) => {
+                                toast.addEventListener('mouseenter', Swal.stopTimer);
+                                toast.addEventListener('mouseleave', Swal.resumeTimer);
+                            }
+                        });
+                    } else {
+                        saveRecipeButton.classList.remove('btn-warning');
+                        saveRecipeButton.classList.add('btn-outline-warning');
+                        saveRecipeButton.innerHTML = '<i class="bi bi-bookmark"></i> Simpan Resipi';
+
+                        // Show success toast for removing from favorites
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'success',
+                            title: 'Removed from favorites!',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true,
+                            didOpen: (toast) => {
+                                toast.addEventListener('mouseenter', Swal.stopTimer);
+                                toast.addEventListener('mouseleave', Swal.resumeTimer);
+                            }
+                        });
+                    }
+                } else {
+                    // Show error toast if the operation failed
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'error',
+                        title: 'Failed to toggle favorite status: ' + data.message,
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.addEventListener('mouseenter', Swal.stopTimer);
+                            toast.addEventListener('mouseleave', Swal.resumeTimer);
+                        }
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+
+                // Show error toast for unexpected errors
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'error',
+                    title: 'An error occurred while toggling favorite status.',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer);
+                        toast.addEventListener('mouseleave', Swal.resumeTimer);
+                    }
+                });
+            });
+    }
     </script>
 </body>
 
