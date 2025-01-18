@@ -231,16 +231,17 @@ $filterOptions = [
 <body>
     <?php include('header.php'); ?>
     <div class="container py-4">
-        <h2 id="recipeCountHeading" class="mb-4">(<?= $total_recipes ?>) resipi <?= htmlspecialchars($kuehName) ?></h2>
+        <h2 id="recipeCountHeading" class="mb-4">Terdapat <?= $total_recipes ?> resipi <?= htmlspecialchars($kuehName) ?></h2><hr>
 
         <div class="row">
             <!-- Main Content Column -->
             <div class="col-md-8">
                 <!-- Recipe Cards -->
                 <div id="recipeContainer" class="row">
-                    <?php if (!empty($recipes)): ?>
+                    <?php if (!empty($recipes)):
+                        $animate = 0.0; ?>
                         <?php foreach ($recipes as $recipe): ?>
-                            <div class="col-12 mb-4">
+                            <div class="col-12 mb-4 w3-animate-left" style="animation-delay: <?= $animate ?>s;">
                                 <a href="kuehDetails.php?id=<?= $recipe['KUEHID'] ?>"
                                     class="text-decoration-none shadow-sm text-dark">
                                     <div class="card card-hover-effect rounded shadow-sm  border-0">
@@ -279,7 +280,9 @@ $filterOptions = [
                                     </div>
                                 </a>
                             </div>
-                        <?php endforeach; ?>
+                        <?php 
+                    $animate += 0.04;
+                    endforeach; ?>
                     <?php else: ?>
                         <div class="col-12">
                             <p>No recipes found for "<?= htmlspecialchars($kuehName) ?>".</p>

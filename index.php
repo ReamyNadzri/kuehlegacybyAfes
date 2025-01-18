@@ -1,5 +1,6 @@
 <?php 
-include ('header.php'); 
+include ('topheader.php'); 
+include ('bottomheader.php'); 
 //include ('popup.php'); 
 ?>
 
@@ -38,25 +39,25 @@ include ('header.php');
 
                 <div class="w3-row w3-text-white w3-large w3-text-shadow w3-center" style="position:static">
                   <a href="kuehListing.php?search=almond">
-                    <div class="w3-col s3 w3-display-container" style="padding: 5px; position: relative; z-index: 1;">
+                    <div class="w3-col s3 w3-display-container w3-animate-zoom" style="padding: 5px; position: relative; z-index: 1; animation-delay: 0.0s">
                         <img src="sources/index/almond.jpg" alt="" class="w3-round-large w3-hover-opacity w3-card" style="height: 150px; width: 100%; object-fit: cover;">
                         <div class="w3-display-bottomleft w3-container"><p>Kacang Almond</p></div>
                     </div>
                   </a>
                   <a href="kuehListing.php?search=daun">
-                    <div class="w3-col s3 w3-display-container" style="padding: 5px;">
+                    <div class="w3-col s3 w3-display-container w3-animate-zoom" style="padding: 5px; animation-delay: 0.2s">
                         <img src="sources/index/daunpisang.jpg" alt="" class="w3-round-large w3-hover-opacity w3-card" style="height: 150px; width: 100%; object-fit: cover;">
                         <div class="w3-display-bottomleft w3-container"><p>Daun Pisang</p></div>
                     </div>
                   </a>
                   <a href="kuehListing.php?search=melaka">
-                    <div class="w3-col s3 w3-display-container" style="padding: 5px;">
+                    <div class="w3-col s3 w3-display-container w3-animate-zoom" style="padding: 5px; animation-delay: 0.4s">
                         <img src="sources/index/gulamelaka.jpg" alt="" class="w3-round-large w3-hover-opacity w3-card" style="height: 150px; width: 100%; object-fit: cover;">
                         <div class="w3-display-bottomleft w3-container"><p>Gula Melaka</p></div>
                     </div>
                   </a>
                   <a href="kuehListing.php?search=kari">
-                    <div class="w3-col s3 w3-display-container" style="padding: 5px;">
+                    <div class="w3-col s3 w3-display-container w3-animate-zoom" style="padding: 5px; animation-delay: 0.6s">
                         <img src="sources/index/kari.jpg" alt="" class="w3-round-large w3-hover-opacity w3-card" style="height: 150px; width: 100%; object-fit: cover;">
                         <div class="w3-display-bottomleft w3-container"><p>Daun Kari</p></div>
                     </div>
@@ -65,25 +66,25 @@ include ('header.php');
                 
                 <div class="w3-row w3-text-white w3-large w3-text-shadow w3-center">
                   <a href="kuehListing.php?search=kelapa">
-                    <div class="w3-col s3 w3-display-container" style="padding: 5px;">
+                    <div class="w3-col s3 w3-display-container w3-animate-zoom" style="padding: 5px; animation-delay: 0.2s">
                         <img src="sources/index/kelapa.jpg" alt="" class="w3-round-large w3-hover-opacity w3-card" style="height: 150px; width: 100%; object-fit: cover">
                         <div class="w3-display-bottomleft w3-container"><p>Isi Kelapa</p></div>
                     </div>
                   </a>
                   <a href="kuehListing.php?search=pandan">
-                    <div class="w3-col s3 w3-display-container" style="padding: 5px;">
+                    <div class="w3-col s3 w3-display-container w3-animate-zoom" style="padding: 5px; animation-delay: 0.4s">
                         <img src="sources/index/pandan.jpg" alt="" class="w3-round-large w3-hover-opacity w3-card" style="height: 150px; width: 100%; object-fit: cover">
                         <div class="w3-display-bottomleft w3-container"><p>Daun Pandan</p></div>
                     </div>
                   </a>
                   <a href="kuehListing.php?search=pisang"></a>
-                    <div class="w3-col s3 w3-display-container" style="padding: 5px;">
+                    <div class="w3-col s3 w3-display-container w3-animate-zoom" style="padding: 5px; animation-delay: 0.6s">
                         <img src="sources/index/pisang.jpg" alt="" class="w3-round-large w3-hover-opacity w3-card" style="height: 150px; width: 100%; object-fit: cover">
                         <div class="w3-display-bottomleft w3-container"><p>Pisang</p></div>
                     </div>
                   </a>
                   <a href="kuehListing.php?search=ubi">
-                    <div class="w3-col s3 w3-display-container" style="padding: 5px;">
+                    <div class="w3-col s3 w3-display-container w3-animate-zoom" style="padding: 5px; animation-delay: 0.8s">
                         <img src="sources/index/ubi.jpg" alt="" class="w3-round-large w3-hover-opacity w3-card" style="height: 150px; width: 100%; object-fit: cover">
                         <div class="w3-display-bottomleft w3-container"><p>Ubi Kayu</p></div>
                     </div>
