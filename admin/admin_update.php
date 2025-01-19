@@ -1,60 +1,125 @@
-<!-- Memanggil fail header_admin.php -->
-<?PHP include('header_admin.php'); ?>
-<!-- menyediakan borang untuk mengemaskini data admin-->
-<form action='' method='POST'>
-    New Admin Name : <input type='text' name='nama_baru' value='<?php echo $_GET['adminName']; ?>'><br><br>
-    New Admin ID : <input type='text' name='nokp_baru' value='<?php echo $_GET['admin_ID']; ?>'><br><br>
-    New Phone Number : <input type='text' name='notel_baru' value='<?php echo $_GET['adminPhone']; ?>'><br><br>
-    New Password : <input type='password' name='katalaluan_baru' value='<?php echo $_GET['adminPass']; ?>'><br><br>
-    <input class="w3-button w3-light-blue" type='submit' value='Update'>
-</form>
+<?php
+include('header_admin.php');
+include('../connection.php');
 
-<?PHP
-# menyemak kewujudan data POST
-if (!empty($_POST)) {
-    # Memanggil fail connection dari folder luaran
-    include('../connection.php');
 
-    # mengambil data POST
-    $nama_baru = trim($_POST['nama_baru']);
-    $nokp_baru = trim($_POST['nokp_baru']);
-    $notel_baru = trim($_POST['notel_baru']);
-    $katalaluan_baru = trim($_POST['katalaluan_baru']);
-    $nokp_lama = trim($_GET['admin_ID']);
+$adminName = $_GET['adminName'];
 
-    # Start transaction
-    oci_execute(oci_parse($condb, "BEGIN TRANSACTION"));
 
-    # Arahan untuk mengemaskini data ke dalam jadual admin
+$arahan_sql_cari = "SELECT * FROM ADMIN WHERE USERNAME = :USERNAME";
+$stmt = oci_parse($condb, $arahan_sql_cari);
+oci_bind_by_name($stmt, ':USERNAME', $adminName);
+oci_execute($stmt);
+
+// Fetch the result
+$admin = oci_fetch_array($stmt, OCI_ASSOC + OCI_RETURN_NULLS);
+if (!$admin) {
+    die("<script>alert('Admin not found'); window.history.back();</script>");
+}
+
+// Handle form submission for updating admin data
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $adminName = $_POST['adminName'];
+    $adminPhone = $_POST['adminPhone'];  
+    $adminPass = $_POST['adminPass'];   
+
+    // Ensure all fields are filled
+    if (empty($adminName) || empty($adminPhone) || empty($adminPass)) {
+        die("<script>alert('Please insert all the data');
+        window.history.back();</script>");
+    }
+
+    // Update query to save the updated admin data
     $arahan_sql_update = "UPDATE ADMIN 
-     SET ADMIN_ID = :NOKP_BARU, 
-         ADMINNAME = :NAMA_BARU, 
-         ADMINPASS = :KATALALUAN_BARU, 
-         ADMINPHONE = :NOTEL_BARU 
-     WHERE ADMIN_ID = :NOKP_LAMA";
+        SET USERNAME = :USERNAME, NAME = :NAME, EMAIL = :EMAIL, PASSWORD = :PASSWORD 
+        WHERE USERNAME = :OLD_USERNAME";
 
-    # melaksanakan proses mengemaskini dalam syarat IF
-    $stmt = oci_parse($condb, $arahan_sql_update);
-    oci_bind_by_name($stmt, ':NOKP_BARU', $nokp_baru);
-    oci_bind_by_name($stmt, ':NAMA_BARU', $nama_baru);
-    oci_bind_by_name($stmt, ':KATALALUAN_BARU', $katalaluan_baru);
-    oci_bind_by_name($stmt, ':NOTEL_BARU', $notel_baru);
-    oci_bind_by_name($stmt, ':NOKP_LAMA', $nokp_lama);
+    $stmt_update = oci_parse($condb, $arahan_sql_update);
+    oci_bind_by_name($stmt_update, ':USERNAME', $adminName);
+    oci_bind_by_name($stmt_update, ':NAME', $adminName);    
+    oci_bind_by_name($stmt_update, ':EMAIL', $adminPhone);
+    oci_bind_by_name($stmt_update, ':PASSWORD', $adminPass);
+    oci_bind_by_name($stmt_update, ':OLD_USERNAME', $admin['USERNAME']);  
 
-    if (oci_execute($stmt)) {
-        # Commit transaction
-        oci_commit($condb);
-        oci_free_statement($stmt);
-        oci_close($condb);
-        # peroses mengemaskini berjaya.
+    // Execute the statement
+    if (oci_execute($stmt_update)) {
         echo "<script>alert('Update Success');
-        window.location.href='admin_info.php';
-        </script>";
+        window.location.href='admin_info.php';</script>";
     } else {
-        # proses mengemaskini gagal
         echo "<script>alert('Update Failure');
         window.history.back();</script>";
     }
 }
-
 ?>
+
+<body style="background-color: #FFFAF0;">
+    <link rel="stylesheet" href="style.css">
+    <title>Edit Administrator Profile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <h4>Edit Admin Information</h4> <br><br>
+
+    <!-- Edit Form inside a Table -->
+    <form method="POST" action="">
+        <div class="container">
+            <table class="table table-bordered">
+                <tr>
+                    <th>Username</th>
+                    <td><input type="text" id="adminName" name="adminName" class="form-control"
+                            value="<?php echo htmlspecialchars($admin['USERNAME']); ?>" readonly></td>
+                </tr>
+                <tr>
+                    <th>Email</th>
+                    <td><input type="email" id="adminPhone" name="adminPhone" class="form-control"
+                            value="<?php echo htmlspecialchars($admin['EMAIL']); ?>" required></td>
+                </tr>
+                <tr>
+                    <th>Password</th>
+                    <td>
+                        <div class="input-group">
+                            <input type="password" id="adminPass" name="adminPass" class="form-control"
+                                value="<?php echo htmlspecialchars($admin['PASSWORD']); ?>" required>
+                            <button type="button" class="btn btn-outline-secondary" onclick="togglePasswordVisibility()">
+                                <i class="fa fa-eye" id="toggle-icon"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Full Name</th>
+                    <td><input type="text" id="adminName" name="adminName" class="form-control"
+                            value="<?php echo htmlspecialchars($admin['NAME']); ?>" required></td>
+                </tr>
+            </table>
+
+            <br>
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <button type="submit" class="btn btn-primary">Update</button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <!-- Script for toggling password visibility -->
+    <script>
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('adminPass');
+            const toggleIcon = document.getElementById('toggle-icon');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+    </script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</body>

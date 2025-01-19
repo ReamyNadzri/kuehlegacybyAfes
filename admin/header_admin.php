@@ -61,8 +61,8 @@ session_start();
         </button>
         <div class="w3-dropdown-content w3-bar-block w3-card-4">
           <a href='kueh_info.php' class="w3-bar-item w3-button">KUEH</a>
-          <a href='buyer_info.php' class="w3-bar-item w3-button">CUSTOMER</a>
-          <a href='purchase_info.php' class="w3-bar-item w3-button">PURCHASE</a>
+          <a href='buyer_info.php' class="w3-bar-item w3-button">USER</a>
+          <a href='upload_info.php' class="w3-bar-item w3-button">UPLOAD</a>
           <a href='admin_info.php' class="w3-bar-item w3-button">ADMIN</a>
         </div>
       </div>
