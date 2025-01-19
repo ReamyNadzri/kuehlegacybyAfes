@@ -38,7 +38,7 @@ oci_execute($stmt);
                     <td>{$row['PASSWORD']}</td>
                     <td>{$row['NAME']}</td>
                     <td>
-                        <a href='edit_user.php?username={$row['USERNAME']}' class='w3-button w3-blue w3-small'>Edit</a>
+                      
                         <a href='delete_user.php?username={$row['USERNAME']}' class='w3-button w3-red w3-small' onClick=\"return confirm('Confirm delete this item??')\">Delete</a>
                     </td>
                 </tr>";
