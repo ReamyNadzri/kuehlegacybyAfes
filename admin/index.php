@@ -1,10 +1,9 @@
 <?php
-# Start the session
 session_start();
 
-/* if ($_SESSION['adminid']) {
-  echo "<script>window.location.href='mainpage.php';</script>";
-}  */
+if (isset($_SESSION['adminid'])) {
+    echo "<script>window.location.href='mainpage.php';</script>";
+}
 ?>
 
 <!DOCTYPE html>
@@ -23,8 +22,8 @@ session_start();
   <img src="../sources/admin.png" style="max-width:800px">
 
   <h2>WARNING!</h2>
-  <h4>Now you in admin AFAS site.</h4>
-  <h4>Please enter your information down below.</h4><br>
+  <h4>Now you are in the admin AFAS site.</h4>
+  <h4>Please enter your information below.</h4><br>
 
   <button onclick="document.getElementById('id01').style.display='block'" class="w3-button w3-red w3-large w3-round-large">Login</button>
 
@@ -37,9 +36,9 @@ session_start();
       </div>
 
       <form class="w3-container w3-center w3-round-large" action="" method="POST"><br>
-        <b>Admin ID</b> <input type="text" name="admin_ID"><br><br>
+        <b>Username</b> <input type="text" name="username" required><br><br>
 
-        <b>Password</b> <input type="password" name="adminPass"><br><br>
+        <b>Password</b> <input type="password" name="password" required><br><br>
         <input type="submit" class="w3-center w3-round-large w3-button w3-bar w3-red" value="Login"><br>
         <input class="w3-check w3-margin-top" type="checkbox" checked="checked"> Remember My ID <br><br>
       </form>
@@ -60,43 +59,34 @@ session_start();
 </html>
 
 <?php
-# Check if POST data exists
-if (!empty($_POST)) {
-  include('connection.php');
+// Check if POST data exists
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    include('connection.php');
 
+    if (isset($_POST['username']) && isset($_POST['password'])) {
+        $username = $_POST['username'];
+        $password = $_POST['password'];
 
-  if (isset($_POST['admin_ID']) && isset($_POST['adminPass'])) {
-    $admin_ID = $_POST['admin_ID'];
-    $adminPass = $_POST['adminPass'];
-  
-    $arahan_sql_cari = "
-                          SELECT USERNAME, PASSWORD
-                          FROM ADMIN
-                          WHERE USERNAME = :ADMIN_ID AND PASSWORD = :ADMINPASS
-                          ";
-  
-    $stmt = oci_parse($condb, $arahan_sql_cari);
-  
-    $bind_admin_id = oci_bind_by_name($stmt, ":ADMIN_ID", $admin_ID);
-    $bind_admin_pass = oci_bind_by_name($stmt, ":ADMINPASS", $adminPass);
+        $sql = "SELECT USERNAME, PASSWORD FROM ADMIN WHERE USERNAME = :username AND PASSWORD = :password";
+        $stmt = oci_parse($condb, $sql);
 
-    $execute = oci_execute($stmt);
-  
-    if ($rekod = oci_fetch_assoc($stmt)) {
-      
-      $_SESSION['adminid'] = $rekod['USERNAME'];
-      echo "<script>window.location.href='mainpage.php';</script>";
+        oci_bind_by_name($stmt, ":username", $username);
+        oci_bind_by_name($stmt, ":password", $password);
+
+        oci_execute($stmt);
+
+        if ($record = oci_fetch_assoc($stmt)) {
+            $_SESSION['adminid'] = $record['USERNAME'];
+            echo "<script>window.location.href='mainpage.php';</script>";
+        } else {
+            echo "<script>alert('Login failed. Please check your username or password.');</script>";
+        }
+
+        oci_free_statement($stmt);
     } else {
-      echo "<script>alert('Login Failure');</script>";
+        echo "<script>alert('Please enter both username and password.');</script>";
     }
-  
-    oci_free_statement($stmt);
-  } else {
-    echo "<script>alert('Missing Admin ID or Password');</script>";
-  }
-  
-  oci_close($condb);
+
+    oci_close($condb);
 }
 ?>
-
-<?php include('footer.php'); ?>
