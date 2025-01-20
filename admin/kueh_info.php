@@ -113,7 +113,9 @@ if (isset($_GET['msg'])) {
         'delete_success' => 'Record deleted successfully!',
         'delete_error' => 'Failed to delete the record.',
         'add_success' => 'Record added successfully!',
-        'add_error' => 'Failed to add the record.',
+        'add_error' => 'Failed to add the record!',
+        'update_success' => 'Record updated successfully!',
+        'update_error' => 'Failed to update the record!'
     ];
 
     // Get the appropriate message

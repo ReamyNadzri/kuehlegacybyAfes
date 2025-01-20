@@ -231,7 +231,8 @@ $filterOptions = [
 <body>
     <?php include('header.php'); ?>
     <div class="container py-4">
-        <h2 id="recipeCountHeading" class="mb-4">Terdapat <?= $total_recipes ?> resipi <?= htmlspecialchars($kuehName) ?></h2><hr>
+        <h2 id="recipeCountHeading" class="mb-4">Terdapat <?= $total_recipes ?> resipi <?= htmlspecialchars($kuehName) ?></h2>
+        <hr>
 
         <div class="row">
             <!-- Main Content Column -->
@@ -280,9 +281,9 @@ $filterOptions = [
                                     </div>
                                 </a>
                             </div>
-                        <?php 
-                    $animate += 0.04;
-                    endforeach; ?>
+                        <?php
+                            $animate += 0.04;
+                        endforeach; ?>
                     <?php else: ?>
                         <div class="col-12">
                             <p>No recipes found for "<?= htmlspecialchars($kuehName) ?>".</p>
