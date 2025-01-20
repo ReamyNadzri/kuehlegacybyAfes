@@ -5,7 +5,6 @@ include('connection.php');
 // Check if KUEHID is provided in the query string (for update mode)
 if (isset($_GET['kuehId'])) {
     $kuehId = $_GET['kuehId'];
-    echo "kuehId: $kuehId"; // Debug statement
 
     // Fetch existing kueh data
     $sql_fetch_kueh = "SELECT * FROM KUEH WHERE KUEHID = :kuehId";
