@@ -1,7 +1,7 @@
 <?php
+include('header.php');
 include('connection.php'); // Include the database connection
 
-// Fetch data from the KUEH table
 $foodName = $_GET['search'] ?? ''; // Use null coalescing operator to avoid undefined index notice
 // Validate and sanitize input
 $foodName = trim($foodName);
@@ -38,10 +38,10 @@ if (oci_execute($stid)) {
         oci_free_statement($blobStmt);
 
         $blobQuery = "SELECT COALESCE(u.NAME, a.NAME) AS NAME
-              FROM KUEH k
-              LEFT JOIN USERS u ON k.USERNAME = u.USERNAME
-              LEFT JOIN ADMIN a ON k.USERNAME = a.USERNAME
-              WHERE k.KUEHID = :kuehID";
+    FROM KUEH k
+    LEFT JOIN USERS u ON k.USERNAME = u.USERNAME
+    LEFT JOIN ADMIN a ON k.USERNAME = a.USERNAME
+    WHERE k.KUEHID = :kuehID";
         $blobStmt = oci_parse($condb, $blobQuery);
         oci_bind_by_name($blobStmt, ':kuehID', $row['KUEHID']);
         oci_execute($blobStmt);
@@ -79,21 +79,6 @@ oci_free_statement($stid);
 oci_close($condb);
 
 $kuehName = ucfirst(strtolower($foodName)); // Convert first character to uppercase
-
-// Related Searches (Example data, can be fetched from the database)
-$relatedSearches = [
-    "kek batik ovaltine",
-    "kek batik indulgence",
-    "kek batik cheese",
-    "kek batik simple",
-    "kek batik ganache"
-];
-
-// Filter Options (Example data, can be fetched from the database)
-$filterOptions = [
-    "with" => ["coklat", "keju", "kacang", "gula"],
-    "without" => ["gula", "tepung", "telur"]
-];
 ?>
 
 <!DOCTYPE html>
@@ -173,63 +158,57 @@ $filterOptions = [
 
         .sticky-sidebar .card-body {
             border-top: 1px solid gray;
-            /* Add a bold top border with your desired color */
             padding-top: 15px;
-            /* Add spacing to avoid overlap with content */
             margin-top: 15px;
-            /* Create space between stacked cards */
         }
 
         .sticky-sidebar .card-body:first-child {
             border-top: none;
-            /* Remove the top border from the first card-body for a cleaner look */
             margin-top: 0;
-            /* Ensure no extra space at the top */
         }
 
-        .card-img-container {
-            width: 100%;
-            /* Fixed width for the image container */
+        .recipe-page .card-img-container img {
+            width: 200px;
             height: 200px;
-            /* Fixed height for the image container */
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .recipe-page .card-img-container {
+            width: 200px;
+            height: 200px;
             overflow: hidden;
+            display: flex;
             align-items: center;
             justify-content: center;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+
         }
 
-        .card-img-container img {
-            width: 100%;
-            /* Make the image fill the container */
-            height: 100%;
-            /* Make the image fill the container */
-            object-fit: cover;
-            /* Ensure the image covers the container without distortion */
-        }
 
-        .card {
-            height: 175px;
-        }
-
-        .card-body {
+        .recipe-page .card {
+            height: auto;
             display: flex;
-            /* Make the container a flexbox */
-            flex-direction: column;
-            /* Stack children vertically */
-            height: 100%;
-            /* Ensure the container takes full height */
-            padding: 1rem;
-            /* Add padding for spacing */
+            align-items: center;
         }
 
-        .card-body .mt-auto {
-            margin-top: auto;
-            /* Push the profile section to the bottom */
+
+        .recipe-page .card-body {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+        }
+
+        .profile-section {
+            margin-top: 60px;
         }
     </style>
 </head>
 
 <body>
-    <?php include('header.php'); ?>
+
     <div class="container py-4">
         <h2 id="recipeCountHeading" class="mb-4">Terdapat <?= $total_recipes ?> resipi <?= htmlspecialchars($kuehName) ?></h2>
         <hr>
@@ -248,11 +227,13 @@ $filterOptions = [
                                     <div class="card card-hover-effect rounded shadow-sm  border-0">
                                         <div class="row g-0">
                                             <div class="col-md-3">
-                                                <div class="card-img-container">
-                                                    <img src="<?= $recipe['IMAGE_DATA_URI'] ?? 'path/to/default/image.jpg' ?>"
-                                                        class="img-fluid rounded-start"
-                                                        alt="<?= htmlspecialchars($recipe['KUEHNAME']) ?>"
-                                                        style="max-width: 100%; max-height: 200px; object-fit: cover;">
+                                                <div class="recipe-page">
+                                                    <div class=" card-img-container">
+                                                        <img src="<?= $recipe['IMAGE_DATA_URI'] ?? 'path/to/default/image.jpg' ?>"
+                                                            class="img-fluid rounded-start"
+                                                            alt="<?= htmlspecialchars($recipe['KUEHNAME']) ?>"
+                                                            style="max-width: 100%; max-height: 200px; object-fit: cover;">
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="col-md-9">
@@ -268,7 +249,7 @@ $filterOptions = [
                                                     <p class="card-text" style="font-size: 1.1rem;">
                                                         <?= htmlspecialchars($recipe['ITEMS']) ?>
                                                     </p>
-                                                    <div class="d-flex align-items-center mt-auto"> <!-- Add mt-auto here -->
+                                                    <div class="d-flex align-items-center profile-section">
                                                         <img src="sources\header\logo.png" alt="Profile Picture"
                                                             class="rounded-circle me-2 border" width="40" height="40">
                                                         <p class="card-text" style="font-size: 1.1rem;">
@@ -337,12 +318,12 @@ $filterOptions = [
             const withoutInput = document.getElementById('withoutInput');
             const withTagsContainer = document.getElementById('withTags');
             const withoutTagsContainer = document.getElementById('withoutTags');
-            const recipeContainer = document.getElementById('recipeContainer');
 
             let withTags = [];
             let withoutTags = [];
 
-            function createTag(value, container, tagArray, isWithout = false) {
+            // Function to create a tag
+            function createTag(value, container, tagArray) {
                 const tag = document.createElement('div');
                 tag.className = 'related-search-btn me-2 mb-2';
                 tag.textContent = value;
@@ -351,8 +332,7 @@ $filterOptions = [
                 removeButton.className = 'ms-2';
                 removeButton.innerHTML = '&times;';
                 removeButton.style.cursor = 'pointer';
-                removeButton.onclick = function(e) {
-                    e.preventDefault();
+                removeButton.onclick = function() {
                     container.removeChild(tag);
                     const index = tagArray.indexOf(value);
                     if (index !== -1) {
@@ -366,55 +346,54 @@ $filterOptions = [
                 tagArray.push(value);
             }
 
-            function updateRecipes() {
-                const searchParams = new URLSearchParams();
-                searchParams.append('search', '<?= $foodName ?>');
+            // Function to filter recipes based on tags
+            function filterRecipes(withTags, withoutTags) {
+                const recipeCards = document.querySelectorAll('#recipeContainer .col-12');
+                let visibleCount = 0;
 
-                if (withTags.length > 0) {
-                    searchParams.append('with', withTags.join(','));
-                }
+                recipeCards.forEach(card => {
+                    const recipeItems = card.querySelector('.card-text').textContent.toLowerCase();
+                    const shouldShow =
+                        withTags.every(tag => recipeItems.includes(tag)) &&
+                        withoutTags.every(tag => !recipeItems.includes(tag));
 
-                if (withoutTags.length > 0) {
-                    searchParams.append('without', withoutTags.join(','));
-                }
-
-                // Debug log
-                console.log('Sending parameters:', {
-                    withTags,
-                    withoutTags,
-                    queryString: searchParams.toString()
+                    if (shouldShow) {
+                        card.style.display = 'block';
+                        visibleCount++;
+                    } else {
+                        card.style.display = 'none';
+                    }
                 });
 
-                fetch('fetchrecipes.php?' + searchParams.toString())
-                    .then(response => response.json())
-                    .then(data => {
-                        recipeContainer.innerHTML = data.recipes;
-                        document.getElementById('recipeCountHeading').textContent =
-                            `(${data.total_recipes}) resipi <?= htmlspecialchars($kuehName) ?>`;
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
+                return visibleCount;
             }
 
+            // Function to update recipes with loading animation
+            function updateRecipes() {
+                const visibleCount = filterRecipes(withTags, withoutTags);
+                document.getElementById('recipeCountHeading').textContent = `Terdapat ${visibleCount} resipi <?= htmlspecialchars($kuehName) ?>`;
+            }
+
+            // Event listener for "With" input
             withInput.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
-                    const value = this.value.trim();
+                    const value = this.value.trim().toLowerCase();
                     if (value && !withTags.includes(value)) {
-                        createTag(value, withTagsContainer, withTags, false);
+                        createTag(value, withTagsContainer, withTags);
                         this.value = '';
                         updateRecipes();
                     }
                 }
             });
 
+            // Event listener for "Without" input
             withoutInput.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
-                    const value = this.value.trim();
+                    const value = this.value.trim().toLowerCase();
                     if (value && !withoutTags.includes(value)) {
-                        createTag(value, withoutTagsContainer, withoutTags, true);
+                        createTag(value, withoutTagsContainer, withoutTags);
                         this.value = '';
                         updateRecipes();
                     }
@@ -422,6 +401,7 @@ $filterOptions = [
             });
         });
 
+        // Existing favorite toggle function (unchanged)
         function toggleFavorite(kueh_id, event) {
             event.preventDefault(); // Prevent the default action of the button
             event.stopPropagation(); // Stop the event from bubbling up
