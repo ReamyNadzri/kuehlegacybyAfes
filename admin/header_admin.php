@@ -68,7 +68,7 @@ session_start();
       </div>
       <a href="analysis.php" class="w3-bar-item w3-button" style="width: 16.66%;">
         <div class="w3-left"><i class="fas fa-chart-line w3-xlarge" style="padding: 10px 0px;;position:relative;right:-4px;top:10px;height:60px"></i></div><br>
-        MONTHLY SALES
+        ANALYTICS
       </a>
       
 
