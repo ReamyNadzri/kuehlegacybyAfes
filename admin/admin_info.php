@@ -41,15 +41,15 @@ $laksana_sql_cari = oci_parse($condb, $arahan_sql_cari);
 oci_execute($laksana_sql_cari);
 ?>
 
-<h4>List of administrators</h4>
-<table class="w3-table-all" id='saiz' border='1'>
+<h4>List of Administrators</h4>
+<table class="w3-table-all" id="saiz" border="1">
     <tr class="w3-light-blue">
         <td>Bil</td>
         <td>Username</td>
         <td>Name</td>
         <td>Email</td>
         <td>Password</td>
-        <td></td>
+        <td>Actions</td>
     </tr>
     <tr>
         <form action='' method='POST'>
@@ -58,7 +58,8 @@ oci_execute($laksana_sql_cari);
             <td><input type='text' name='adminName' required></td>  <!-- Used for NAME -->
             <td><input type='text' name='adminPhone' required></td> <!-- Used for EMAIL -->
             <td><input type='password' name='adminPass' required></td> <!-- Used for PASSWORD -->
-            <td><input type='submit' value='Save'></td>
+            <td><input type="submit" value="Save" class="btn btn-success btn-sm"></td>
+
         </form>
     </tr>
     <?php
@@ -71,10 +72,12 @@ oci_execute($laksana_sql_cari);
             <td>" . $rekod['NAME'] . "</td>
             <td>" . $rekod['EMAIL'] . "</td>
             <td>" . $rekod['PASSWORD'] . "</td>
-            <td>| <a href='delete.php?jadual=ADMIN&medan_kp=USERNAME&kp=" . $rekod['USERNAME'] . "' 
-                onClick=\"return confirm('Confirm delete this admin?')\" >Delete</a> |
-                | <a href='admin_update.php?adminName=" . $rekod['USERNAME'] . "&adminPhone=" . $rekod['EMAIL'] . "&adminPass=" . $rekod['PASSWORD'] . "' 
-                onClick=\"return confirm('Confirm update admin data?')\" >Update</a> |</td>
+            <td>
+                 <a href='delete.php?jadual=ADMIN&medan_kp=USERNAME&kp=" . $rekod['USERNAME'] . "' 
+                onClick=\"return confirm('Confirm delete this admin?')\" class='btn btn-danger btn-sm'>Delete</a> 
+                 <a href='admin_update.php?adminName=" . $rekod['USERNAME'] . "&adminPhone=" . $rekod['EMAIL'] . "&adminPass=" . $rekod['PASSWORD'] . "' 
+                onClick=\"return confirm('Confirm update admin data?')\" class='btn btn-warning btn-sm'>Update</a> 
+            </td>
         </tr>";
     }
     ?>

@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <tr>
                     <th>Username</th>
                     <td><input type="text" id="adminName" name="adminName" class="form-control"
-                            value="<?php echo htmlspecialchars($admin['USERNAME']); ?>" readonly></td>
+                            value="<?php echo htmlspecialchars($admin['USERNAME']); ?>" ></td>
                 </tr>
                 <tr>
                     <th>Email</th>
@@ -88,11 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                     </td>
                 </tr>
-                <tr>
-                    <th>Full Name</th>
-                    <td><input type="text" id="adminName" name="adminName" class="form-control"
-                            value="<?php echo htmlspecialchars($admin['NAME']); ?>" required></td>
-                </tr>
+                
             </table>
 
             <br>
