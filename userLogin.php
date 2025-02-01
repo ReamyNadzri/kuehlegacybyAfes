@@ -38,9 +38,7 @@ if (isset($_POST['login'])) {
         // Successful login
         $_SESSION['username'] = $user['USERNAME'];
         $_SESSION['email'] = $user['EMAIL'];
-        $_SESSION['phoneNum'] = $user['USERNAME'];
-        $_SESSION['username'] = $user['USERNAME'];
-        $_SESSION['username'] = $user['USERNAME'];
+        $_SESSION['phoneNum'] = $user['PHONENUM'];
 
         echo "<script>window.location.href = 'index.php';</script>";
     } else {
