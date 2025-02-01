@@ -231,17 +231,24 @@ $cooking_activity_uploaded = false; // Set this to true when activity is uploade
             margin: 20px auto;
         }
 
-        .cooking-activity-container i {
+        .listing-container {
+            display: flex;
+            background-color: #f9f9f9;
+            width: 80%;
+            margin: 20px auto;
+        }
+
+        .cooking-activity-i {
             font-size: 2rem;
             margin-bottom: 10px;
         }
 
-        .cooking-activity-container p {
+        .cooking-activity-p{
             font-size: 1.2rem;
             margin-bottom: 10px;
         }
 
-        .cooking-activity-container h4 {
+        .cooking-activity-h4 {
             font-size: 1.5rem;
             margin-bottom: 15px;
         }
@@ -347,16 +354,14 @@ $cooking_activity_uploaded = false; // Set this to true when activity is uploade
                 </div>
             </form>
         </div>
-    </div>
+    </div><br><hr>
 
     <!-- Cooking Activity Message -->
-    <?php if (!$cooking_activity_uploaded): ?>
-        <div class="cooking-activity-container">
-            <p><i class="fa fa-utensils"></i><br> Belum ada aktiviti membuat kueh</p>
-            <h4> Kongsi resipe idaman anda!</h4>
-            <button class="start-button">Mulakan!</button>
-        </div>
-    <?php endif; ?>
+            <div class="w3-container" style="width:80%;display:flex;justify-content:center;align-items:center;margin-left:10%">
+                <?php include('kuehByUser.php'); ?>
+            </div>
+
+    
 
 
     <script>

@@ -192,7 +192,8 @@ include ('bottomheader.php');
 <?php 
           include ('footer.php'); 
           include ('popup.php'); 
-        ?>
+          
+        ?><iframe width="100" height="20" src="https://www.myinstants.com/instant/alamak-50277/embed/" frameborder="0" scrolling="no"></iframe>
 
 
 

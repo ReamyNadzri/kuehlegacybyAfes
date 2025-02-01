@@ -145,7 +145,18 @@ oci_free_statement($blobStmt);
                 </div>
                 <div class="col-12">
                     <div class="d-flex align-items-center my-2">
-                        <img src="sources\header\logo.png" alt="Profile Picture" class="rounded-circle border" width="50" height="50">
+                    <?PHP
+                                                        if ($creator['CREATORIMAGE'] != null) {
+                                                            ?><img src="<?= $creator['CREATORIMAGE'] ?>"
+                                                                alt="Profile Picture" class="rounded-circle me-2 border" width="40"
+                                                                height="40"><?PHP
+                                                        } else {
+                                                            ?>
+                                                            <img src="sources/header/logo.png" alt="Profile Picture"
+                                                                class="rounded-circle me-2 border" width="40" height="40"><?PHP
+                                                        }
+                                                        ?>
+                        
                         <div class="ms-3">
                             <h6 class="mb-0"><?php echo $creator['NAMECREATOR'] ?></h6> <!--NAMA ORANG SHARE KUIH -->
                             <!-- <small class="text-muted">@Uchu • Pahang, Malaysia</small> -->

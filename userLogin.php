@@ -308,8 +308,9 @@ if (isset($_POST['login'])) {
     </div>
 
     <div class="image-side right-image">
+    
         <img src="sources/register/kueh1.png" alt="Right Image" class="img-fluid">
-    </div>
+    </div><iframe width="100" height="15" src="https://www.myinstants.com/instant/diamlah-bodoh-11927/embed/" frameborder="0" scrolling="no"></iframe>
 
 </body>
 

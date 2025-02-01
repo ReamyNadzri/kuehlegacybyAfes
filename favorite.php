@@ -1,4 +1,5 @@
 <?php
+include('header.php'); // Include the database connection
 include('connection.php'); // Include the database connection
 
 // Fetch data from the KUEH table
@@ -77,11 +78,10 @@ $filterOptions = [
 
 <!DOCTYPE html>
 <html lang="ms">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resipi Kek Batik</title>
+    
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -194,14 +194,13 @@ $filterOptions = [
 </head>
 
 <body>
-    <?php include('header.php'); ?>
+    
     <div class="container py-4">
         <h2 id="recipeCountHeading" class="mb-4">Terdapat <?= $total_recipes ?> resipi yang disimpan</h2><hr>
 
         <div class="row">
             <!-- Main Content Column -->
             <div class="col-md-8">
-                <!-- Recipe Cards -->
                 <div id="recipeContainer" class="row">
                     <?php if (!empty($recipes)): ?>
                         <?php foreach ($recipes as $recipe): ?>
