@@ -81,6 +81,8 @@ if ($username && $kueh_id) {
 if ($kueh_id) {
     $kuehDetails = fetchKuehDetails($condb, $kueh_id);
     $ingredients = fetchIngredients($condb, $kueh_id);
+
+    
     $steps = fetchSteps($condb, $kueh_id);
     oci_close($condb);
 } else {

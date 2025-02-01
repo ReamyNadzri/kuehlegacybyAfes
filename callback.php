@@ -57,13 +57,14 @@ include('connection.php');
 
     if(!$userG){
 
-        $sqlG = "INSERT INTO users (username, email, name) VALUES (:username, :email, :name)";
+        $sqlG = "INSERT INTO users (username, email, name, image) VALUES (:username, :email, :name, :image)";
 
         $stmtG = oci_parse($condb, $sqlG);
 
         oci_bind_by_name($stmtG, ':username', $usernameGoogle);
         oci_bind_by_name($stmtG, ':email', $emailGoogle);
         oci_bind_by_name($stmtG, ':name', $nameGoogle);
+        oci_bind_by_name($stmtG, ':image', $pictureGoogle);
 
         $resultG = oci_execute($stmtG);
         if ($resultG) {

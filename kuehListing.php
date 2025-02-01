@@ -37,17 +37,20 @@ if (oci_execute($stid)) {
 
         oci_free_statement($blobStmt);
 
-        $blobQuery = "SELECT COALESCE(u.NAME, a.NAME) AS NAME
-    FROM KUEH k
-    LEFT JOIN USERS u ON k.USERNAME = u.USERNAME
-    LEFT JOIN ADMIN a ON k.USERNAME = a.USERNAME
-    WHERE k.KUEHID = :kuehID";
+    $blobQuery = "SELECT COALESCE(u.NAME, a.NAME) AS NAME, u.IMAGE AS IMAGE
+                    FROM KUEH k
+                    LEFT JOIN USERS u ON k.USERNAME = u.USERNAME
+                    LEFT JOIN ADMIN a ON k.USERNAME = a.USERNAME
+                    WHERE k.KUEHID = :kuehID
+                    ORDER BY k.KUEHID DESC";
+
         $blobStmt = oci_parse($condb, $blobQuery);
         oci_bind_by_name($blobStmt, ':kuehID', $row['KUEHID']);
         oci_execute($blobStmt);
 
         if ($blobRow = oci_fetch_assoc($blobStmt)) {
             $row['NAMECREATOR'] = $blobRow['NAME'];
+            $row['CREATORIMAGE'] = $blobRow['IMAGE'];
         }
 
         oci_free_statement($blobStmt);
@@ -87,7 +90,7 @@ $kuehName = ucfirst(strtolower($foodName)); // Convert first character to upperc
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resipi Kek Batik</title>
+    
     <style>
         /* Custom Styles */
         .sticky-sidebar {
@@ -250,8 +253,16 @@ $kuehName = ucfirst(strtolower($foodName)); // Convert first character to upperc
                                                         <?= htmlspecialchars($recipe['ITEMS']) ?>
                                                     </p>
                                                     <div class="d-flex align-items-center profile-section">
-                                                        <img src="sources\header\logo.png" alt="Profile Picture"
-                                                            class="rounded-circle me-2 border" width="40" height="40">
+                                                        <?PHP
+                                                        if ($recipe['CREATORIMAGE'] != null) {
+                                                            ?><img src="<?=$recipe['CREATORIMAGE']?>" alt="Profile Picture"
+                                                            class="rounded-circle me-2 border" width="40" height="40"><?PHP
+                                                        } else {
+                                                            ?>
+                                                            <img src="sources/header/logo.png" alt="Profile Picture"
+                                                            class="rounded-circle me-2 border" width="40" height="40"><?PHP
+                                                        }
+                                                        ?>
                                                         <p class="card-text" style="font-size: 1.1rem;">
                                                             <?= htmlspecialchars($recipe['NAMECREATOR']) ?>
                                                         </p>
