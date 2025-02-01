@@ -66,6 +66,7 @@ function isKuehInFavorites($conn, $kueh_id, $username)
 }
 
 //START============================================================================================================================
+
 // Get the username from the session (assuming the user is logged in)
 $username = $_SESSION['username'] ?? null;
 
@@ -82,13 +83,32 @@ if ($kueh_id) {
     $kuehDetails = fetchKuehDetails($condb, $kueh_id);
     $ingredients = fetchIngredients($condb, $kueh_id);
 
-    
+
     $steps = fetchSteps($condb, $kueh_id);
     oci_close($condb);
 } else {
     // Handle case where kueh_id is not provided
     die("Kueh ID is missing.");
 }
+
+/* GET DETAIL OF THE KUEH'S CREATOR */
+$blobQuery = "SELECT COALESCE(u.NAME, a.NAME) AS NAME, u.IMAGE AS IMAGE
+                    FROM KUEH k
+                    LEFT JOIN USERS u ON k.USERNAME = u.USERNAME
+                    LEFT JOIN ADMIN a ON k.USERNAME = a.USERNAME
+                    WHERE k.KUEHID = :kuehID
+                    ORDER BY k.KUEHID DESC";
+
+$blobStmt = oci_parse($condb, $blobQuery);
+oci_bind_by_name($blobStmt, ':kuehID', $kueh_id);
+oci_execute($blobStmt);
+
+if ($blobRow = oci_fetch_assoc($blobStmt)) {
+    $creator['NAMECREATOR'] = $blobRow['NAME'];
+    $creator['CREATORIMAGE'] = $blobRow['IMAGE'];
+}
+
+oci_free_statement($blobStmt);
 ?>
 
 <head>
@@ -127,12 +147,12 @@ if ($kueh_id) {
                     <div class="d-flex align-items-center my-2">
                         <img src="sources\header\logo.png" alt="Profile Picture" class="rounded-circle border" width="50" height="50">
                         <div class="ms-3">
-                            <h6 class="mb-0">Haziq Akram</h6> <!--NAMA ORANG SHARE KUIH -->
-                            <small class="text-muted">@Uchu • Pahang, Malaysia</small>
+                            <h6 class="mb-0"><?php echo $creator['NAMECREATOR'] ?></h6> <!--NAMA ORANG SHARE KUIH -->
+                            <!-- <small class="text-muted">@Uchu • Pahang, Malaysia</small> -->
                         </div>
                     </div>
                 </div>
-                <p class="mb-2"><?php echo $kuehDetails['FOODTYPECODE']; ?><br><?php echo $kuehDetails['KUEHDESC']; ?></p>
+                <p class="mb-2"><?php echo $kuehDetails['KUEHDESC']; ?></p>
                 <p class="mb-4">
                     <?php echo $kuehDetails['TAGKUEH']; ?>
                 </p>
