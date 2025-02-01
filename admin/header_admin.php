@@ -20,7 +20,7 @@ session_start();
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <link href="https://fonts.cdnfonts.com/css/product-sans" rel="stylesheet">
 
-<body style="font-family: 'Product Sans', sans-serif; background:white;">
+<body style="font-family: 'Product Sans', sans-serif; background:#fafafa;">
 
   <style>
     h1,

@@ -3,56 +3,19 @@ session_start();
 include('connection.php'); // Include the database connection
 
 // Fetch data from the KUEH table
-$foodName = $_GET['search'] ?? ''; // Use null coalescing operator to avoid undefined index notice
+$foodName = htmlspecialchars($_GET['search'] ?? ''); // Sanitize input
 $withIngredients = isset($_GET['with']) ? array_filter(explode(',', $_GET['with'])) : [];
 $withoutIngredients = isset($_GET['without']) ? array_filter(explode(',', $_GET['without'])) : [];
 
-// Validate and sanitize input
-$foodName = trim($foodName);
-$foodName = htmlspecialchars($foodName, ENT_QUOTES, 'UTF-8');
-
-// Prepare SQL statement
-$sql = "SELECT DISTINCT k.KUEHID, k.KUEHNAME, LISTAGG(i.NAMEITEM, ', ') WITHIN GROUP (ORDER BY i.NAMEITEM) AS ITEMS
+// Prepare base SQL statement
+$sql = "SELECT k.KUEHID, k.KUEHNAME, LISTAGG(i.NAMEITEM, ', ') WITHIN GROUP (ORDER BY i.NAMEITEM) AS ITEMS
         FROM KUEH k
         JOIN ITEMS i ON k.KUEHID = i.KUEHID
-        WHERE UPPER(k.KUEHNAME) LIKE '%' || UPPER(:search) || '%'";
+        WHERE UPPER(k.KUEHNAME) LIKE '%' || UPPER(:search) || '%'
+        GROUP BY k.KUEHID, k.KUEHNAME";
 
-// Add WITH conditions
-if (!empty($withIngredients)) {
-    $sql .= " AND k.KUEHID IN (
-        SELECT KUEHID 
-        FROM ITEMS 
-        WHERE " . implode(" OR ", array_map(function ($i) {
-        return "UPPER(NAMEITEM) LIKE '%' || UPPER(:with$i) || '%'";
-    }, array_keys($withIngredients))) . ")";
-}
-
-// Add WITHOUT conditions
-if (!empty($withoutIngredients)) {
-    foreach ($withoutIngredients as $index => $ingredient) {
-        $sql .= " AND k.KUEHID NOT IN (
-            SELECT KUEHID 
-            FROM ITEMS 
-            WHERE UPPER(NAMEITEM) LIKE '%' || UPPER(:without$index) || '%'
-        )";
-    }
-}
-
-$sql .= " GROUP BY k.KUEHID, k.KUEHNAME";
-
-// Prepare and execute the statement
 $stid = oci_parse($condb, $sql);
-
-// Bind parameters
 oci_bind_by_name($stid, ':search', $foodName);
-
-foreach ($withIngredients as $index => $ingredient) {
-    oci_bind_by_name($stid, ":with$index", $ingredient);
-}
-
-foreach ($withoutIngredients as $index => $ingredient) {
-    oci_bind_by_name($stid, ":without$index", $ingredient);
-}
 
 // Execute the query
 if (oci_execute($stid)) {
@@ -60,18 +23,23 @@ if (oci_execute($stid)) {
     $total_recipes = 0;
 
     while ($row = oci_fetch_assoc($stid)) {
+        // Fetch BLOB data for the image
         $blobQuery = "SELECT IMAGE FROM KUEH WHERE KUEHID = :kuehID";
         $blobStmt = oci_parse($condb, $blobQuery);
         oci_bind_by_name($blobStmt, ':kuehID', $row['KUEHID']);
-        oci_execute($blobStmt);
+        if (!oci_execute($blobStmt)) {
+            $error = oci_error($blobStmt);
+            error_log("Database error: " . $error['message']);
+            continue; // Skip this row if there's an error
+        }
 
         if ($blobRow = oci_fetch_assoc($blobStmt)) {
             $blobData = $blobRow['IMAGE']->load(); // Fetch BLOB data
             $row['IMAGE_DATA_URI'] = 'data:image/jpeg;base64,' . base64_encode($blobData);
         }
-
         oci_free_statement($blobStmt);
 
+        // Fetch the creator's name
         $blobQuery = "SELECT COALESCE(u.NAME, a.NAME) AS NAME
               FROM KUEH k
               LEFT JOIN USERS u ON k.USERNAME = u.USERNAME
@@ -79,12 +47,15 @@ if (oci_execute($stid)) {
               WHERE k.KUEHID = :kuehID";
         $blobStmt = oci_parse($condb, $blobQuery);
         oci_bind_by_name($blobStmt, ':kuehID', $row['KUEHID']);
-        oci_execute($blobStmt);
+        if (!oci_execute($blobStmt)) {
+            $error = oci_error($blobStmt);
+            error_log("Database error: " . $error['message']);
+            continue; // Skip this row if there's an error
+        }
 
         if ($blobRow = oci_fetch_assoc($blobStmt)) {
             $row['NAMECREATOR'] = $blobRow['NAME'];
         }
-
         oci_free_statement($blobStmt);
 
         // Check if the kueh is in the user's favorites
@@ -95,22 +66,56 @@ if (oci_execute($stid)) {
             $stid_check = oci_parse($condb, $sql_check);
             oci_bind_by_name($stid_check, ':kueh_id', $row['KUEHID']);
             oci_bind_by_name($stid_check, ':username', $username);
-            oci_execute($stid_check);
+            if (!oci_execute($stid_check)) {
+                $error = oci_error($stid_check);
+                error_log("Database error: " . $error['message']);
+                continue; // Skip this row if there's an error
+            }
+
             $favoriteRow = oci_fetch_array($stid_check, OCI_ASSOC);
             $isFavorite = ($favoriteRow['COUNT'] > 0);
         }
+        $row['IS_FAVORITE'] = $isFavorite;
 
-        $row['IS_FAVORITE'] = $isFavorite; // Add the favorite status to the row
-        $recipes[] = $row;
-        $total_recipes++;
+        // Fetch ITEMNAME from ITEMS table
+        $itemNames = explode(', ', $row['ITEMS']);
+
+        // Check if the row should be added based on ingredient filters
+        $addRow = true;
+
+        // Check for withIngredients
+        if (!empty($withIngredients)) {
+            foreach ($withIngredients as $ingredient) {
+                if (!in_array($ingredient, $itemNames)) {
+                    $addRow = true;
+                    break;
+                }
+            }
+        }
+
+        // Check for withoutIngredients
+        if (!empty($withoutIngredients)) {
+            foreach ($withoutIngredients as $ingredient) {
+                if (in_array($ingredient, $itemNames)) {
+                    $addRow = false;
+                    break;
+                }
+            }
+        }
+
+        // Add the row to recipes if it passes the filters
+        if ($addRow) {
+            $recipes[] = $row;
+            $total_recipes++;
+        }
     }
+    oci_free_statement($stid);
 } else {
-    // Handle query execution error
     $error = oci_error($stid);
-    $error_message = "Database error: " . $error['message'];
+    error_log("Database error: " . $error['message']);
+    die("Database error: " . $error['message']);
 }
 
-oci_free_statement($stid);
 oci_close($condb);
 
 // Prepare the response
@@ -123,13 +128,13 @@ if (!empty($recipes)) {
     ob_start();
     foreach ($recipes as $recipe): ?>
         <div class="col-12 mb-4">
-            <a href="kuehDetails.php?id=<?= $recipe['KUEHID'] ?>"
+            <a href="kuehDetails.php?id=<?= htmlspecialchars($recipe['KUEHID']) ?>"
                 class="text-decoration-none shadow-sm text-dark" style="height:100px">
                 <div class="card card-hover-effect rounded shadow-sm" style="border: none;">
                     <div class="row g-0">
                         <div class="col-md-3 w3-display-container">
                             <div class="card-img-container">
-                                <img src="<?= $recipe['IMAGE_DATA_URI'] ?>" class="img-fluid rounded-start"
+                                <img src="<?= htmlspecialchars($recipe['IMAGE_DATA_URI']) ?>" class="img-fluid rounded-start"
                                     alt="<?= htmlspecialchars($recipe['KUEHNAME']) ?>"
                                     style="max-width: 100%; max-height: 200px; object-fit: cover;">
                             </div>
@@ -140,14 +145,14 @@ if (!empty($recipes)) {
                                     <strong>
                                         <h2 class="card-title"><?= htmlspecialchars($recipe['KUEHNAME']) ?></h2>
                                     </strong>
-                                    <button class="btn btn-light" onclick="toggleFavorite(<?= $recipe['KUEHID'] ?>, event)">
+                                    <button class="btn btn-light" onclick="toggleFavorite(<?= htmlspecialchars($recipe['KUEHID']) ?>, event)">
                                         <i class="bi <?= $recipe['IS_FAVORITE'] ? 'bi-bookmark-fill' : 'bi-bookmark' ?>"></i>
                                     </button>
                                 </div>
                                 <p class="card-text" style="font-size: 1.1rem;">
                                     <?= htmlspecialchars($recipe['ITEMS']) ?>
                                 </p>
-                                <div class="d-flex align-items-center mt-auto"> <!-- Add mt-auto here -->
+                                <div class="d-flex align-items-center mt-auto">
                                     <img src="sources\header\logo.png" alt="Profile Picture"
                                         class="rounded-circle me-2 border" width="40" height="40">
                                     <p class="card-text" style="font-size: 1.1rem;">
