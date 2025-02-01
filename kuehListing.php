@@ -37,7 +37,7 @@ if (oci_execute($stid)) {
 
         oci_free_statement($blobStmt);
 
-    $blobQuery = "SELECT COALESCE(u.NAME, a.NAME) AS NAME, u.IMAGE AS IMAGE
+        $blobQuery = "SELECT COALESCE(u.NAME, a.NAME) AS NAME, u.IMAGE AS IMAGE
                     FROM KUEH k
                     LEFT JOIN USERS u ON k.USERNAME = u.USERNAME
                     LEFT JOIN ADMIN a ON k.USERNAME = a.USERNAME
@@ -90,7 +90,7 @@ $kuehName = ucfirst(strtolower($foodName)); // Convert first character to upperc
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <style>
         /* Custom Styles */
         .sticky-sidebar {
@@ -191,21 +191,46 @@ $kuehName = ucfirst(strtolower($foodName)); // Convert first character to upperc
 
 
         .recipe-page .card {
-            height: auto;
-            display: flex;
-            align-items: center;
+            height: 200px;
         }
 
-
+        /* Card body layout */
         .recipe-page .card-body {
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
             height: 100%;
+            padding: 1rem;
         }
 
+        .card-content {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-header-section {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Ingredients text */
+        .ingredients-list {
+            flex: 1;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            margin: 0;
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+
+        /* Profile section at bottom */
         .profile-section {
-            margin-top: 60px;
+            position: absolute;
+            top: 140px;
+            padding-top: 0.5rem;
+            align-items: center;
         }
     </style>
 </head>
@@ -213,7 +238,8 @@ $kuehName = ucfirst(strtolower($foodName)); // Convert first character to upperc
 <body>
 
     <div class="container py-4">
-        <h2 id="recipeCountHeading" class="mb-4">Terdapat <?= $total_recipes ?> resipi <?= htmlspecialchars($kuehName) ?></h2>
+        <h2 id="recipeCountHeading" class="mb-4">Terdapat <?= $total_recipes ?> resipi
+            <?= htmlspecialchars($kuehName) ?></h2>
         <hr>
 
         <div class="row">
@@ -243,24 +269,36 @@ $kuehName = ucfirst(strtolower($foodName)); // Convert first character to upperc
                                                 <div class="card-body">
                                                     <div class="d-flex justify-content-between">
                                                         <strong>
-                                                            <h2 class="card-title"><?= htmlspecialchars($recipe['KUEHNAME']) ?></h2>
+                                                            <h2 class="card-title"><?= htmlspecialchars($recipe['KUEHNAME']) ?>
+                                                            </h2>
                                                         </strong>
-                                                        <button class="btn btn-light" onclick="toggleFavorite(<?= $recipe['KUEHID'] ?>, event)">
-                                                            <i class="bi <?= $recipe['IS_FAVORITE'] ? 'bi-bookmark-fill' : 'bi-bookmark' ?>"></i>
+                                                        <button class="btn btn-light"
+                                                            onclick="toggleFavorite(<?= $recipe['KUEHID'] ?>, event)">
+                                                            <i
+                                                                class="bi <?= $recipe['IS_FAVORITE'] ? 'bi-bookmark-fill' : 'bi-bookmark' ?>"></i>
                                                         </button>
                                                     </div>
-                                                    <p class="card-text" style="font-size: 1.1rem;">
-                                                        <?= htmlspecialchars($recipe['ITEMS']) ?>
+                                                    <p class="card-text ingredients-list"
+                                                        style="font-size: 1.1rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; position: relative; max-height: 3.3em; line-height: 1.65em;">
+                                                        <?php
+                                                        $items = explode(', ', $recipe['ITEMS']);
+                                                        if (count($items) > 10) {
+                                                            echo htmlspecialchars(implode(', ', array_slice($items, 0, 10))) . '...';
+                                                        } else {
+                                                            echo htmlspecialchars($recipe['ITEMS']);
+                                                        }
+                                                        ?>
                                                     </p>
                                                     <div class="d-flex align-items-center profile-section">
                                                         <?PHP
                                                         if ($recipe['CREATORIMAGE'] != null) {
-                                                            ?><img src="<?=$recipe['CREATORIMAGE']?>" alt="Profile Picture"
-                                                            class="rounded-circle me-2 border" width="40" height="40"><?PHP
+                                                            ?><img src="<?= $recipe['CREATORIMAGE'] ?>"
+                                                                alt="Profile Picture" class="rounded-circle me-2 border" width="40"
+                                                                height="40"><?PHP
                                                         } else {
                                                             ?>
                                                             <img src="sources/header/logo.png" alt="Profile Picture"
-                                                            class="rounded-circle me-2 border" width="40" height="40"><?PHP
+                                                                class="rounded-circle me-2 border" width="40" height="40"><?PHP
                                                         }
                                                         ?>
                                                         <p class="card-text" style="font-size: 1.1rem;">
@@ -273,7 +311,7 @@ $kuehName = ucfirst(strtolower($foodName)); // Convert first character to upperc
                                     </div>
                                 </a>
                             </div>
-                        <?php
+                            <?php
                             $animate += 0.04;
                         endforeach; ?>
                     <?php else: ?>
@@ -324,7 +362,7 @@ $kuehName = ucfirst(strtolower($foodName)); // Convert first character to upperc
     <?php include('footer.php'); ?>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const withInput = document.getElementById('withInput');
             const withoutInput = document.getElementById('withoutInput');
             const withTagsContainer = document.getElementById('withTags');
@@ -343,7 +381,7 @@ $kuehName = ucfirst(strtolower($foodName)); // Convert first character to upperc
                 removeButton.className = 'ms-2';
                 removeButton.innerHTML = '&times;';
                 removeButton.style.cursor = 'pointer';
-                removeButton.onclick = function() {
+                removeButton.onclick = function () {
                     container.removeChild(tag);
                     const index = tagArray.indexOf(value);
                     if (index !== -1) {
@@ -386,7 +424,7 @@ $kuehName = ucfirst(strtolower($foodName)); // Convert first character to upperc
             }
 
             // Event listener for "With" input
-            withInput.addEventListener('keydown', function(e) {
+            withInput.addEventListener('keydown', function (e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
                     const value = this.value.trim().toLowerCase();
@@ -399,7 +437,7 @@ $kuehName = ucfirst(strtolower($foodName)); // Convert first character to upperc
             });
 
             // Event listener for "Without" input
-            withoutInput.addEventListener('keydown', function(e) {
+            withoutInput.addEventListener('keydown', function (e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
                     const value = this.value.trim().toLowerCase();
@@ -419,14 +457,14 @@ $kuehName = ucfirst(strtolower($foodName)); // Convert first character to upperc
 
             // Send an AJAX request to toggle the favorite status
             fetch('toggleFavorite.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        kueh_id: kueh_id
-                    })
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    kueh_id: kueh_id
                 })
+            })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
