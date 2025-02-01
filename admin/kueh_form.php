@@ -218,6 +218,9 @@ oci_close($condb);
     <!--CONTENT START HERE-->
     <div class="container w-75">
         <form id="kuehForm" method="POST" action="<?php echo $_SERVER['PHP_SELF']; ?>" enctype="multipart/form-data">
+            <div class="d-flex justify-content-end mt-4">
+                <button type="submit" name="submit" class="btn btn-primary mb-4">Save Recipe</button>
+            </div>
             <!-- Existing image and title section -->
             <div class="row">
                 <div class="col-12 col-md-4 my-4" id="imageContainer">
@@ -235,7 +238,7 @@ oci_close($condb);
                 </div>
                 <div class="col-12 col-md gy-4">
                     <div class="col-12 bg-primary">
-                        <input class="w-100 p-1 border-0 shadow-none fw-bolder fs-2" style="background-color: #FFFAF0;" type="text" name="kuehName" placeholder="Tajuk: Kuih Lapis Atok">
+                        <input class="w-100 p-1 border-0 shadow-none fw-bolder fs-2" style="background-color: #FFFAF0;" type="text" name="kuehName" placeholder="Tajuk: Kuih Lapis Atok" required>
                     </div>
                     <div class="col-12">
                         <div class="d-flex align-items-center my-2">
@@ -249,7 +252,7 @@ oci_close($condb);
                         </div>
                     </div>
                     <div class="col-12">
-                        <textarea class="w-100 p-1 border-0 shadow-none" name="kuehDesc" style="background-color: #FFFAF0;" placeholder="Share kisah resepi anda"></textarea>
+                        <textarea class="w-100 p-1 border-0 shadow-none" name="kuehDesc" style="background-color: #FFFAF0;" placeholder="Share kisah resepi anda" rows="6" required></textarea>
                     </div>
                 </div>
             </div>
@@ -297,17 +300,14 @@ oci_close($condb);
                             <h1 class="fw-bolder m-0">Ramuan</h1>
                             <button type="button" class="btn btn-primary ms-3" id="addIngredientButton"><i class="bi bi-plus"></i></button>
                         </div>
-
-
                     </div>
-                    <div id="ingredientContainer">
+                    <div id="ingredientContainer" style="height: 250px; overflow-y: auto; padding: 10px;">
                         <div class="input-group mb-2">
                             <button type="button" class="btn btn-outline-secondary border-0"><i class="bi bi-justify"></i></button>
                             <input type="text" name="ingredients[]" class="form-control" required>
                         </div>
                     </div>
                 </div>
-
 
                 <!-- Steps Section -->
                 <div class="col-12 col-lg col-md-6 py-3">
@@ -316,20 +316,13 @@ oci_close($condb);
                             <h1 class="fw-bolder m-0">Cara Memasak</h1>
                             <button type="button" class="btn btn-primary ms-3" id="addStepButton"><i class="bi bi-plus"></i></button>
                         </div>
-
                     </div>
-                    <div id="stepContainer">
+                    <div id="stepContainer" style="height: 250px; overflow-y: auto; padding: 10px;">
                         <div class="input-group mb-2">
                             <button type="button" class="btn btn-outline-secondary border-0"><i class="bi bi-justify"></i></button>
                             <input type="text" name="steps[]" class="form-control" required>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <div class="row mt-3">
-                <div class="col-12 d-flex justify-content-end">
-                    <button type="submit" name="submit" class="btn btn-primary mb-4">Save Recipe</button>
                 </div>
             </div>
 
