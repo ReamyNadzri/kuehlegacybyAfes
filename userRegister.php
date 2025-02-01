@@ -1,4 +1,3 @@
-
 <?php
 // Start session if not already started
 session_start();
@@ -61,6 +60,17 @@ if (isset($_POST['register'])) {
         $errors[] = "Username already exists";
     }
 
+    // Check if username already exists
+    $sql = "SELECT COUNT(*) AS USER_COUNT FROM USERS WHERE EMAIL = :EMAIL";
+    $stid = oci_parse($condb, $sql);
+    oci_bind_by_name($stid, ":EMAIL", $email);
+    oci_execute($stid);
+    $row = oci_fetch_assoc($stid);
+
+    if ($row['USER_COUNT'] > 0) {
+        $errors[] = "Email already exists";
+    }
+
     // If no errors, proceed with registration
     if (empty($errors)) {
         $sql = "INSERT INTO USERS (USERNAME, PASSWORD, EMAIL, PHONENUM, NAME) VALUES (:username, :password, :email, :phoneNum, :name)";
@@ -97,6 +107,7 @@ if (isset($_POST['register'])) {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -107,7 +118,7 @@ if (isset($_POST['register'])) {
     <!-- Toastify CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 
-        
+
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -230,9 +241,9 @@ if (isset($_POST['register'])) {
             right: 400px;
             /* Adjust the position of the right image */
         }
-
     </style>
 </head>
+
 <body>
     <div class="container-fluid">
         <div class="image-side left-image">
@@ -311,4 +322,5 @@ if (isset($_POST['register'])) {
         });
     </script>
 </body>
+
 </html>
