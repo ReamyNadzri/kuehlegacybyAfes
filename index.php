@@ -119,6 +119,67 @@ include('bottomheader.php');
           </div>
         </a>
       </div>
+
+      <hr>
+      <br>
+
+      <h2 style="margin-left: 15px;"><b>Negeri</b></h2>
+
+      <div class="w3-row w3-text-white w3-large w3-text-shadow w3-center" style="position:static">
+        <a href="kuehListing.php?search=johor">
+          <div class="w3-col s3 w3-display-container w3-animate-zoom" style="padding: 5px; position: relative; z-index: 1; animation-delay: 0.0s">
+            <img src="sources/negeri/johor.png" alt="" class="w3-round-large w3-hover-opacity w3-card" style="height: 110px; width: 100%; object-fit: cover;">
+            
+          </div>
+        </a>
+        <a href="kuehListing.php?search=kedah">
+          <div class="w3-col s3 w3-display-container w3-animate-zoom" style="padding: 5px; animation-delay: 0.2s">
+            <img src="sources/negeri/kedah.png" alt="" class="w3-round-large w3-hover-opacity w3-card" style="height: 110px; width: 100%; object-fit: cover;">
+            
+          </div>
+        </a>
+        <a href="kuehListing.php?search=kelantan">
+          <div class="w3-col s3 w3-display-container w3-animate-zoom" style="padding: 5px; animation-delay: 0.4s">
+            <img src="sources/negeri/kelantan.png" alt="" class="w3-round-large w3-hover-opacity w3-card" style="height: 110px; width: 100%; object-fit: cover;">
+           
+          </div>
+        </a>
+        <a href="kuehListing.php?search=terengganu">
+          <div class="w3-col s3 w3-display-container w3-animate-zoom" style="padding: 5px; animation-delay: 0.6s">
+            <img src="sources/negeri/terengganu.png" alt="" class="w3-round-large w3-hover-opacity w3-card" style="height: 110px; width: 100%; object-fit: cover;">
+            
+          </div>
+        </a>
+      </div>
+
+      <div class="w3-row w3-text-white w3-large w3-text-shadow w3-center">
+        <a href="kuehListing.php?search=labuan">
+          <div class="w3-col s3 w3-display-container w3-animate-zoom" style="padding: 5px; animation-delay: 0.2s">
+            <img src="sources/negeri/labuan.png" alt="" class="w3-round-large w3-hover-opacity w3-card" style="height: 110px; width: 100%; object-fit: cover">
+           
+          </div>
+        </a>
+        <a href="kuehListing.php?search=melaka">
+          <div class="w3-col s3 w3-display-container w3-animate-zoom" style="padding: 5px; animation-delay: 0.4s">
+            <img src="sources/negeri/melaka.png" alt="" class="w3-round-large w3-hover-opacity w3-card" style="height: 110px; width: 100%; object-fit: cover">
+            
+          </div>
+        </a>
+        <a href="kuehListing.php?search=pahang"></a>
+        <div class="w3-col s3 w3-display-container w3-animate-zoom" style="padding: 5px; animation-delay: 0.6s">
+          <img src="sources/negeri/pahang.png" alt="" class="w3-round-large w3-hover-opacity w3-card" style="height: 110px; width: 100%; object-fit: cover">
+          
+        </div>
+        </a>
+        <a href="kuehListing.php?search=penang">
+          <div class="w3-col s3 w3-display-container w3-animate-zoom" style="padding: 5px; animation-delay: 0.8s">
+            <img src="sources/negeri/penang.png" alt="" class="w3-round-large w3-hover-opacity w3-card" style="height: 110px; width: 100%; object-fit: cover">
+         
+          </div>
+        </a>
+      </div>
+   
+
       <hr>
       <br>
       <h2 style="margin-left: 15px;"><b>Resipi lama yang mengimbau 1001 kenangan bersama!</b></h2>
