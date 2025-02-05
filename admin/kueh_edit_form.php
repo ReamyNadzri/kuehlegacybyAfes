@@ -67,7 +67,7 @@ if (isset($_POST['submit'])) {
             $lob = oci_new_descriptor($condb, OCI_D_LOB);
         } else {
             // No new image is uploaded, retain the existing image
-            $sql_kueh = "UPDATE KUEH SET KUEHNAME = :kuehName, KUEHDESC = :kuehDesc, FOODTYPECODE = :foodTypeCode, METHODID = :methodId, POPULARID = :popularId, ORIGINID = :originId, VIDEO = :video, WHERE KUEHID = :kuehId";
+            $sql_kueh = "UPDATE KUEH SET KUEHNAME = :kuehName, KUEHDESC = :kuehDesc, FOODTYPECODE = :foodTypeCode, METHODID = :methodId, POPULARID = :popularId, ORIGINID = :originId, VIDEO = :video WHERE KUEHID = :kuehId";
         }
 
         $laksana_sql_kueh = oci_parse($condb, $sql_kueh);
