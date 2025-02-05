@@ -35,7 +35,7 @@ include ('bottomheader.php');
 
 
                 <hr>
-                <h3 style="margin-left: 15px;"><b>Bahan Popular</b></h3>
+                <h2 style="margin-left: 15px;"><b>Bahan Popular</b></h2>
 
                 <div class="w3-row w3-text-white w3-large w3-text-shadow w3-center" style="position:static">
                   <a href="kuehListing.php?search=almond">
@@ -92,7 +92,7 @@ include ('bottomheader.php');
                 </div>
                 <hr>
                 <br>
-                <h3 style="margin-left: 15px;"><b>Resipi lama yang mengimbau 1001 kenangan bersama!</b></h3>
+                <h2 style="margin-left: 15px;"><b>Resipi lama yang mengimbau 1001 kenangan bersama!</b></h2>
 
                 <h4 style="margin-left: 15px;">Kuih-muih dari Terengganu</h4>         <!--SEARCHING USING DB-->
                 <div class="w3-row w3-text-white">

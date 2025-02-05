@@ -1,141 +1,173 @@
 <?php
-// Start session if not already started
-session_start();
 
-include('connection.php'); // Ensure this file correctly sets up $condb
+require __DIR__ . "/vendor/autoload.php";
 
-// Check if form is submitted
-if (isset($_POST['register'])) {
-    // Get form data and sanitize inputs
-    $username = filter_var($_POST['username'], FILTER_SANITIZE_STRING);
-    $password = $_POST['password']; // You should hash passwords before storing them
-    $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
-    $phoneNum = filter_var($_POST['phoneNum'], FILTER_SANITIZE_STRING);
-    $name = filter_var($_POST['name'], FILTER_SANITIZE_STRING);
+$client = new Google\Client;
 
-    // Validate inputs based on database constraints
-    $errors = [];
+$client->setClientId("86003731304-ujapfaslp3bk71imksdn5oq21ebl8i07.apps.googleusercontent.com");
+$client->setClientSecret("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");
+$client->setRedirectUri("http://localhost/kuehlegacybyAfes/callback.php");
 
-    // Username validation (VARCHAR2(50 BYTE))
-    if (empty($username)) {
-        $errors[] = "Username is required";
-    } elseif (strlen($username) > 50) {
-        $errors[] = "Username must be less than 50 characters";
-    }
+$client->addScope("email");
+$client->addScope("profile");
 
-    // Password validation (VARCHAR2(30 BYTE))
-    if (empty($password)) {
-        $errors[] = "Password is required";
-    } elseif (strlen($password) > 30) {
-        $errors[] = "Password must be less than 30 characters";
-    }
+$url = $client->createAuthUrl();
 
-    // Email validation (VARCHAR2(100 BYTE))
-    if (empty($email)) {
-        $errors[] = "Email is required";
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errors[] = "Invalid email format";
-    } elseif (strlen($email) > 100) {
-        $errors[] = "Email must be less than 100 characters";
-    }
+include('header.php');
+include('connection.php');
 
-    // Phone number validation (VARCHAR2(15 BYTE))
-    if (!empty($phoneNum) && strlen($phoneNum) > 15) {
-        $errors[] = "Phone number must be less than 11 characters";
-    }
+// Check if the form is submitted
+if (isset($_POST['login'])) {
+    $email = $_POST['email'];
+    $password = $_POST['password'];
 
-    // Name validation (VARCHAR2(100 BYTE))
-    if (!empty($name) && strlen($name) > 100) {
-        $errors[] = "Name must be less than 100 characters";
-    }
 
-    // Check if username already exists
-    $sql = "SELECT COUNT(*) AS USER_COUNT FROM USERS WHERE USERNAME = :username";
-    $stid = oci_parse($condb, $sql);
-    oci_bind_by_name($stid, ":username", $username);
-    oci_execute($stid);
-    $row = oci_fetch_assoc($stid);
+    $sql = "SELECT * FROM users WHERE email = :email AND password = :password";
 
-    if ($row['USER_COUNT'] > 0) {
-        $errors[] = "Username already exists";
-    }
+    $stmt = oci_parse($condb, $sql);
 
-    // Check if username already exists
-    $sql = "SELECT COUNT(*) AS USER_COUNT FROM USERS WHERE EMAIL = :EMAIL";
-    $stid = oci_parse($condb, $sql);
-    oci_bind_by_name($stid, ":EMAIL", $email);
-    oci_execute($stid);
-    $row = oci_fetch_assoc($stid);
+    oci_bind_by_name($stmt, ':email', $email);
+    oci_bind_by_name($stmt, ':password', $password);
 
-    if ($row['USER_COUNT'] > 0) {
-        $errors[] = "Email already exists";
-    }
+    oci_execute($stmt);
 
-    // If no errors, proceed with registration
-    if (empty($errors)) {
-        $sql = "INSERT INTO USERS (USERNAME, PASSWORD, EMAIL, PHONENUM, NAME) VALUES (:username, :password, :email, :phoneNum, :name)";
-        $stid = oci_parse($condb, $sql);
 
-        // Bind parameters
-        oci_bind_by_name($stid, ":username", $username);
-        oci_bind_by_name($stid, ":password", $password);
-        oci_bind_by_name($stid, ":email", $email);
-        oci_bind_by_name($stid, ":phoneNum", $phoneNum);
-        oci_bind_by_name($stid, ":name", $name);
+    $user = oci_fetch_assoc($stmt);
 
-        // Execute the statement
-        $result = oci_execute($stid, OCI_COMMIT_ON_SUCCESS);
+    if ($user) {
+        // Successful login
+        $_SESSION['username'] = $user['USERNAME'];
+        $_SESSION['email'] = $user['EMAIL'];
+        $_SESSION['phoneNum'] = $user['PHONENUM'];
 
-        if ($result) {
-            // Output success message as JSON for JavaScript
-            echo '<script>';
-            echo 'var successMessage = "Registration successful! You can now login.";';
-            echo '</script>';
-        } else {
-            $errors[] = "Registration failed. Please try again.";
-        }
-    }
-
-    // If there were errors, store them in session and redirect back to registration page
-    if (!empty($errors)) {
-        // Output errors as JSON for JavaScript
-        echo '<script>';
-        echo 'var errors = ' . json_encode($errors) . ';';
-        echo '</script>';
+        echo "<script>window.location.href = 'index.php';</script>";
+    } else {
+        // Login failed
+        $errorMessage = "Invalid email or password.";
     }
 }
+
 ?>
-<!DOCTYPE html>
-<html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Registration</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-    <!-- Toastify CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-
-
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f3f4f6;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
+        .gsi-material-button {
+            -moz-user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            -webkit-appearance: none;
+            background-color: WHITE;
+            background-image: none;
+            border: 1px solid #747775;
+            -webkit-border-radius: 4px;
+            border-radius: 4px;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            color: #1f1f1f;
+            cursor: pointer;
+            font-family: 'Roboto', arial, sans-serif;
+            font-size: 14px;
+            height: 40px;
+            letter-spacing: 0.25px;
+            outline: none;
+            overflow: hidden;
+            padding: 0 12px;
+            position: relative;
+            text-align: center;
+            -webkit-transition: background-color .218s, border-color .218s, box-shadow .218s;
+            transition: background-color .218s, border-color .218s, box-shadow .218s;
+            vertical-align: middle;
+            white-space: nowrap;
+            width: auto;
+            max-width: 400px;
+            min-width: min-content;
         }
 
-        .form-container {
+        .gsi-material-button .gsi-material-button-icon {
+            height: 20px;
+            margin-right: 12px;
+            min-width: 20px;
+            width: 20px;
+        }
+
+        .gsi-material-button .gsi-material-button-content-wrapper {
+            -webkit-align-items: center;
+            align-items: center;
+            display: flex;
+            -webkit-flex-direction: row;
+            flex-direction: row;
+            -webkit-flex-wrap: nowrap;
+            flex-wrap: nowrap;
+            height: 100%;
+            justify-content: center;
+            position: relative;
+            width: 100%;
+        }
+
+        .gsi-material-button .gsi-material-button-contents {
+            -webkit-flex-grow: 0;
+            flex-grow: 0;
+            font-family: 'Roboto', arial, sans-serif;
+            font-weight: 500;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            vertical-align: top;
+        }
+
+        .gsi-material-button .gsi-material-button-state {
+            -webkit-transition: opacity .218s;
+            transition: opacity .218s;
+            bottom: 0;
+            left: 0;
+            opacity: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+        }
+
+        .gsi-material-button:disabled {
+            cursor: default;
+            background-color: #ffffff61;
+            border-color: #1f1f1f1f;
+        }
+
+        .gsi-material-button:disabled .gsi-material-button-contents {
+            opacity: 38%;
+        }
+
+        .gsi-material-button:disabled .gsi-material-button-icon {
+            opacity: 38%;
+        }
+
+        .gsi-material-button:not(:disabled):active .gsi-material-button-state,
+        .gsi-material-button:not(:disabled):focus .gsi-material-button-state {
+            background-color: #303030;
+            opacity: 12%;
+        }
+
+        .gsi-material-button:not(:disabled):hover {
+            -webkit-box-shadow: 0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15);
+            box-shadow: 0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15);
+        }
+
+        .gsi-material-button:not(:disabled):hover .gsi-material-button-state {
+            background-color: #303030;
+            opacity: 8%;
+        }
+
+        .backdropCustom {
             background: rgba(255, 255, 255, 0.2);
+            /* Semi-transparent white background */
             backdrop-filter: blur(10px);
-            border-radius: 10px;
+            /* Blur effect for glassmorphism */
+            -webkit-backdrop-filter: blur(10px);
+            /* For Safari support */
             border: 1px solid rgba(255, 255, 255, 0.3);
+            /* Light border for glass effect */
+            border-radius: 10px;
+            /* Rounded corners */
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            /* Subtle shadow */
             padding: 30px;
             width: 100%;
             max-width: 400px;
@@ -143,12 +175,30 @@ if (isset($_POST['register'])) {
             z-index: 2;
         }
 
-        .form-container h2 {
-            text-align: center;
-            font-size: 24px;
-            color: #333;
-            margin-bottom: 25px;
+        .w3-input1 {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
         }
+
+        .w3-button1 {
+            width: 100%;
+            padding: 10px;
+            background-color: orange;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .w3-button1:hover {
+            background-color: #e95b4f;
+        }
+
 
         .input-container {
             position: relative;
@@ -168,45 +218,6 @@ if (isset($_POST['register'])) {
             box-sizing: border-box;
         }
 
-        input:focus {
-            border-color: #ff6f61;
-            outline: none;
-        }
-
-        .input-container i {
-            position: absolute;
-            top: 50%;
-            left: 10px;
-            transform: translateY(-50%);
-            color: #999;
-        }
-
-        .w3-button {
-            width: 100%;
-            padding: 15px;
-            background-color: orange;
-            color: white;
-            font-size: 18px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .w3-button:hover {
-            background-color: #e95b4f;
-        }
-
-        .footer-text {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 14px;
-        }
-
-        .footer-text a {
-            color: orange;
-            text-decoration: none;
-        }
 
         .image-side {
             position: absolute;
@@ -218,109 +229,96 @@ if (isset($_POST['register'])) {
             align-items: center;
             justify-content: center;
             z-index: 1;
+
             /* Images are behind the login form */
         }
 
         .image-side img {
             max-width: 100%;
-            /* Ensure the image doesn't exceed the width of its container */
             max-height: 100%;
-            /* Ensure the image doesn't exceed the height of its container */
             object-fit: cover;
-            /* Ensure the image covers the container without distortion */
-            border-radius: 10px;
-            /* Optional: Add rounded corners */
         }
 
         .left-image {
-            left: 400px;
-            /* Adjust the position of the left image */
+            left: 450px;
         }
 
         .right-image {
-            right: 400px;
-            /* Adjust the position of the right image */
+            right: 350px;
         }
     </style>
+
+    <link rel="stylesheet" href="style.css">
+    <title>Daftar Masuk</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link href="https://fonts.cdnfonts.com/css/product-sans" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
-<body>
-    <div class="container-fluid">
-        <div class="image-side left-image">
-            <img src="sources/register/kueh2.png" alt="Left Image" class="img-fluid">
-        </div>
+<body class="" style="background-color: #FFFAF0;">
+    <br><br><br><br><br><br>
 
-        <div class="form-container">
-            <h2>Daftar Akaun Baharu</h2>
-            <form method="post" action="">
-                <div class="input-container">
-                    <i class="fas fa-user"></i>
-                    <input type="text" name="username" placeholder="Nama Pengguna" required>
-                </div>
-                <div class="input-container">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" name="password" placeholder="Kata laluan" required>
-                </div>
-                <div class="input-container">
-                    <i class="fas fa-envelope"></i>
-                    <input type="email" name="email" placeholder="Email" required>
-                </div>
-                <div class="input-container">
-                    <i class="fas fa-phone"></i>
-                    <input type="text" name="phoneNum" placeholder="Nombor Telefon" required maxlength="11">
-                </div>
-                <div class="input-container">
-                    <i class="fas fa-user"></i>
-                    <input type="text" name="name" placeholder="Nama Penuh" required>
-                </div>
-                <button type="submit" name="register" class="w3-button">Register</button>
-            </form>
-            <p class="footer-text">Sudah ada akaun? <a href="userLogin.php">Log masuk</a></p>
-        </div>
+    <div class="image-side left-image">
+        <img src="sources/register/kueh2.png" alt="Left Image" class="img-fluid">
+    </div>
+    <div class="w3-cell" style="width:55%"></div>
+    <div class="w3-container w3-cell backdropCustom w3-border" style="width: 400px; padding: 40px; ">
 
-        <div class="image-side right-image">
-            <img src="sources/register/kueh1.png" alt="Right Image" class="img-fluid">
-        </div>
+        <h2 class="w3-center w3-text-gray">Daftar Masuk</h2>
+
+        <!-- Display error message if login fails -->
+        <?php if (isset($errorMessage)): ?>
+            <div class="w3-text-red w3-center"><?php echo $errorMessage; ?></div>
+        <?php endif; ?>
+
+        <form method="post" action="">
+            <div class="w3-margin-bottom">
+                <input type="text" name="username" class="w3-input1 w3-border w3-round-large" placeholder="Nama Pengguna" required>    
+            </div>
+            <div class="w3-margin-bottom">
+                <input type="password" name="password" class="w3-input1 w3-border w3-round-large" placeholder="Kata laluan" required>
+            </div>
+            <div class="w3-margin-bottom">
+                <input type="email" name="email" class="w3-input1 w3-border w3-round-large" placeholder="Email Pengguna" required>
+            </div>
+            <div class="w3-margin-bottom">
+                <input type="text" name="phoneNum" class="w3-input1 w3-border w3-round-large" placeholder="Nombor Telefon Pengguna" required>
+            </div>
+            <div class="w3-margin-bottom">
+                <input type="password" name="password" class="w3-input1 w3-border w3-round-large" placeholder="Kata laluan" required>
+            </div>
+            <button type="submit" name="login" class="w3-button1 w3-block w3-round-large w3-blue w3-margin-top w3-orange">Login</button>
+        </form>
+        <hr>
+
+        <a href="<?= $url ?>">
+            <button class="gsi-material-button" style="margin-left: 22%">
+                <div class="gsi-material-button-state"></div>
+                <div class="gsi-material-button-content-wrapper">
+                    <div class="gsi-material-button-icon">
+                        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" xmlns:xlink="http://www.w3.org/1999/xlink" style="display: block;">
+                            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
+                            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
+                            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
+                            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
+                            <path fill="none" d="M0 0h48v48H0z"></path>
+                        </svg>
+                    </div>
+                    <span class="gsi-material-button-contents">Sign in with Google</span>
+                    <span style="display: none;">Sign in with Google</span>
+                </div>
+            </button>
+        </a>
+        <p class="w3-center w3-margin-top">Masih lagi tiada akaun? <a href="userRegister.php" class="w3-text-orange">Daftar Sekarang</a></p>
     </div>
 
-    <!-- Toastify JS -->
-    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            // Display errors if any
-            if (typeof errors !== 'undefined') {
-                errors.forEach(function (error) {
-                    Toastify({
-                        text: error,
-                        duration: 5000, // Display for 5 seconds
-                        close: true,
-                        gravity: "top", // Position at the top
-                        position: "right", // Center the toast
-                        backgroundColor: "linear-gradient(to right, #ff6f61, #e95b4f)", // Error color
-                        stopOnFocus: true, // Stop timer when hovered
-                    }).showToast();
-                });
-            }
+    <div class="image-side right-image">
+    
+        <img src="sources/register/kueh1.png" alt="Right Image" class="img-fluid">
+    </div>
 
-            // Display success message if registration is successful
-            if (typeof successMessage !== 'undefined') {
-                Toastify({
-                    text: successMessage,
-                    duration: 5000, // Display for 5 seconds
-                    close: true,
-                    gravity: "top", // Position at the top
-                    position: "right", // Center the toast
-                    backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)", // Success color
-                    stopOnFocus: true, // Stop timer when hovered
-                }).showToast();
-
-                // Redirect to login page after 5 seconds
-                setTimeout(function () {
-                    window.location.href = "userLogin.php";
-                }, 5000);
-            }
-        });
-    </script>
 </body>
 
-</html>
+<img src="sources/footer/footer.png" alt="" style="width: 100%;">
