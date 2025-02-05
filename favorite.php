@@ -83,8 +83,6 @@ $filterOptions = [
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         /* Custom Styles */
         .sticky-sidebar {
@@ -155,46 +153,80 @@ $filterOptions = [
 
         .sticky-sidebar .card-body {
             border-top: 1px solid gray;
-            /* Add a bold top border with your desired color */
             padding-top: 15px;
-            /* Add spacing to avoid overlap with content */
             margin-top: 15px;
-            /* Create space between stacked cards */
         }
 
         .sticky-sidebar .card-body:first-child {
             border-top: none;
-            /* Remove the top border from the first card-body for a cleaner look */
             margin-top: 0;
-            /* Ensure no extra space at the top */
         }
 
-        .card-img-container {
-            width: 100%;
-            /* Fixed width for the image container */
+        .recipe-page .card-img-container img {
+            width: 200px;
             height: 200px;
-            /* Fixed height for the image container */
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .recipe-page .card-img-container {
+            width: 200px;
+            height: 200px;
             overflow: hidden;
+            display: flex;
             align-items: center;
             justify-content: center;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+
         }
 
-        .card-img-container img {
-            width: 100%;
-            /* Make the image fill the container */
+
+        .recipe-page .card {
+            height: 200px;
+        }
+
+        /* Card body layout */
+        .recipe-page .card-body {
+            display: flex;
+            flex-direction: column;
             height: 100%;
-            /* Make the image fill the container */
-            object-fit: cover;
-            /* Ensure the image covers the container without distortion */
+            padding: 1rem;
         }
 
-        .card {
-            height: 175px;
+        .card-content {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-header-section {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Ingredients text */
+        .ingredients-list {
+            flex: 1;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            margin: 0;
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+
+        /* Profile section at bottom */
+        .profile-section {
+            position: absolute;
+            top: 140px;
+            padding-top: 0.5rem;
+            align-items: center;
         }
     </style>
 </head>
 
-<body>
 
     <div class="container py-4">
         <h2 id="recipeCountHeading" class="mb-4">Terdapat <?= $total_recipes ?> resipi yang disimpan</h2>
@@ -203,8 +235,10 @@ $filterOptions = [
         <div class="row">
             <!-- Main Content Column -->
             <div class="col-md-8">
+                <!-- Recipe Cards -->
                 <div id="recipeContainer" class="row">
-                    <?php if (!empty($recipes)): ?>
+                    <?php if (!empty($recipes)):
+                        $animate = 0.0; ?>
                         <?php foreach ($recipes as $recipe): ?>
                             <div class="col-12 mb-4 w3-animate-left" style="animation-delay: <?= $animate ?>s;">
                                 <a href="kuehDetails.php?id=<?= $recipe['KUEHID'] ?>"
@@ -230,8 +264,7 @@ $filterOptions = [
                                                         </strong>
                                                         <button class="btn btn-light"
                                                             onclick="toggleFavorite(<?= $recipe['KUEHID'] ?>, event)">
-                                                            <i
-                                                                class="bi <?= $recipe['IS_FAVORITE'] ? 'bi-bookmark-fill' : 'bi-bookmark' ?>"></i>
+                                                            <i class="bi <?= $recipe['IS_FAVORITE'] ? 'bi-bookmark-fill' : 'bi-bookmark' ?>"></i>
                                                         </button>
                                                     </div>
                                                     <p class="card-text ingredients-list"
@@ -268,11 +301,11 @@ $filterOptions = [
                                 </a>
                             </div>
                             <?php
-                            $animate += 0.04;
+                            $animate += 0.10;
                         endforeach; ?>
                     <?php else: ?>
                         <div class="col-12">
-                            <p>Tiada kueh dalam kegemaran.</p>
+                            <p>No recipes found for "<?= htmlspecialchars($kuehName) ?>".</p>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -308,28 +341,190 @@ $filterOptions = [
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        function toggleFavorite(kuehID) {
-            if (!confirm("Are you sure you want to remove this from favorites?")) return;
+        document.addEventListener('DOMContentLoaded', function () {
+            const withInput = document.getElementById('withInput');
+            const withoutInput = document.getElementById('withoutInput');
+            const withTagsContainer = document.getElementById('withTags');
+            const withoutTagsContainer = document.getElementById('withoutTags');
 
-            fetch('remove_favorite.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: 'KUEHID=' + kuehID
+            let withTags = [];
+            let withoutTags = [];
+
+            // Function to create a tag
+            function createTag(value, container, tagArray) {
+                const tag = document.createElement('div');
+                tag.className = 'related-search-btn me-2 mb-2';
+                tag.textContent = value;
+
+                const removeButton = document.createElement('span');
+                removeButton.className = 'ms-2';
+                removeButton.innerHTML = '&times;';
+                removeButton.style.cursor = 'pointer';
+                removeButton.onclick = function () {
+                    container.removeChild(tag);
+                    const index = tagArray.indexOf(value);
+                    if (index !== -1) {
+                        tagArray.splice(index, 1);
+                    }
+                    updateRecipes();
+                };
+
+                tag.appendChild(removeButton);
+                container.appendChild(tag);
+                tagArray.push(value);
+            }
+
+            // Function to filter recipes based on tags
+            function filterRecipes(withTags, withoutTags) {
+                const recipeCards = document.querySelectorAll('#recipeContainer .col-12');
+                let visibleCount = 0;
+
+                recipeCards.forEach(card => {
+                    const recipeItems = card.querySelector('.card-text').textContent.toLowerCase();
+                    const shouldShow =
+                        withTags.every(tag => recipeItems.includes(tag)) &&
+                        withoutTags.every(tag => !recipeItems.includes(tag));
+
+                    if (shouldShow) {
+                        card.style.display = 'block';
+                        visibleCount++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                return visibleCount;
+            }
+
+            // Function to update recipes with loading animation
+            function updateRecipes() {
+                const visibleCount = filterRecipes(withTags, withoutTags);
+                document.getElementById('recipeCountHeading').textContent = `Terdapat ${visibleCount} resipi <?= htmlspecialchars($kuehName) ?>`;
+            }
+
+            // Event listener for "With" input
+            withInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const value = this.value.trim().toLowerCase();
+                    if (value && !withTags.includes(value)) {
+                        createTag(value, withTagsContainer, withTags);
+                        this.value = '';
+                        updateRecipes();
+                    }
+                }
+            });
+
+            // Event listener for "Without" input
+            withoutInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const value = this.value.trim().toLowerCase();
+                    if (value && !withoutTags.includes(value)) {
+                        createTag(value, withoutTagsContainer, withoutTags);
+                        this.value = '';
+                        updateRecipes();
+                    }
+                }
+            });
+        });
+
+        // Existing favorite toggle function (unchanged)
+        function toggleFavorite(kueh_id, event) {
+            event.preventDefault(); // Prevent the default action of the button
+            event.stopPropagation(); // Stop the event from bubbling up
+
+            // Send an AJAX request to toggle the favorite status
+            fetch('toggleFavorite.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    kueh_id: kueh_id
                 })
+            })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        document.getElementById("saveRecipeButton").closest(".recipe-card").remove();
-                        alert("Recipe removed from favorites.");
+                        // Toggle the button's appearance
+                        const button = event.target.closest('button');
+                        const icon = button.querySelector('i'); // Get the icon element
+
+                        if (data.isFavorite) {
+                            icon.classList.remove('bi-bookmark'); // Remove the outline class
+                            icon.classList.add('bi-bookmark-fill'); // Add the filled class
+
+                            // Show success toast for adding to favorites
+                            Swal.fire({
+                                toast: true,
+                                position: 'top',
+                                icon: 'success',
+                                title: 'Added to favorites!',
+                                showConfirmButton: false,
+                                timer: 2000,
+                                timerProgressBar: true,
+                                didOpen: (toast) => {
+                                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                                }
+                            });
+                        } else {
+                            icon.classList.remove('bi-bookmark-fill'); // Remove the filled class
+                            icon.classList.add('bi-bookmark'); // Add the outline class
+
+                            // Show success toast for removing from favorites
+                            Swal.fire({
+                                toast: true,
+                                position: 'top',
+                                icon: 'success',
+                                title: 'Removed from favorites!',
+                                showConfirmButton: false,
+                                timer: 2000,
+                                timerProgressBar: true,
+                                didOpen: (toast) => {
+                                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                                }
+                            });
+                        }
                     } else {
-                        alert("Failed to remove from favorites.");
+                        // Show error toast if the operation failed
+                        Swal.fire({
+                            toast: true,
+                            position: 'top',
+                            icon: 'error',
+                            title: 'Failed to toggle favorite status: ' + data.message,
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true,
+                            didOpen: (toast) => {
+                                toast.addEventListener('mouseenter', Swal.stopTimer);
+                                toast.addEventListener('mouseleave', Swal.resumeTimer);
+                            }
+                        });
                     }
                 })
-                .catch(error => console.error('Error:', error));
+                .catch(error => {
+                    console.error('Error:', error);
+
+                    // Show error toast for unexpected errors
+                    Swal.fire({
+                        toast: true,
+                        position: 'top',
+                        icon: 'error',
+                        title: 'An error occurred while toggling favorite status.',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.addEventListener('mouseenter', Swal.stopTimer);
+                            toast.addEventListener('mouseleave', Swal.resumeTimer);
+                        }
+                    });
+                });
         }
     </script>
-</body>
+
 
 </html>
