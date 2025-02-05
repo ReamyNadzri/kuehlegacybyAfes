@@ -20,17 +20,6 @@ include('bottomheader.php');
     <div class="w3-col s1 w3-text-white w3-right" style="width: 10%; height: 10%">/</div>
     <div class="w3-rest w3-white" style="">
 
-
-      <div class="w3-container w3-center" style="margin-top: 2%;">
-        <img src="sources/header/logofull.svg" alt="" width="500px">
-
-        <form action="kuehListing.php" method="get">
-          <div class="w3-center" style="text-align: center">
-            <button class="w3-button w3-hover-green w3-border w3-round-large" name="search" value="" id="">Mulakan Carian Resipi</button>
-          </div>
-        </form>
-
-      </div>
       <hr>
 
       <div id="carouselExampleAutoplaying" class="carousel slide" data-bs-ride="carousel">

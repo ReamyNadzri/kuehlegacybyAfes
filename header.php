@@ -117,26 +117,26 @@ date_default_timezone_set("Asia/Kuala_Lumpur");
 
                 <hr style="color:darkgrey">
                 <a href="index.php" class="w3-bar-item w3-button w3-round w3-large" style="margin-left:6px; margin-right:10px; width:94%; text-align:left">
-                    <i class="bi bi-house-fill me-2" style="font-size: 1.5rem;"></i>
+                    <i class="bi bi-house me-2" style="font-size: 1.5rem;"></i>
                     Home
                 </a><br>
 
                 <a href="kuehListing.php?search=" class="w3-bar-item w3-button w3-round w3-large" style="margin-left:6px; margin-right:10px; width:94%; text-align:left; margin-top:30px">
                     <i class="bi bi-search me-2" style="font-size: 1.5rem;"></i>
-                    Cari
+                    Carian
                 </a><br>
 
                 <?PHP
                 if (!empty($_SESSION['username'])) {
                 ?>        
 
-                    <a href="notification.php" class="w3-bar-item w3-button w3-round w3-large" style="margin-left:6px; margin-right:10px; width:94%; text-align:left; color:#181513;">
+                    <a href="userProfile.php" class="w3-bar-item w3-button w3-round w3-large" style="margin-left:6px; margin-right:10px; width:94%; text-align:left; color:#181513;margin-top:6px">
                         <i class="bi bi-journal-text me-2" style="font-size: 1.5rem;"></i>
                         Resipi Anda
                     </a>
 
-                    <a href="favorite.php" class="w3-bar-item w3-button w3-round w3-large" style="margin-left:6px; margin-right:10px; width:94%; text-align:left; color:#181513;">
-                        <i class="bi bi-bookmark-heart-fill me-2" style="font-size: 1.5rem;"></i>
+                    <a href="favorite.php" class="w3-bar-item w3-button w3-round w3-large" style="margin-left:6px; margin-right:10px; width:94%; text-align:left; color:#181513;margin-top:6px">
+                        <i class="bi bi-bookmark-heart me-2" style="font-size: 1.5rem;"></i>
                         Kegemaran
                     </a><br>
                 <?PHP
