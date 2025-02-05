@@ -219,14 +219,14 @@ oci_close($condb);
     <div class="container w-75">
         <form id="kuehForm" method="POST" action="<?php echo $_SERVER['PHP_SELF']; ?>" enctype="multipart/form-data">
             <div class="d-flex justify-content-end mt-4">
-                <button type="submit" name="submit" class="btn btn-primary mb-4">Save Recipe</button>
+                <button type="submit" name="submit" class="btn btn-primary mb-4">Terbitkan</button>
             </div>
             <!-- Existing image and title section -->
             <div class="row">
                 <div class="col-12 col-md-4 my-4" id="imageContainer">
                     <!-- Image Preview -->
                     <img id="previewImage"
-                        src="sources/uploadimage.jpg"
+                        src="sources/kueh_default.png"
                         class="img-fluid text-center rounded-3"
                         alt="Uploaded Image Preview">
 
@@ -260,33 +260,33 @@ oci_close($condb);
             <!-- Dropdown Section -->
             <div class="row mb-4">
                 <div class="col-12 col-md-6 col-lg-3">
-                    <label for="foodtype" class="form-label fw-bold">Food Type</label>
+                    <label for="foodtype" class="form-label fw-bold">Jenis makanan</label>
                     <select name="foodtype" id="foodtype" class="form-select" required>
-                        <option value="" disabled selected>Select Food Type</option>
+                        <option value="" disabled selected>Pilih Jenis</option>
                         <?= $foodtypeOptions ?>
                     </select>
                 </div>
 
                 <div class="col-12 col-md-6 col-lg-3">
-                    <label for="method" class="form-label fw-bold">Cooking Method</label>
+                    <label for="method" class="form-label fw-bold">Cara Masakan</label>
                     <select name="method" id="method" class="form-select" required>
-                        <option value="" disabled selected>Select Cooking Method</option>
+                        <option value="" disabled selected>Pilih Cara Masakan</option>
                         <?= $methodOptions ?>
                     </select>
                 </div>
 
                 <div class="col-12 col-md-6 col-lg-3">
-                    <label for="popular" class="form-label fw-bold">Popularity</label>
+                    <label for="popular" class="form-label fw-bold">Populariti</label>
                     <select name="popular" id="popular" class="form-select" required>
-                        <option value="" disabled selected>Select Popularity</option>
+                        <option value="" disabled selected>Pilih Populariti</option>
                         <?= $popularOptions ?>
                     </select>
                 </div>
 
                 <div class="col-12 col-md-6 col-lg-3">
-                    <label for="origin" class="form-label fw-bold">Origin</label>
+                    <label for="origin" class="form-label fw-bold">Negeri Asal</label>
                     <select name="origin" id="origin" class="form-select" required>
-                        <option value="" disabled selected>Select Origin</option>
+                        <option value="" disabled selected>Pilih Negeri Asal</option>
                         <?= $originOptions ?>
                     </select>
                 </div>
