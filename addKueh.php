@@ -285,7 +285,7 @@ oci_close($condb);
                 </div>
                 <div class="col-12">
                     <label for="origin" class="form-label fw-bold">Link Video Rujukan</label><br>
-                    <input type="url" name="video" class="form-control" required>
+                    <input type="url" name="video" class="form-control">
                 </div>
             </div>
 

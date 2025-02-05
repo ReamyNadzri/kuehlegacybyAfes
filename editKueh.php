@@ -45,7 +45,7 @@ if (isset($_GET['kuehId'])) {
 }
 
 if (isset($_POST['submit'])) {
-    $kuehID = $_POST['kuehId'];
+    $kuehID =$_POST['kuehId'];
     $kuehName = $_POST['kuehName'];
     $kuehDesc = $_POST['kuehDesc'];
     $foodTypeCode = $_POST['foodtype'];
@@ -67,7 +67,7 @@ if (isset($_POST['submit'])) {
             $lob = oci_new_descriptor($condb, OCI_D_LOB);
         } else {
             // No new image is uploaded, retain the existing image
-            $sql_kueh = "UPDATE KUEH SET KUEHNAME = :kuehName, KUEHDESC = :kuehDesc, FOODTYPECODE = :foodTypeCode, METHODID = :methodId, POPULARID = :popularId, ORIGINID = :originId, VIDEO = :video, WHERE KUEHID = :kuehId";
+            $sql_kueh = "UPDATE KUEH SET KUEHNAME = :kuehName, KUEHDESC = :kuehDesc, FOODTYPECODE = :foodTypeCode, METHODID = :methodId, POPULARID = :popularId, ORIGINID = :originId, VIDEO = :video WHERE KUEHID = :kuehId";
         }
 
         $laksana_sql_kueh = oci_parse($condb, $sql_kueh);
@@ -143,7 +143,7 @@ if (isset($_POST['submit'])) {
 
         oci_commit($condb);
         echo "<script>
-            window.location.href = 'editKueh.php?msg=update_success';
+            window.location.href = 'kuehDetails.php?id=$kuehID';
         </script>";
         exit();
     } else {
@@ -247,7 +247,11 @@ oci_close($condb);
                     <div class="col-12">
                         <div class="d-flex align-items-center my-2">
                             <!-- Avatar -->
+                             <?php if (!isset($_SESSION['google_user'])): ?>
                             <img src="sources/profile-icon.png" alt="Profile Picture" class="rounded-circle border" width="50" height="50">
+                             <?php else: ?>
+                            <img src="<?=$_SESSION['google_user']['picture']?>" alt="Profile Picture" class="rounded-circle border" width="50" height="50">
+                             <?php endif; ?>
                             <!-- Text -->
                             <div class="ms-3">
                                 <h6 class="mb-0"><?php echo htmlspecialchars($username); ?></h6>
@@ -256,7 +260,7 @@ oci_close($condb);
                         </div>
                     </div>
                     <div class="col-12">
-                        <textarea class="w-100 p-1 border-0 shadow-none" name="kuehDesc" style="background-color: #FFFAF0;" placeholder="Share kisah resepi anda"><?php echo isset($kuehData['KUEHDESC']) ? htmlspecialchars($kuehData['KUEHDESC']) : ''; ?></textarea>
+                        <textarea class="w-100 p-1 border-0 shadow-none" name="kuehDesc" style="background-color: #FFFAF0;" placeholder="Share kisah resepi anda" rows="6"><?php echo isset($kuehData['KUEHDESC']) ? htmlspecialchars($kuehData['KUEHDESC']) : ''; ?></textarea>
                     </div>
                 </div>
             </div>
@@ -294,9 +298,9 @@ oci_close($condb);
                         <?= $originOptions ?>
                     </select>
                 </div>
-                <div class="col-12">
+                <div class="col-12"><br>
                     <label for="origin" class="form-label fw-bold">Link Video Rujukan</label><br>
-                    <input type="url" name="video" class="form-control" value="<?= $existingLink ?>" required>
+                    <input type="url" name="video" class="form-control" value="<?= $existingLink ?>">
                 </div>
             </div>
 
@@ -343,7 +347,7 @@ oci_close($condb);
                     </div>
                 </div>
             </div>
-            <input type="hidden" name="kuehId" value="<?php echo isset($kuehId) ? $kuehId : ''; ?>">
+            <input type="hidden" name="kuehId" value="<?=$_GET['kuehId']?>">
             <div class="row mt-3">
                 <div class="col-12 d-flex justify-content-end">
                     <button type="submit" name="submit" class="btn btn-primary mb-4">Save Recipe</button>

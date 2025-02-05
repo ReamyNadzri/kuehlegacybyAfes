@@ -70,6 +70,7 @@ include('connection.php');
         if ($resultG) {
             // Store session data
              $_SESSION['username'] = $usernameGoogle;
+             $_SESSION['usernameimage'] = $pictureGoogle;
 
             // Redirect to index page
             header("Location: index.php");
