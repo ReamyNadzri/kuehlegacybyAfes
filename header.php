@@ -113,34 +113,30 @@ date_default_timezone_set("Asia/Kuala_Lumpur");
             <!--sidebar of kueh system-->
             <div class="sidebar w3-container w3-border w3-round-large w3-cell w3-white" style="width: 15%; height:98%; z-index: 1001;">
 
-                <img class="" style="margin-top:20px; margin-left: 10px;" src="sources/header/logofull.svg" alt="" width="240px">
+                <img class="" style="margin-top:20px; margin-left: 9px;" src="sources/header/logofull.svg" alt="" width="240px">
 
                 <hr style="color:darkgrey">
                 <a href="index.php" class="w3-bar-item w3-button w3-round w3-large" style="margin-left:6px; margin-right:10px; width:94%; text-align:left">
-                    <i class="bi bi-house-fill me-2" style="font-size: 1.2rem;"></i>
+                    <i class="bi bi-house-fill me-2" style="font-size: 1.5rem;"></i>
                     Home
                 </a><br>
 
                 <a href="kuehListing.php?search=" class="w3-bar-item w3-button w3-round w3-large" style="margin-left:6px; margin-right:10px; width:94%; text-align:left; margin-top:30px">
-                    <i class="bi bi-search me-2" style="font-size: 1.2rem;"></i>
+                    <i class="bi bi-search me-2" style="font-size: 1.5rem;"></i>
                     Cari
                 </a><br>
 
                 <?PHP
                 if (!empty($_SESSION['username'])) {
-                ?>
-                    <a href="index.php" class="w3-bar-item w3-button w3-round w3-large" style="margin-left:6px; margin-right:10px; width:94%; text-align:left; color:#181513;">
-                        <i class="bi bi-bar-chart-fill me-2" style="font-size: 1.2rem;"></i>
-                        Statistik Resipi
-                    </a><br>
+                ?>        
 
                     <a href="notification.php" class="w3-bar-item w3-button w3-round w3-large" style="margin-left:6px; margin-right:10px; width:94%; text-align:left; color:#181513;">
-                        <i class="bi bi-bell-fill me-2" style="font-size: 1.2rem;"></i>
+                        <i class="bi bi-journal-text me-2" style="font-size: 1.5rem;"></i>
                         Resipi Anda
                     </a>
 
                     <a href="favorite.php" class="w3-bar-item w3-button w3-round w3-large" style="margin-left:6px; margin-right:10px; width:94%; text-align:left; color:#181513;">
-                        <i class="bi bi-bookmark-heart-fill me-2" style="font-size: 1.2rem;"></i>
+                        <i class="bi bi-bookmark-heart-fill me-2" style="font-size: 1.5rem;"></i>
                         Kegemaran
                     </a><br>
                 <?PHP
