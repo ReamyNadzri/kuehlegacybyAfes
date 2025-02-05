@@ -18,6 +18,7 @@ if (isset($_GET['kuehId'])) {
     $existingMethod = $kuehData['METHODID'];
     $existingPopularity = $kuehData['POPULARID'];
     $existingOrigin = $kuehData['ORIGINID'];
+    $existingLink = $kuehData['VIDEO'];
 
     // Fetch ingredients
     $sql_fetch_ingredients = "SELECT NAMEITEM FROM ITEMS WHERE KUEHID = :kuehId";
@@ -51,6 +52,7 @@ if (isset($_POST['submit'])) {
     $methodId = $_POST['method'];
     $popularId = $_POST['popular'];
     $originId = $_POST['origin'];
+    $video = $_POST['video'];
     $ingredients = $_POST['ingredients'] ?? [];
     $steps = $_POST['steps'] ?? [];
 
@@ -61,11 +63,11 @@ if (isset($_POST['submit'])) {
         if (!empty($_FILES['image']['tmp_name'])) {
             // New image is uploaded
             $imageData = file_get_contents($_FILES['image']['tmp_name']);
-            $sql_kueh = "UPDATE KUEH SET KUEHNAME = :kuehName, KUEHDESC = :kuehDesc, FOODTYPECODE = :foodTypeCode, METHODID = :methodId, POPULARID = :popularId, ORIGINID = :originId, IMAGE = EMPTY_BLOB() WHERE KUEHID = :kuehId RETURNING IMAGE INTO :image";
+            $sql_kueh = "UPDATE KUEH SET KUEHNAME = :kuehName, KUEHDESC = :kuehDesc, FOODTYPECODE = :foodTypeCode, METHODID = :methodId, POPULARID = :popularId, ORIGINID = :originId, VIDEO = :video, IMAGE = EMPTY_BLOB() WHERE KUEHID = :kuehId RETURNING IMAGE INTO :image";
             $lob = oci_new_descriptor($condb, OCI_D_LOB);
         } else {
             // No new image is uploaded, retain the existing image
-            $sql_kueh = "UPDATE KUEH SET KUEHNAME = :kuehName, KUEHDESC = :kuehDesc, FOODTYPECODE = :foodTypeCode, METHODID = :methodId, POPULARID = :popularId, ORIGINID = :originId WHERE KUEHID = :kuehId";
+            $sql_kueh = "UPDATE KUEH SET KUEHNAME = :kuehName, KUEHDESC = :kuehDesc, FOODTYPECODE = :foodTypeCode, METHODID = :methodId, POPULARID = :popularId, ORIGINID = :originId, VIDEO = :video, WHERE KUEHID = :kuehId";
         }
 
         $laksana_sql_kueh = oci_parse($condb, $sql_kueh);
@@ -78,6 +80,7 @@ if (isset($_POST['submit'])) {
     oci_bind_by_name($laksana_sql_kueh, ":methodId", $methodId);
     oci_bind_by_name($laksana_sql_kueh, ":popularId", $popularId);
     oci_bind_by_name($laksana_sql_kueh, ":originId", $originId);
+    oci_bind_by_name($laksana_sql_kueh, ":video", $video);
 
     // Bind the BLOB descriptor
     if (isset($lob)) {
@@ -266,35 +269,39 @@ oci_close($condb);
             <!-- Dropdown Section -->
             <div class="row mb-4">
                 <div class="col-12 col-md-6 col-lg-3">
-                    <label for="foodtype" class="form-label fw-bold">Food Type</label>
+                    <label for="foodtype" class="form-label fw-bold">Jenis makanan</label>
                     <select name="foodtype" id="foodtype" class="form-select" required>
-                        <option value="" disabled>Select Food Type</option>
+                        <option value="" disabled>Pilih Jenis</option>
                         <?= $foodtypeOptions ?>
                     </select>
                 </div>
 
                 <div class="col-12 col-md-6 col-lg-3">
-                    <label for="method" class="form-label fw-bold">Cooking Method</label>
+                    <label for="method" class="form-label fw-bold">Cara Masakan</label>
                     <select name="method" id="method" class="form-select" required>
-                        <option value="" disabled>Select Cooking Method</option>
+                        <option value="" disabled>Pilih Cara Masakan</option>
                         <?= $methodOptions ?>
                     </select>
                 </div>
 
                 <div class="col-12 col-md-6 col-lg-3">
-                    <label for="popular" class="form-label fw-bold">Popularity</label>
+                    <label for="popular" class="form-label fw-bold">Populariti</label>
                     <select name="popular" id="popular" class="form-select" required>
-                        <option value="" disabled>Select Popularity</option>
+                        <option value="" disabled>Pilih Populariti</option>
                         <?= $popularOptions ?>
                     </select>
                 </div>
 
                 <div class="col-12 col-md-6 col-lg-3">
-                    <label for="origin" class="form-label fw-bold">Origin</label>
+                    <label for="origin" class="form-label fw-bold">Negeri Asal</label>
                     <select name="origin" id="origin" class="form-select" required>
-                        <option value="" disabled>Select Origin</option>
+                        <option value="" disabled>Pilih Negeri Asal</option>
                         <?= $originOptions ?>
                     </select>
+                </div>
+                <div class="col-12">
+                    <label for="origin" class="form-label fw-bold">Link Video Rujukan</label><br>
+                    <input type="url" name="video" class="form-control" value="<?= $existingLink ?>" required>
                 </div>
             </div>
 
