@@ -29,6 +29,7 @@ if (isset($_POST['submit'])) {
         $methodId = $_POST['method'];
         $popularId = $_POST['popular'];
         $originId = $_POST['origin'];
+        $video = $_POST['video'];
         $ingredients = $_POST['ingredients'] ?? [];
         $steps = $_POST['steps'] ?? [];
 
@@ -39,8 +40,8 @@ if (isset($_POST['submit'])) {
         $imageData = file_get_contents($_FILES['image']['tmp_name']);
 
         // Insert into KUEH table
-        $sql_kueh = "INSERT INTO KUEH (KUEHNAME, KUEHDESC, FOODTYPECODE, METHODID, POPULARID, ORIGINID, IMAGE, USERNAME) 
-                     VALUES (:kuehName, :kuehDesc, :foodTypeCode, :methodId, :popularId, :originId, EMPTY_BLOB(), :username)
+        $sql_kueh = "INSERT INTO KUEH (KUEHNAME, KUEHDESC, FOODTYPECODE, METHODID, VIDEO, POPULARID, ORIGINID, IMAGE, USERNAME) 
+                     VALUES (:kuehName, :kuehDesc, :foodTypeCode, :methodId, :video, :popularId, :originId, EMPTY_BLOB(), :username)
                      RETURNING IMAGE INTO :image";
         $laksana_sql_kueh = oci_parse($condb, $sql_kueh);
 
@@ -49,6 +50,7 @@ if (isset($_POST['submit'])) {
         oci_bind_by_name($laksana_sql_kueh, ":kuehDesc", $kuehDesc);
         oci_bind_by_name($laksana_sql_kueh, ":foodTypeCode", $foodTypeCode);
         oci_bind_by_name($laksana_sql_kueh, ":methodId", $methodId);
+        oci_bind_by_name($laksana_sql_kueh, ":video", $video);
         oci_bind_by_name($laksana_sql_kueh, ":popularId", $popularId);
         oci_bind_by_name($laksana_sql_kueh, ":originId", $originId);
         oci_bind_by_name($laksana_sql_kueh, ":image", $lob, -1, SQLT_BLOB);
@@ -258,7 +260,7 @@ oci_close($condb);
             </div>
 
             <!-- Dropdown Section -->
-            <div class="row mb-4">
+            <div class="row mb-4 gy-2">
                 <div class="col-12 col-md-6 col-lg-3">
                     <label for="foodtype" class="form-label fw-bold">Jenis makanan</label>
                     <select name="foodtype" id="foodtype" class="form-select" required>
@@ -289,6 +291,10 @@ oci_close($condb);
                         <option value="" disabled selected>Pilih Negeri Asal</option>
                         <?= $originOptions ?>
                     </select>
+                </div>
+                <div class="col-12">
+                    <label for="origin" class="form-label fw-bold">Link Video Rujukan</label><br>
+                    <input type="url" name="video" class="form-control" required>
                 </div>
             </div>
 

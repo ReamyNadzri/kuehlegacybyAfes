@@ -25,7 +25,7 @@ oci_execute($stmt);
             <td>Phone Number</td>
             <td>Password</td>
             <td>Full Name</td>
-            <td>Action</td>
+            
         </tr>
         <?php
         $bil = 0;
@@ -37,10 +37,7 @@ oci_execute($stmt);
                     <td>{$row['PHONENUM']}</td>
                     <td>{$row['PASSWORD']}</td>
                     <td>{$row['NAME']}</td>
-                    <td>
-                      
-                        <a href='delete_user.php?username={$row['USERNAME']}' class='w3-button w3-red w3-small' onClick=\"return confirm('Confirm delete this item??')\">Delete</a>
-                    </td>
+                  
                 </tr>";
         }
         ?>
