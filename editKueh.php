@@ -143,7 +143,7 @@ if (isset($_POST['submit'])) {
 
         oci_commit($condb);
         echo "<script>
-            window.location.href = 'kueh_info.php?msg=update_success';
+            window.location.href = 'editKueh.php?msg=update_success';
         </script>";
         exit();
     } else {
