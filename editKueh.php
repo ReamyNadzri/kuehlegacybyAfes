@@ -228,8 +228,7 @@ oci_close($condb);
         }
     </style>
 </head>
-
-<body class="" style="background-color: #FFFAF0;">
+<BR><BR>
     <div class="container w-75">
         <form id="kuehForm" method="POST" action="<?php echo $_SERVER['PHP_SELF']; ?>" enctype="multipart/form-data">
             <!-- Existing image and title section -->

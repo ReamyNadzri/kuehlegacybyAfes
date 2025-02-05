@@ -188,8 +188,9 @@ oci_free_statement($blobStmt);
                     <?php
                     if($creator['USERNAMECREATOR']==($_SESSION['username'])){
                         echo '<a href="editKueh.php?kuehId='.$kueh_id.'" type="button" class="btn btn-outline-primary me-2 fw-bold"><i class="bi bi-pencil-square"></i> Sunting</a>';
-                        echo '<a href="deleteKueh.php?kuehId='.$kueh_id.'" type="button" class="btn btn-outline-danger me-2 fw-bold"><i class="bi bi-trash"></i> Padam</a>';
+                        echo '<a href="deleteKueh.php?jadual=KUEH&medan_kp=KUEHID&kp='.$kueh_id.'" type="button" class="btn btn-outline-danger me-2 fw-bold" onClick=\"return confirm("Confirm to delete data?")\"><i class="bi bi-trash"></i> Padam</a>';
 
+                    
                     }else{ ?>
                         <button type="button"
                         class="btn <?php echo $isFavorite ? 'btn-warning' : 'btn-outline-warning'; ?> me-2 fw-bold"
