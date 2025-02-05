@@ -5,7 +5,7 @@ include('connection.php');
 // Fetch kueh details by kueh_id
 function fetchKuehDetails($conn, $kueh_id)
 {
-    $sql = "SELECT KUEHID, KUEHNAME, KUEHDESC, TAGKUEH, FOODTYPECODE, METHODID, IMAGE FROM KUEH WHERE KUEHID = :kueh_id";
+    $sql = "SELECT KUEHID, KUEHNAME, KUEHDESC, TAGKUEH, FOODTYPECODE, METHODID, VIDEO, IMAGE FROM KUEH WHERE KUEHID = :kueh_id";
     $stid = oci_parse($conn, $sql);
     oci_bind_by_name($stid, ':kueh_id', $kueh_id);
     oci_execute($stid);
@@ -121,6 +121,22 @@ oci_free_statement($blobStmt);
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.cdnfonts.com/css/product-sans" rel="stylesheet">
+    <style>
+        .video-container {
+      position: relative;
+      padding-bottom: 56.25%; /* 16:9 aspect ratio */
+      overflow: hidden;
+      height: 0;
+      max-width: 100%;
+    }
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+    </style>
 </head>
 
 <div class="w3-round-large" style="height: 92%; margin-top: 4%">
@@ -171,7 +187,12 @@ oci_free_statement($blobStmt);
                 <div class="mt-auto">
                     <?php
                     if($creator['USERNAMECREATOR']==($_SESSION['username'])){
+<<<<<<< Updated upstream
                         echo '<a href="editKueh.php?kuehId='.$kueh_id.'" type="button" class="btn btn-outline-primary me-2 fw-bold"><i class="bi bi-pencil-square"></i> Sunting</a>';
+=======
+                        echo '<a href="editKueh.php?id='.$kueh_id.'" type="button" class="btn btn-outline-primary me-2 fw-bold"><i class="bi bi-pencil-square"></i> Sunting</a>';
+                        echo '<a href="deleteKueh.php?id='.$kueh_id.'" type="button" class="btn btn-outline-danger me-2 fw-bold"><i class="bi bi-trash"></i> Padam</a>';
+>>>>>>> Stashed changes
                     }else{ ?>
                         <button type="button"
                         class="btn <?php echo $isFavorite ? 'btn-warning' : 'btn-outline-warning'; ?> me-2 fw-bold"
@@ -192,7 +213,13 @@ oci_free_statement($blobStmt);
                 </div>
             </div>
         </div>
+        
         <div class="row mt-5">
+            <?php if($kuehDetails['VIDEO'] != null) { ?>
+        <h1 class="fw-bolder">Video Rujukan</h1>
+        <div class="video-container w3-margin"><iframe id="youtube-embed" frameborder="0" allowfullscreen></iframe></div>
+        <?php } ?>
+
             <div class="col-12 col-lg-3 col-md-6 py-3">
                 <h1 class="fw-bolder">Ramuan</h1>
                 <table class="table">
@@ -228,6 +255,32 @@ oci_free_statement($blobStmt);
 </div>
 
 <script>
+    // Your YouTube URL
+    const youtubeUrl = "<?php echo $kuehDetails['VIDEO']; ?>";
+
+    // Function to extract video ID from URL
+    function getVideoId(url) {
+  if (url.includes("v=")) {
+    // For full URLs (https://www.youtube.com/watch?v=...)
+    const videoId = url.split("v=")[1];
+    const ampersandPosition = videoId.indexOf("&");
+    return ampersandPosition !== -1 ? videoId.substring(0, ampersandPosition) : videoId;
+  } else if (url.includes("youtu.be")) {
+    // For shortened URLs (https://youtu.be/...)
+    const videoId = url.split("/").pop(); // Get the last part of the URL
+    const questionMarkPosition = videoId.indexOf("?");
+    return questionMarkPosition !== -1 ? videoId.substring(0, questionMarkPosition) : videoId;
+  }
+  return null; // Return null if the URL is invalid
+}
+
+    // Set the iframe src dynamically
+    const videoId = getVideoId(youtubeUrl);
+    const iframe = document.getElementById("youtube-embed");
+    iframe.setAttribute("src", `https://www.youtube.com/embed/${videoId}`);
+    iframe.setAttribute("title", "YouTube video player");
+    iframe.setAttribute("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture");
+
     function copyToClipboard() {
         // Get the current URL
         const currentUrl = window.location.href;

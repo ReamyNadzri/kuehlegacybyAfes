@@ -26,7 +26,7 @@ include ('bottomheader.php');
                     
                     <form action="kuehListing.php" method="get">
                         <div class="w3-center" style="text-align: center">
-                            <button class="w3-button w3-hover-green w3-border w3-round-large" name="search" value="a" id="">Mulakan Carian Resipi</button>
+                            <button class="w3-button w3-hover-green w3-border w3-round-large" name="search" value="" id="">Mulakan Carian Resipi</button>
                         </div>
                     </form>
 

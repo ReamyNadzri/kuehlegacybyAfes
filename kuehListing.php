@@ -9,11 +9,11 @@ $foodName = htmlspecialchars($foodName, ENT_QUOTES, 'UTF-8');
 
 // Prepare SQL statement
 $sql = "SELECT k.KUEHID, k.KUEHNAME, LISTAGG(i.NAMEITEM, ', ') WITHIN GROUP (ORDER BY i.NAMEITEM) AS ITEMS
-        FROM KUEH k
-        JOIN ITEMS i ON k.KUEHID = i.KUEHID
-        WHERE UPPER(k.KUEHNAME) LIKE '%' || UPPER(:search) || '%'";
+    FROM KUEH k
+    JOIN ITEMS i ON k.KUEHID = i.KUEHID
+    WHERE UPPER(k.KUEHNAME) LIKE '%' || UPPER(:search) || '%'";
 
-$sql .= " GROUP BY k.KUEHID, k.KUEHNAME";
+$sql .= " GROUP BY k.KUEHID, k.KUEHNAME ORDER BY k.KUEHID DESC";
 $stid = oci_parse($condb, $sql);
 
 // Bind search parameter
@@ -312,7 +312,7 @@ $kuehName = ucfirst(strtolower($foodName)); // Convert first character to upperc
                                 </a>
                             </div>
                             <?php
-                            $animate += 0.04;
+                            $animate += 0.10;
                         endforeach; ?>
                     <?php else: ?>
                         <div class="col-12">
