@@ -2,16 +2,19 @@
 include('header.php'); // Include the database connection
 include('connection.php'); // Include the database connection
 
-// Fetch data from the KUEH table
+
+$username = $_SESSION['username'] ?? null;
 
 // Prepare SQL statement
 $sql = "SELECT f.KUEHID, k.KUEHNAME, LISTAGG(i.NAMEITEM, ', ') WITHIN GROUP (ORDER BY i.NAMEITEM) AS ITEMS
         FROM FAVORITE f
         JOIN KUEH k ON f.KUEHID = k.KUEHID
         JOIN ITEMS i ON f.KUEHID = i.KUEHID
+        WHERE f.USERNAME = :username 
         GROUP BY f.KUEHID, k.KUEHNAME";
 
 $stid = oci_parse($condb, $sql);
+oci_bind_by_name($stid, ':username', $username);
 
 // Execute the query
 if (oci_execute($stid)) {
@@ -42,9 +45,24 @@ if (oci_execute($stid)) {
 
         if ($blobRow = oci_fetch_assoc($blobStmt)) {
             $row['NAMECREATOR'] = $blobRow['NAME'];
+            $row['CREATORIMAGE'] = $blobRow['IMAGE'] ?? NULL;
         }
 
+
         oci_free_statement($blobStmt);
+
+        $isFavorite = false;
+        if ($username) {
+            $sql_check = "SELECT COUNT(*) AS count FROM FAVORITE WHERE KUEHID = :kueh_id AND USERNAME = :username";
+            $stid_check = oci_parse($condb, $sql_check);
+            oci_bind_by_name($stid_check, ':kueh_id', $row['KUEHID']);
+            oci_bind_by_name($stid_check, ':username', $username);
+            oci_execute($stid_check);
+            $favoriteRow = oci_fetch_array($stid_check, OCI_ASSOC);
+            $isFavorite = ($favoriteRow['COUNT'] > 0);
+        }
+
+        $row['IS_FAVORITE'] = $isFavorite; // Add the favorite status to the row
         $recipes[] = $row;
         $total_recipes++;
     }
@@ -56,23 +74,6 @@ if (oci_execute($stid)) {
 
 oci_free_statement($stid);
 oci_close($condb);
-
-
-
-// Related Searches (Example data, can be fetched from the database)
-$relatedSearches = [
-    "kek batik ovaltine",
-    "kek batik indulgence",
-    "kek batik cheese",
-    "kek batik simple",
-    "kek batik ganache"
-];
-
-// Filter Options (Example data, can be fetched from the database)
-$filterOptions = [
-    "with" => ["coklat", "keju", "kacang", "gula"],
-    "without" => ["gula", "tepung", "telur"]
-];
 ?>
 
 
@@ -228,214 +229,127 @@ $filterOptions = [
 </head>
 
 
-    <div class="container py-4">
-        <h2 id="recipeCountHeading" class="mb-4">Terdapat <?= $total_recipes ?> resipi yang disimpan</h2>
-        <hr>
+<div class="container py-4">
+    <h2 id="recipeCountHeading" class="mb-4">Terdapat <?= $total_recipes ?> resipi yang disimpan</h2>
+    <hr>
 
-        <div class="row">
-            <!-- Main Content Column -->
-            <div class="col-md-8">
-                <!-- Recipe Cards -->
-                <div id="recipeContainer" class="row">
-                    <?php if (!empty($recipes)):
-                        $animate = 0.0; ?>
-                        <?php foreach ($recipes as $recipe): ?>
-                            <div class="col-12 mb-4 w3-animate-left" style="animation-delay: <?= $animate ?>s;">
-                                <a href="kuehDetails.php?id=<?= $recipe['KUEHID'] ?>"
-                                    class="text-decoration-none shadow-sm text-dark">
-                                    <div class="card card-hover-effect rounded shadow-sm  border-0">
-                                        <div class="row g-0">
-                                            <div class="col-md-3">
-                                                <div class="recipe-page">
-                                                    <div class=" card-img-container">
-                                                        <img src="<?= $recipe['IMAGE_DATA_URI'] ?? 'path/to/default/image.jpg' ?>"
-                                                            class="img-fluid rounded-start"
-                                                            alt="<?= htmlspecialchars($recipe['KUEHNAME']) ?>"
-                                                            style="max-width: 100%; max-height: 200px; object-fit: cover;">
-                                                    </div>
+    <div class="row">
+        <!-- Main Content Column -->
+        <div class="col-md-8">
+            <!-- Recipe Cards -->
+            <div id="recipeContainer" class="row">
+                <?php if (!empty($recipes)):
+                    $animate = 0.0; ?>
+                    <?php foreach ($recipes as $recipe): ?>
+                        <div class="col-12 mb-4 w3-animate-left" style="animation-delay: <?= $animate ?>s;">
+                            <a href="kuehDetails.php?id=<?= $recipe['KUEHID'] ?>"
+                                class="text-decoration-none shadow-sm text-dark">
+                                <div class="card card-hover-effect rounded shadow-sm  border-0">
+                                    <div class="row g-0">
+                                        <div class="col-md-3">
+                                            <div class="recipe-page">
+                                                <div class=" card-img-container">
+                                                    <img src="<?= $recipe['IMAGE_DATA_URI'] ?? 'path/to/default/image.jpg' ?>"
+                                                        class="img-fluid rounded-start"
+                                                        alt="<?= htmlspecialchars($recipe['KUEHNAME']) ?>"
+                                                        style="max-width: 100%; max-height: 200px; object-fit: cover;">
                                                 </div>
                                             </div>
-                                            <div class="col-md-9">
-                                                <div class="card-body">
-                                                    <div class="d-flex justify-content-between">
-                                                        <strong>
-                                                            <h2 class="card-title"><?= htmlspecialchars($recipe['KUEHNAME']) ?>
-                                                            </h2>
-                                                        </strong>
-                                                        <button class="btn btn-light"
-                                                            onclick="toggleFavorite(<?= $recipe['KUEHID'] ?>, event)">
-                                                            <i class="bi <?= $recipe['IS_FAVORITE'] ? 'bi-bookmark-fill' : 'bi-bookmark' ?>"></i>
-                                                        </button>
-                                                    </div>
-                                                    <p class="card-text ingredients-list"
-                                                        style="font-size: 1.1rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; position: relative; max-height: 3.3em; line-height: 1.65em;">
-                                                        <?php
-                                                        $items = explode(', ', $recipe['ITEMS']);
-                                                        if (count($items) > 10) {
-                                                            echo htmlspecialchars(implode(', ', array_slice($items, 0, 10))) . '...';
-                                                        } else {
-                                                            echo htmlspecialchars($recipe['ITEMS']);
-                                                        }
-                                                        ?>
+                                        </div>
+                                        <div class="col-md-9">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between">
+                                                    <strong>
+                                                        <h2 class="card-title"><?= htmlspecialchars($recipe['KUEHNAME']) ?>
+                                                        </h2>
+                                                    </strong>
+                                                    <button class="btn btn-light"
+                                                        onclick="toggleFavorite(<?= $recipe['KUEHID'] ?>, event)">
+                                                        <i class="bi <?= $recipe['IS_FAVORITE'] ? 'bi-bookmark-fill' : 'bi-bookmark' ?>"></i>
+                                                    </button>
+                                                </div>
+                                                <p class="card-text ingredients-list"
+                                                    style="font-size: 1.1rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; position: relative; max-height: 3.3em; line-height: 1.65em;">
+                                                    <?php
+                                                    $items = explode(', ', $recipe['ITEMS']);
+                                                    if (count($items) > 10) {
+                                                        echo htmlspecialchars(implode(', ', array_slice($items, 0, 10))) . '...';
+                                                    } else {
+                                                        echo htmlspecialchars($recipe['ITEMS']);
+                                                    }
+                                                    ?>
+                                                </p>
+                                                <div class="d-flex align-items-center profile-section">
+                                                    <?PHP
+                                                    if ($recipe['CREATORIMAGE'] != null) {
+                                                    ?><img src="<?= $recipe['CREATORIMAGE'] ?>"
+                                                            alt="Profile Picture" class="rounded-circle me-2 border" width="40"
+                                                            height="40"><?PHP
+                                                                    } else {
+                                                                        ?>
+                                                        <img src="sources/header/logo.png" alt="Profile Picture"
+                                                            class="rounded-circle me-2 border" width="40" height="40"><?PHP
+                                                                                                                    }
+                                                                                                                        ?>
+                                                    <p class="card-text" style="font-size: 1.1rem;">
+                                                        <?= htmlspecialchars($recipe['NAMECREATOR']) ?>
                                                     </p>
-                                                    <div class="d-flex align-items-center profile-section">
-                                                        <?PHP
-                                                        if ($recipe['CREATORIMAGE'] != null) {
-                                                            ?><img src="<?= $recipe['CREATORIMAGE'] ?>"
-                                                                alt="Profile Picture" class="rounded-circle me-2 border" width="40"
-                                                                height="40"><?PHP
-                                                        } else {
-                                                            ?>
-                                                            <img src="sources/header/logo.png" alt="Profile Picture"
-                                                                class="rounded-circle me-2 border" width="40" height="40"><?PHP
-                                                        }
-                                                        ?>
-                                                        <p class="card-text" style="font-size: 1.1rem;">
-                                                            <?= htmlspecialchars($recipe['NAMECREATOR']) ?>
-                                                        </p>
-                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </a>
-                            </div>
-                            <?php
-                            $animate += 0.10;
-                        endforeach; ?>
-                    <?php else: ?>
-                        <div class="col-12">
-                            <p>No recipes found for "<?= htmlspecialchars($kuehName) ?>".</p>
+                                </div>
+                            </a>
                         </div>
-                    <?php endif; ?>
-                </div>
-            </div>
-
-            <!-- Sidebar Column -->
-            <div class="col-md-4">
-                <div class="sticky-sidebar w-100" style="max-width: 300px;">
-                    <!-- Filter -->
-
-                    <div class="card-body">
-
-                        <h5 class="card-title mb-0">Berikan Maklum Balas:</h5>
-                        <form action="submit_feedback.php" method="POST">
-                            <textarea class="form-control" name="feedback" placeholder="Sila tulis maklum balas di sini.."></textarea>
-                            <br>
-                            <button class="btn btn-outline-secondary" type="submit">Hantar</button>
-                        </form><br>
-                        <h4 class="form-text text-muted">Sila jangan masukkan sebarang maklumat peribadi (data peribadi) dalam borang maklum balas ini, termasuk
-                            nama dan butiran peribadi anda.
-
-                            Kami akan gunakan maklumat ini untuk membantu kami memperbaiki perkhidmatan kami. Dengan menghantar
-                            maklum balas ini, anda bersetuju untuk membenarkan maklumat anda diproses sejajar dengan Dasar Privasi
-                            dan Terma Perkhidmatan kami. </h4>
-
+                    <?php
+                        $animate += 0.10;
+                    endforeach; ?>
+                <?php else: ?>
+                    <div class="col-12">
+                        <p>No recipes found for "<?= htmlspecialchars($kuehName) ?>".</p>
                     </div>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <!-- Sidebar Column -->
+        <div class="col-md-4">
+            <div class="sticky-sidebar w-100" style="max-width: 300px;">
+                <!-- Filter -->
+
+                <div class="card-body">
+
+                    <h5 class="card-title mb-0">Berikan Maklum Balas:</h5>
+                    <form action="submit_feedback.php" method="POST">
+                        <textarea class="form-control" name="feedback" placeholder="Sila tulis maklum balas di sini.."></textarea>
+                        <br>
+                        <button class="btn btn-outline-secondary" type="submit">Hantar</button>
+                    </form><br>
+                    <h4 class="form-text text-muted">Sila jangan masukkan sebarang maklumat peribadi (data peribadi) dalam borang maklum balas ini, termasuk
+                        nama dan butiran peribadi anda.
+
+                        Kami akan gunakan maklumat ini untuk membantu kami memperbaiki perkhidmatan kami. Dengan menghantar
+                        maklum balas ini, anda bersetuju untuk membenarkan maklumat anda diproses sejajar dengan Dasar Privasi
+                        dan Terma Perkhidmatan kami. </h4>
+
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <?php include('footer.php'); ?>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+<?php include('footer.php'); ?>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const withInput = document.getElementById('withInput');
-            const withoutInput = document.getElementById('withoutInput');
-            const withTagsContainer = document.getElementById('withTags');
-            const withoutTagsContainer = document.getElementById('withoutTags');
+<script>
 
-            let withTags = [];
-            let withoutTags = [];
 
-            // Function to create a tag
-            function createTag(value, container, tagArray) {
-                const tag = document.createElement('div');
-                tag.className = 'related-search-btn me-2 mb-2';
-                tag.textContent = value;
+    function toggleFavorite(kueh_id, event) {
+        event.preventDefault(); // Prevent the default action of the button
+        event.stopPropagation(); // Stop the event from bubbling up
 
-                const removeButton = document.createElement('span');
-                removeButton.className = 'ms-2';
-                removeButton.innerHTML = '&times;';
-                removeButton.style.cursor = 'pointer';
-                removeButton.onclick = function () {
-                    container.removeChild(tag);
-                    const index = tagArray.indexOf(value);
-                    if (index !== -1) {
-                        tagArray.splice(index, 1);
-                    }
-                    updateRecipes();
-                };
-
-                tag.appendChild(removeButton);
-                container.appendChild(tag);
-                tagArray.push(value);
-            }
-
-            // Function to filter recipes based on tags
-            function filterRecipes(withTags, withoutTags) {
-                const recipeCards = document.querySelectorAll('#recipeContainer .col-12');
-                let visibleCount = 0;
-
-                recipeCards.forEach(card => {
-                    const recipeItems = card.querySelector('.card-text').textContent.toLowerCase();
-                    const shouldShow =
-                        withTags.every(tag => recipeItems.includes(tag)) &&
-                        withoutTags.every(tag => !recipeItems.includes(tag));
-
-                    if (shouldShow) {
-                        card.style.display = 'block';
-                        visibleCount++;
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-
-                return visibleCount;
-            }
-
-            // Function to update recipes with loading animation
-            function updateRecipes() {
-                const visibleCount = filterRecipes(withTags, withoutTags);
-                document.getElementById('recipeCountHeading').textContent = `Terdapat ${visibleCount} resipi <?= htmlspecialchars($kuehName) ?>`;
-            }
-
-            // Event listener for "With" input
-            withInput.addEventListener('keydown', function (e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    const value = this.value.trim().toLowerCase();
-                    if (value && !withTags.includes(value)) {
-                        createTag(value, withTagsContainer, withTags);
-                        this.value = '';
-                        updateRecipes();
-                    }
-                }
-            });
-
-            // Event listener for "Without" input
-            withoutInput.addEventListener('keydown', function (e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    const value = this.value.trim().toLowerCase();
-                    if (value && !withoutTags.includes(value)) {
-                        createTag(value, withoutTagsContainer, withoutTags);
-                        this.value = '';
-                        updateRecipes();
-                    }
-                }
-            });
-        });
-
-        // Existing favorite toggle function (unchanged)
-        function toggleFavorite(kueh_id, event) {
-            event.preventDefault(); // Prevent the default action of the button
-            event.stopPropagation(); // Stop the event from bubbling up
-
-            // Send an AJAX request to toggle the favorite status
-            fetch('toggleFavorite.php', {
+        // Send an AJAX request to toggle the favorite status
+        fetch('toggleFavorite.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -444,57 +358,50 @@ $filterOptions = [
                     kueh_id: kueh_id
                 })
             })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Toggle the button's appearance
-                        const button = event.target.closest('button');
-                        const icon = button.querySelector('i'); // Get the icon element
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Toggle the button's appearance
+                    const button = event.target.closest('button');
+                    const icon = button.querySelector('i'); // Get the icon element
+                    const card = button.closest('.col-12'); // The card element containing the favorite item
 
-                        if (data.isFavorite) {
-                            icon.classList.remove('bi-bookmark'); // Remove the outline class
-                            icon.classList.add('bi-bookmark-fill'); // Add the filled class
+                    if (data.isFavorite) {
+                        icon.classList.remove('bi-bookmark'); // Remove the outline class
+                        icon.classList.add('bi-bookmark-fill'); // Add the filled class
 
-                            // Show success toast for adding to favorites
-                            Swal.fire({
-                                toast: true,
-                                position: 'top',
-                                icon: 'success',
-                                title: 'Added to favorites!',
-                                showConfirmButton: false,
-                                timer: 2000,
-                                timerProgressBar: true,
-                                didOpen: (toast) => {
-                                    toast.addEventListener('mouseenter', Swal.stopTimer);
-                                    toast.addEventListener('mouseleave', Swal.resumeTimer);
-                                }
-                            });
-                        } else {
-                            icon.classList.remove('bi-bookmark-fill'); // Remove the filled class
-                            icon.classList.add('bi-bookmark'); // Add the outline class
-
-                            // Show success toast for removing from favorites
-                            Swal.fire({
-                                toast: true,
-                                position: 'top',
-                                icon: 'success',
-                                title: 'Removed from favorites!',
-                                showConfirmButton: false,
-                                timer: 2000,
-                                timerProgressBar: true,
-                                didOpen: (toast) => {
-                                    toast.addEventListener('mouseenter', Swal.stopTimer);
-                                    toast.addEventListener('mouseleave', Swal.resumeTimer);
-                                }
-                            });
-                        }
-                    } else {
-                        // Show error toast if the operation failed
+                        // Show success toast for adding to favorites
                         Swal.fire({
                             toast: true,
                             position: 'top',
-                            icon: 'error',
-                            title: 'Failed to toggle favorite status: ' + data.message,
+                            icon: 'success',
+                            title: 'Added to favorites!',
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true,
+                            didOpen: (toast) => {
+                                toast.addEventListener('mouseenter', Swal.stopTimer);
+                                toast.addEventListener('mouseleave', Swal.resumeTimer);
+                            }
+                        });
+                    } else {
+                        icon.classList.remove('bi-bookmark-fill'); // Remove the filled class
+                        icon.classList.add('bi-bookmark'); // Add the outline class
+
+                        // Remove the card from the listing
+                        card.remove();
+
+                        // Update the recipe count dynamically
+                        const recipeCountHeading = document.getElementById('recipeCountHeading');
+                        let currentCount = parseInt(recipeCountHeading.textContent.match(/\d+/)[0]);
+                        recipeCountHeading.textContent = `Terdapat ${currentCount - 1} resipi yang disimpan`;
+
+                        // Show success toast for removing from favorites
+                        Swal.fire({
+                            toast: true,
+                            position: 'top',
+                            icon: 'success',
+                            title: 'Removed from favorites!',
                             showConfirmButton: false,
                             timer: 2000,
                             timerProgressBar: true,
@@ -504,16 +411,13 @@ $filterOptions = [
                             }
                         });
                     }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-
-                    // Show error toast for unexpected errors
+                } else {
+                    // Show error toast if the operation failed
                     Swal.fire({
                         toast: true,
                         position: 'top',
                         icon: 'error',
-                        title: 'An error occurred while toggling favorite status.',
+                        title: 'Failed to toggle favorite status: ' + data.message,
                         showConfirmButton: false,
                         timer: 2000,
                         timerProgressBar: true,
@@ -522,9 +426,28 @@ $filterOptions = [
                             toast.addEventListener('mouseleave', Swal.resumeTimer);
                         }
                     });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+
+                // Show error toast for unexpected errors
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'error',
+                    title: 'An error occurred while toggling favorite status.',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer);
+                        toast.addEventListener('mouseleave', Swal.resumeTimer);
+                    }
                 });
-        }
-    </script>
+            });
+    }
+</script>
 
 
 </html>
