@@ -116,30 +116,31 @@ date_default_timezone_set("Asia/Kuala_Lumpur");
                 <img class="" style="margin-top:20px; margin-left: 10px;" src="sources/header/logofull.svg" alt="" width="240px">
 
                 <hr style="color:darkgrey">
-                <a href="index.php" class="w3-bar-item w3-button w3-round w3-large" style="margin-left :6px; margin-right: 10px ;width: 94%; text-align: left ">
-                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAACg0lEQVR4nO1XO4sUQRBuwSeogQ/QQDA4EUTEA0MDAx8IJgobiexN11TNVA2jXCR7grv5pQYGgoGG/gIx2FNRI2MRFUU0MBGXC+580/tytr3d23EertIfNAzTPV9933RV9YxSDg4ODv8dqtXqRiCZB+IPnSHzldnZTepfABHtBuInQPJjYKA8nWHeoyYZAHwIiF//Jr4/+J2m6IiaRHh+dBaIF3tiNfIXILloRve6Z2IRiM+txFENgr0e8nGP5GilUllflvY1gFzTyN8SIj9CEJ3oLTDX7Xu/duO7JpkzzybWHEsa1ch3SylWjXLLyvXnOgz322vNPTNnpdRtw9E2gHw1OWdeSKHiiWgHIC9Ygh54Xrxz2DMAsA2Q7w0IJXlcFdkFyA27ZkotVk18nYjWrfasWWPWWibeAPGdUgx4GJ4G5E+JQF818eW0PD4xaZLPwztWAQY08qXBYpWW70dn/piP+KRV3MUYMC0NiG9axfrSC4IDWblngmAfoDwrzIApSo380CJvXoii7bkEUEoZLsNpGxjVEMaCDsODmviV9eZvFHHI1Ov1tRrlmtUY3uownM6Qn9IqrbV1sUIqtYwWlRaa5H0pncHCSjGNFpUWgPyou40DKZSaKG1cGkihdmxTg6mJtNZbzNaJyOa/ZeB8HG/1/eiU0ZAbaW5Ky4wFY5ICyJQmfjHsYGrPgUxNrgHk2qhPg04b5tokG2iMYaDhDKSF2wFyKZQNLoXIpVA2JN/gqH+BrOdAHMcbCjnINPJS4tN2bpiJLAYq5rcV+Uo/DvJSfgZI7q8qLP/RzM9AGE4DyXKJ4pd9Xw7nZqBvAnkhmU55D93hbuYu3sHBwcHBQU0ofgIDUy9WZQWJdgAAAABJRU5ErkJggg==" alt="home" style="padding-bottom:3px;margin-right:5px;text-align:center; width:28px">
+                <a href="index.php" class="w3-bar-item w3-button w3-round w3-large" style="margin-left:6px; margin-right:10px; width:94%; text-align:left">
+                    <i class="bi bi-house-fill me-2" style="font-size: 1.2rem;"></i>
                     Home
                 </a><br>
 
-                <a href="kuehListing.php?search=a" class="w3-bar-item w3-button w3-round w3-large" style="margin-left :6px; margin-right: 10px ;width: 94%; text-align: left; margin-top: 30px ">
-                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAACXBIWXMAAAsTAAALEwEAmpwYAAADW0lEQVR4nO1ZTU9TQRSdLtStG8X4sVB/ggv8/gsmSo2Ksb47M/e9e6GQoEZiIroD/4CJK3VhYogLFcNawY1f/8CNW3GFARSKmDud1xIMhtJ5r9D0JJO8tK9n5szMvXPmVqkOOth6KDHvA8ugLT/VSF+0pR+AvOjbDCB/9t9FWg90qa0GQD4LSBNgaUkjr2ykybtg+bUxyZlWj18hlo9q5MlVA6xoS+8AaShC7k6SZC8i7pAmz8YkxzXyDUCecu/Wf/cmIjrSEhFguBcs/XSzizwHSKNRVN6z0d+LMG15TFua92JmTcyXVZ7QlkbqW4SfX4vjA5vlMqZ8UCOPr1qduyoPaEv3fYd/5FkpVQjBC5YGwdJyLmLAcK8P1GUTc09ofo1UTMWA7buksgrsekzQ7Uw6cWJ4uBYzpv9wFh1MpjGhskUhjRlAmgh+TrhZsjR/neiQyhiSPCQTauSVCPl0MGKZGT9DoyonuNSMbou9Cmg73IldaeScaBbunEGuiL2R56YJo5i0n5m3KmdopOlq30mpeTJn8ty2GlI5AyzdrAqhx02TORdbDbpulTOspZPeAn1smkysuBOSY3zU+tYDXX5FvjdPhvxbyIrF4k6VM8rl8i7vJH61hRCNPNsWWwuQvgYLdrkUBRldI33H/ad8jEy3RfoFy48CkDH4FDgVZHQN9U3v/YqcD7JPU4sSxCo0alEsLZVKg7uDkEq1o+p+eSwI4Ub6RH7gM9Z4QNK+E550IW8bbwwdC0qeWnk/Q0Hu6eugoJFe+IPwZXB2uXbKweTFDKuMAMh3fHKZAejbn0knUndKiw9SKAjNHxm+mBYfTMznVJaQUk1djFuZENusICtRr6DQslRsVNZIxaQxI0W2zXJJ8khjYk2raEyuqKwhdadazEjZ0/JYI+eMvOtT7EJqDNfUg52YXMqokgBWZTPXsTgAsRbuUqQHusQ1S5Nn+QyQb/krbG3QUmKSwJYVaJkYgZRspNrRyN8Kcj0A5Gdrzeh6YiCryuP6tiIpAfITbemTpFA/4DlA/gaWPwDSQxnU/64FPju2VkzgOvDSvwmArqp2EQN5pObQ0O0kxsTc0/ZidB6HZiZikBc7YrZFArA0orYjwCYX0m0GyPfUdoaJuSe3v7M76EA5/AVk6Osx7S8vQwAAAABJRU5ErkJggg==" alt="Cari Kueh" style="padding-bottom:3px;margin-right:8px;text-align:center; width:25px">
+                <a href="kuehListing.php?search=" class="w3-bar-item w3-button w3-round w3-large" style="margin-left:6px; margin-right:10px; width:94%; text-align:left; margin-top:30px">
+                    <i class="bi bi-search me-2" style="font-size: 1.2rem;"></i>
                     Cari
                 </a><br>
 
                 <?PHP
                 if (!empty($_SESSION['username'])) {
                 ?>
-
-                    <a href="index.php" class="w3-bar-item w3-button w3-round w3-large" style="margin-left :6px; margin-right: 10px ;width: 94%; text-align: left; color: #181513;">
-                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAABpUlEQVR4nO1bQUoEMRDML/QPih72EfoLMZ2Um1b8gPgG96DCnHyZ+guV3UNLEFFkJ8m6C7KxGnKaYSZddLqrq4lzW2gCvZaYXgRqY8vHtBDozPVoAn0tOf8NhDfXo0mD85/L9WhScZAAgBFgPAJgDjAmQbAKmOvRhGVQt5MHnKjuhpAmpZXf6TICBHrsofMqf4fOQzg/6g4Aj3S/Aoe/6w+AqEMrAPndrgHwSxwMSCAAYAQYjwCYA4xJMLIKDKWKwjII8gAjEQKZoJEKg72A/aZK/In5bW2GTs8uDvOUNW9qbOX+PQseXQIgUZ+bevis9sjlTn8AoH0SmzW9rgHwy8P//wDgKs8JQGAETMYiiUcgMgcMTIJgFTCWQZAHGIlQJBMcfvIEUmGwFwCbIbAbNLbDoB5gFEQiFaFhUypVm+5VMEpioCZoFEVBVdgoi4NzAatVCc4FQudzAdnQcLQ6aV4BgNpaGwD/cQu7EQDdK2x6tsLGi7e+azfHv4BMi7UBkJhu8i3s2o8E6aH4HUkHHumpuvGoj3463a/s6arl+ryPeltz8B08HyWRfLUk0QAAAABJRU5ErkJggg==" alt="external-bar-cryp-finance-line-line-icons-royyan-wijaya-4" style="padding-bottom:3px;margin-right:8px;text-align:center; width:25px">
+                    <a href="index.php" class="w3-bar-item w3-button w3-round w3-large" style="margin-left:6px; margin-right:10px; width:94%; text-align:left; color:#181513;">
+                        <i class="bi bi-bar-chart-fill me-2" style="font-size: 1.2rem;"></i>
                         Statistik Resipi
                     </a><br>
-                    <a href="notification.php" class="w3-bar-item w3-button w3-round w3-large" style="margin-left :4px; margin-right: 10px ;width: 94%; text-align: left; color: #181513;">
-                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAAC7UlEQVR4nO2YPWgUURDHX2yiVoKiqFgYBUVE0EIsREUUlKBWFhriZWfem92ZyyVGjBIsItiLvSIIQbEWBG1sJJVaih8QtUmMVSxihMQoj+SSycUEvX13t4H9wYNj3+5/Zm7fm5l9xuTk5OTkZBGi0g4kYT8i5hazkkBKLoLjn0jy2w//28ZywawEEHkfkkyUnZ8bjn/4OZNFCoXCanDcDSRvFzrOr9HJG33N3xNR8bJ/xmSByPFRJP686B+fCeAMuOTs3+aA5AvGxWMNdR6sdCDJVIVj4+D4BTq+Zoxp8gMd9/lrfq4ikCkkjhrjPHGrdh5IhsGKO9/Ts2apZ4horSUmdDyigwDi1ro6Xyh0r/MOqyzzkog2/Ovz/l7/DKrgvaapF0DSO2+ch6oxPvMn8JAKotfUCyB+P2fYSlvVOlba5tOsvDP1oL1YXK8LVKlUaq5Wq1QqNeua8T/LsGqsTY6r4jSYVg8dD5b1vLapNQteO/FAaj3HD+cCqEe74Suu2sC30+ohyR21DzrDeLmcQce31BLqC6B3Q+ndDOPlcgaJB8oGo5gxrR5YceoNPDC1Rm+6yPGJ1Hpx8aQuiKbWgJPRssEkSTam1UPs2qSW0IipJZfieKsu/6F0gfhrWdfbCKW72JCTdtWEPQuny8/rkkqR5Kl63b5dDgIQX1ep+Uko3QojcgRJpsstsLWd20MeAIDjX7Pa0xHJYRMS/1UFJGOqAj+qQXp+rPbXmI3lXBBha5ND4HhyPtXJaC02WgfzNiT+plLqJMbxwaB53/fvkCT7TY3ooOIBdPIpWF2AJNmrss5EyHW/FBFzi26xozjeEyptNmRAig+mBZ+ODQvA8dWqA0CUnUD8sWEBOPngU6ypB/39/avQ8XflwKnyXOSS0zpF+ntNFgEn95Wj40B8d2aoAy0n90xWAShu0Y3ZovVMMkxEm02WIercXXmgO+v8K0iSXWaF0OQPfYH4Cjrp8X3U7DlpTk5OTo7JFH8A2rgNKR9hmJYAAAAASUVORK5CYII=" alt="appointment-reminders" style="padding-bottom:3px;margin-right:5px;text-align:center; width:30px">
-                        Notifikasi
+
+                    <a href="notification.php" class="w3-bar-item w3-button w3-round w3-large" style="margin-left:6px; margin-right:10px; width:94%; text-align:left; color:#181513;">
+                        <i class="bi bi-bell-fill me-2" style="font-size: 1.2rem;"></i>
+                        Resipi Anda
                     </a>
-                    <a href="favorite.php" class="w3-bar-item w3-button w3-round w3-large" style="margin-left :6px; margin-right: 10px ;width: 94%; text-align: left; color: #181513;">
-                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAACXBIWXMAAAsTAAALEwEAmpwYAAABEElEQVR4nO2aMQ4CIRBFuYceyFNswRc2TOKRLOxMLPVEa6XGQi+gMbpZCxKbAYT8l9Ay+8KfKWCNIZWyXK7m1oUdvNzh5ZF7GTUJL9cSAtAU+ZzEw/qw7/p+ZjICTZExTrklUojobVayNiKbwcvC+nBU7QUnw2vfvCLvovqN7WTIK5IgbkhdhyJVnIhrp0cW6jKuwNTKBSgSgSeiABitCIyWAmC0IjBaCoDRisBoKQBGKwKjpQAYrQiMlgJgtCJMFwRhbb1cktye/FhGgxIfjpQiJd5HVBlFqpb4Fnk9wZmawZTVQ9UyaK3Z0YqI5dT6E6yTUxtTy8mmianV9f0MPpyrb/bppxrZwoVb1SLE5OEJ3fVbDkbibuIAAAAASUVORK5CYII=" alt="book-stack" style="padding-bottom:3px;margin-right:8px;text-align:center; width:25px">
+
+                    <a href="favorite.php" class="w3-bar-item w3-button w3-round w3-large" style="margin-left:6px; margin-right:10px; width:94%; text-align:left; color:#181513;">
+                        <i class="bi bi-bookmark-heart-fill me-2" style="font-size: 1.2rem;"></i>
                         Kegemaran
                     </a><br>
                 <?PHP
