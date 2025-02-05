@@ -1,37 +1,91 @@
 <?php
+
+
 include('header.php');
+include('connection.php');
 
+// Initialize the user array
+$user = [];
 
+// Ensure the user is logged in and their data is fetched as $user
+if (isset($_SESSION['google_user']) && is_array($_SESSION['google_user'])) {
+    $user = [
+        "userName" => $_SESSION['google_user']['name'],
+        "email" => $_SESSION['google_user']['email'],
+        "profile_image" => $_SESSION['google_user']['picture']
+    ];
+} else {
+    $user['userName'] = $_SESSION['username'] ?? 'User'; // Fallback for missing session data
+    $user['email'] = $_SESSION['email'] ?? 'N/A';
+    $user['phoneNum'] = $_SESSION['phoneNum'] ?? 'N/A';
+    // Default icon if no image is uploaded
+    $user['profile_image'] = "https://static.vecteezy.com/system/resources/previews/024/983/914/non_2x/simple-user-default-icon-free-png.png";
+}
 
-// Handle form submission
+// Handle form submission and update the user data in the database
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $user['userName'] = $_POST['username'];
-    $user['email'] = $_POST['email'];
-    $user['phoneNum'] = $_POST['phoneNum'];
-    $user['description'] = $_POST['description'];
+    $userName = $_POST['username'];
+    $email = $_POST['email'];
+    $phoneNum = $_POST['phoneNum'];
+    $password = $_POST['password'];
 
-    // Handle uploaded image
+    // Handle the uploaded profile image if provided
     if (isset($_FILES['profileImage']) && $_FILES['profileImage']['error'] === UPLOAD_ERR_OK) {
-        $user['profile_image'] = 'data:image/jpeg;base64,' . base64_encode(file_get_contents($_FILES['profileImage']['tmp_name']));
+        // Check for file size limit, etc.
+        $profileImage = 'data:image/jpeg;base64,' . base64_encode(file_get_contents($_FILES['profileImage']['tmp_name']));
+    } else {
+        // If no image is uploaded, keep the existing image
+        $profileImage = $user['profile_image'];
+    }
+
+    // Update user data in the database
+    if (isset($_SESSION['username'])) {
+        $userName = $_SESSION['username'];
+
+        $query = "UPDATE USERS SET USERNAME = :username, EMAIL = :email, PHONENUM = :phoneNum, IMAGE = :profile_image WHERE USERNAME = :username";
+
+        // update new password
+        if (!empty($password)) {
+            $query = "UPDATE USERS SET USERNAME = :username, EMAIL = :email, PHONENUM = :phoneNum, PASSWORD = :password, IMAGE = :profile_image WHERE USERNAME = :username";
+        }
+
+        // Parse the SQL statement
+        $stmt = oci_parse($condb, $query);
+
+        // Bind the parameters
+        oci_bind_by_name($stmt, ':username', $userName);
+        oci_bind_by_name($stmt, ':email', $email);
+        oci_bind_by_name($stmt, ':phoneNum', $phoneNum);
+        oci_bind_by_name($stmt, ':profile_image', $profileImage);
+
+
+        if (!empty($password)) {
+            oci_bind_by_name($stmt, ':password', $password);
+        }
+
+        // Execute the query
+        if (oci_execute($stmt)) {
+            oci_commit($condb); // Commit the transaction
+
+
+
+            $_SESSION['username'] = $userName;
+            $_SESSION['email'] = $email;
+            $_SESSION['phoneNum'] = $phoneNum;
+            $_SESSION['profile_image'] = $profileImage;
+
+            // Update the $user array to reflect the session changes
+            $user = [
+                "userName" => $_SESSION['username'],
+                "email" => $_SESSION['email'],
+                "phoneNum" => $_SESSION['phoneNum'],
+                "profile_image" => $_SESSION['profile_image']
+            ];
+        } else {
+            $message = "Failed to update profile. Please try again.";
+        }
     }
 }
-
-if(isset($_SESSION['google_user'])){
-    $user = [
-    "userName" => $_SESSION['google_user']['name'],
-    "email" => $_SESSION['google_user']['email'],
-    "profile_image" => $_SESSION['google_user']['picture'] // Avatar Profile
-    ];
-}else{
-    $user['userName'] = $_SESSION['username'];
-    $user['email'] = $_SESSION['email'];
-    $user['phoneNum'] = $_SESSION['phoneNum'];
-    $user['profile_image'] = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAFdUlEQVR4nO1aS4hcRRR9UaPJxs9CVBT8oBmDEsVPFE0iGJxEMbixySKSTt+qe9+7t6dHRlQQlMadGozfGH8ouHAnoi5cmLjwFxJJ1CgiMaMjRpB8FxLJZybK7e6Zed0zk3RVve6ZhHegYJjX737Ou1V1696Kohw5cuTIkaOjIOq7FogTg7IBSDYZlEFAOQAkR2uj9jfv0mdA/JpBiSFJeqJTGdbKjUC8zqDsNiT/+Qwg/tOgPF+K+26IThHMMsQrgGSzr9NTDuRvrC3frzqimQgTxwsN8reZO94aFShbgMq3RDMFhYGBuUD8CiCPdNr5cRJ4BIhfKhaLc6bVeUiSHiD5oVuOT7JGfLcmjq+ZFudLJLcZ5H3T5XxqShwokSzqrvOY3GuQ/51u58cjQQ4ZkuXdcZ5kUbjz/Bcgvw8kTwMKAMlSnU7W9l3JzBfoUF0G5RcXEhD5jo46D0nSY4gPejmtOwRKnyZF7eozyM85RsL+jq0Jhdpq77Pg8Q79wt7R5ky0bO/I7gAor3oY83aIMYVC4UxDvMcj4l7MPMkB532e38wiazPE73oQMLyGyjdll96iW4anU6VSqZyThfJSqXIhED8CyIcdbdicSdpsiFe4fgFry8uijAHEFVc7dLvOQLG4HWxQdnbiwEJEs3X7dIyCr4OPtMaRdSB5NuoQgPgt5/XA8IIQheucwz+WB9IySjGvNsRDhvg9Q9IPxL3Wlufp3NZ1QncJY/ovMobn21geNCjPAMnPBmWg1R5DXPJYENd6E2B8ihmG5zeFrWdBRHcda/nmJnsML/CIyD8Csj5xNpyIzhszOO6700dGioRP0zYR0SU+cryyQ9Aanh8Bs8cIQH4ikICR1XF86ag8nTI+ciwxORNgUDb4KGuSQfJhCAH1UbYtMn3krHcngOTzcAJ4WygBgPJOMAHIG30i4PdQAoD472ACSL4IJ0AGPQhgr2pPi4zwognK7lACgGSvOwEkR0JDzZAcDyaA5EgLqRudCUA+7EwAOB4+Ws8AYGVVBs43Bj+UInV5dwgg2RuSA2gCkiEBQ6Nyi8WHz/d4f48zAQZl0FXRqkrl3BAC25nDSrL7+/yrTwRscjY2jheOEUjyVIYEPDkq19rkdg8Zn3WlBAbEr2eRTTbJtIItdr3hLAflZWcCDErsYfBwugBarVbPAOLfvAlAGVQZ44TKUtURSmJbsLY8zzNcD2nXaPyL8aMBBIwdiVVmowHiLsfI1c4EhGSDhuSj8VW7OEcvP3g4vzNdVwTiT3yjKPKFQX7Bk4Dj6QWxhHwXIB9ziKKj6X5fY+HzSqq0qONNACTJ9d7hS7yt6QsiS7vkpY+vtSMwynZfO6yV67wJUGhh0Z+E5mOozukT9Rcaz/qb3iFZ76s/uCg61gn2J0CNWBKlYGK5T1vak/xuf2uH19pkcYjuTMriCkD+yj8EJ/YItAucXtQA5eNiHF8x8XflZQFT8Mso0/s/5L7/6kDkW3316rteUYd8LPN7RIZkrcdXGCqKXDwqQ3sGWticSoc+S/cV9N16SX0G9CYKAwNzDfL37RnAu0oxm0KhcHZaRv2AxAeB5LF0sVP/NsiPN541FS9UhspqN5fQe0Nqa+YEKADk8hO2q1EGdQurVqtnRS3QlLbNaTScTn+b3+dCrWkypX7eV2K+KuokgGTJxJSUdxjilZMZ7nOO199OJadBxMq6zgkpeHcuS1mbLAbkf7QNrq0vvchwsnf0y7RLgO4SDrdSt6rz1iZ3R92EtZXLXLrA2uZqn4DmlthJMKthy8wGEPe2vZLH5Xui0w1A3NvOgai+h3NvdDqiqPt67TwgHwDxT7XOcX38qP/TZ+m8IUeOHDly5MiRI0fUOfwPWUs8T7LFLncAAAAASUVORK5CYII=";
-
-}
-
-
-$cooking_activity_uploaded = false; // Set this to true when activity is uploaded
 ?>
 
 <!DOCTYPE html>
@@ -43,7 +97,7 @@ $cooking_activity_uploaded = false; // Set this to true when activity is uploade
     <title>User Profile</title>
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
 
 
     <style>
@@ -243,7 +297,7 @@ $cooking_activity_uploaded = false; // Set this to true when activity is uploade
             margin-bottom: 10px;
         }
 
-        .cooking-activity-p{
+        .cooking-activity-p {
             font-size: 1.2rem;
             margin-bottom: 10px;
         }
@@ -267,6 +321,8 @@ $cooking_activity_uploaded = false; // Set this to true when activity is uploade
             background-color: #e65c36;
         }
     </style>
+
+
 </head>
 
 <body><br><br>
@@ -276,7 +332,6 @@ $cooking_activity_uploaded = false; // Set this to true when activity is uploade
         <div class="profile-header">
             <div class="profile-img-container">
                 <!-- Profile Image with Upload -->
-                 
                 <label for="fileInput">
                     <img src="<?php echo htmlspecialchars($user['profile_image']); ?>" alt="Profile Image"
                         class="profile-img" id="profileImage">
@@ -287,17 +342,17 @@ $cooking_activity_uploaded = false; // Set this to true when activity is uploade
                         onchange="previewImage(event)">
                 </form>
             </div>
-            
-                <div class="description-container">
-                    <p class="username"><?php echo htmlspecialchars($user['userName']); ?></p>
-                    <?php
-                        if(isset($_SESSION['google_user'])){ ?>
-                        <p class="description">You are currently logged in using a Google Account. All sensitive data is hidden as a security measure.</p>
-                    <?php } ?>
-                    
-                    </div>
-            
-            
+
+            <div class="description-container">
+                <p class="username"><?php echo htmlspecialchars($user['userName']); ?></p>
+                <?php if (isset($message)) { ?>
+                    <p class="message"><?php echo $message; ?></p>
+                <?php } ?>
+                <?php if (isset($_SESSION['google_user'])) { ?>
+                    <p class="description">You are currently logged in using a Google Account. All sensitive data is hidden
+                        as a security measure.</p>
+                <?php } ?>
+            </div>
         </div>
 
         <!-- Contact Info -->
@@ -306,22 +361,22 @@ $cooking_activity_uploaded = false; // Set this to true when activity is uploade
                 <i class="fa fa-envelope w3-text-orange" aria-hidden="true"></i>
                 <?php echo htmlspecialchars($user['email']); ?>
             </span>
-            <?php
-                        if(!isset($_SESSION['google_user'])){ ?>
-            <span>
-                <i class="fa fa-phone w3-text-orange" aria-hidden="true"></i>
-                <?php echo htmlspecialchars($user['phoneNum']); ?>
-            </span>
+            <?php if (!isset($_SESSION['google_user'])) { ?>
+                <span>
+                    <i class="fa fa-phone w3-text-orange" aria-hidden="true"></i>
+                    <?php echo htmlspecialchars($user['phoneNum']); ?>
+                </span>
             <?php } ?>
         </div>
 
-        <?php if(!isset($_SESSION['google_user'])){ ?>
-            <!-- Edit Profile Button -->
+        <!-- Edit Profile Button -->
+        <?php if (!isset($_SESSION['google_user'])) { ?>
             <div class="edit-profile" id="editProfileBtn">
                 Edit Profile
                 <i class="fa fa-pencil w3-margin-left"></i>
             </div>
         <?php } ?>
+
         <!-- Edit Form -->
         <div class="edit-form" id="editForm" style="display: none;">
             <form method="POST" enctype="multipart/form-data">
@@ -346,6 +401,12 @@ $cooking_activity_uploaded = false; // Set this to true when activity is uploade
                         value="<?php echo htmlspecialchars($user['phoneNum']); ?>" required>
                 </div>
 
+                <!-- Password Field -->
+                <div class="form-group">
+                    <label for="password">New Password</label>
+                    <input class="form-control" type="password" id="password" name="password"
+                        placeholder="masukkan kata laluan baharu anda">
+                </div>
 
                 <!-- Buttons -->
                 <div class="form-buttons">
@@ -354,15 +415,8 @@ $cooking_activity_uploaded = false; // Set this to true when activity is uploade
                 </div>
             </form>
         </div>
-    </div><br><hr>
-
-    <!-- Cooking Activity Message -->
-            <div class="w3-container" style="width:80%;display:flex;justify-content:center;align-items:center;margin-left:10%">
-                <?php include('kuehByUser.php'); ?>
-            </div>
-
-    
-
+    </div><br>
+    <hr>
 
     <script>
         document.getElementById('editProfileBtn').onclick = function () {
