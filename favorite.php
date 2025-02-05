@@ -78,10 +78,11 @@ $filterOptions = [
 
 <!DOCTYPE html>
 <html lang="ms">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -194,9 +195,10 @@ $filterOptions = [
 </head>
 
 <body>
-    
+
     <div class="container py-4">
-        <h2 id="recipeCountHeading" class="mb-4">Terdapat <?= $total_recipes ?> resipi yang disimpan</h2><hr>
+        <h2 id="recipeCountHeading" class="mb-4">Terdapat <?= $total_recipes ?> resipi yang disimpan</h2>
+        <hr>
 
         <div class="row">
             <!-- Main Content Column -->
@@ -204,17 +206,19 @@ $filterOptions = [
                 <div id="recipeContainer" class="row">
                     <?php if (!empty($recipes)): ?>
                         <?php foreach ($recipes as $recipe): ?>
-                            <div class="col-12 mb-4">
+                            <div class="col-12 mb-4 w3-animate-left" style="animation-delay: <?= $animate ?>s;">
                                 <a href="kuehDetails.php?id=<?= $recipe['KUEHID'] ?>"
                                     class="text-decoration-none shadow-sm text-dark">
                                     <div class="card card-hover-effect rounded shadow-sm  border-0">
                                         <div class="row g-0">
                                             <div class="col-md-3">
-                                                <div class="card-img-container">
-                                                    <img src="<?= $recipe['IMAGE_DATA_URI'] ?? 'path/to/default/image.jpg' ?>"
-                                                        class="img-fluid rounded-start"
-                                                        alt="<?= htmlspecialchars($recipe['KUEHNAME']) ?>"
-                                                        style="max-width: 100%; max-height: 175px; object-fit: cover;">
+                                                <div class="recipe-page">
+                                                    <div class=" card-img-container">
+                                                        <img src="<?= $recipe['IMAGE_DATA_URI'] ?? 'path/to/default/image.jpg' ?>"
+                                                            class="img-fluid rounded-start"
+                                                            alt="<?= htmlspecialchars($recipe['KUEHNAME']) ?>"
+                                                            style="max-width: 100%; max-height: 200px; object-fit: cover;">
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="col-md-9">
@@ -224,21 +228,37 @@ $filterOptions = [
                                                             <h2 class="card-title"><?= htmlspecialchars($recipe['KUEHNAME']) ?>
                                                             </h2>
                                                         </strong>
-                                                        <button type="button"
-                                                        class="btn me-2 fw-bold"
-                                                        id="saveRecipeButton"
-                                                        onclick="toggleFavorite(<?= $recipe['KUEHID'] ?>)">
-                                                        <i class="far fa-trash-can"></i></button>
+                                                        <button class="btn btn-light"
+                                                            onclick="toggleFavorite(<?= $recipe['KUEHID'] ?>, event)">
+                                                            <i
+                                                                class="bi <?= $recipe['IS_FAVORITE'] ? 'bi-bookmark-fill' : 'bi-bookmark' ?>"></i>
+                                                        </button>
                                                     </div>
-                                                    <p class="card-text" style="font-size: 1.1rem;">
-                                                        <?= htmlspecialchars($recipe['ITEMS']) ?>
+                                                    <p class="card-text ingredients-list"
+                                                        style="font-size: 1.1rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; position: relative; max-height: 3.3em; line-height: 1.65em;">
+                                                        <?php
+                                                        $items = explode(', ', $recipe['ITEMS']);
+                                                        if (count($items) > 10) {
+                                                            echo htmlspecialchars(implode(', ', array_slice($items, 0, 10))) . '...';
+                                                        } else {
+                                                            echo htmlspecialchars($recipe['ITEMS']);
+                                                        }
+                                                        ?>
                                                     </p>
-
-                                                    <div class="d-flex align-items-center">
-                                                        <img src="sources\header\logo.png" alt="Profile Picture"
-                                                            class="rounded-circle me-2 border" width="40" height="40">
-                                                        <p class="card-text w3-text-grey" style="font-size: 1.1rem;"><i>
-                                                            oleh <?= htmlspecialchars($recipe['NAMECREATOR']) ?></i>
+                                                    <div class="d-flex align-items-center profile-section">
+                                                        <?PHP
+                                                        if ($recipe['CREATORIMAGE'] != null) {
+                                                            ?><img src="<?= $recipe['CREATORIMAGE'] ?>"
+                                                                alt="Profile Picture" class="rounded-circle me-2 border" width="40"
+                                                                height="40"><?PHP
+                                                        } else {
+                                                            ?>
+                                                            <img src="sources/header/logo.png" alt="Profile Picture"
+                                                                class="rounded-circle me-2 border" width="40" height="40"><?PHP
+                                                        }
+                                                        ?>
+                                                        <p class="card-text" style="font-size: 1.1rem;">
+                                                            <?= htmlspecialchars($recipe['NAMECREATOR']) ?>
                                                         </p>
                                                     </div>
                                                 </div>
@@ -247,7 +267,9 @@ $filterOptions = [
                                     </div>
                                 </a>
                             </div>
-                        <?php endforeach; ?>
+                            <?php
+                            $animate += 0.04;
+                        endforeach; ?>
                     <?php else: ?>
                         <div class="col-12">
                             <p>Tiada kueh dalam kegemaran.</p>
@@ -262,7 +284,7 @@ $filterOptions = [
                     <!-- Filter -->
 
                     <div class="card-body">
-                        
+
                         <h5 class="card-title mb-0">Berikan Maklum Balas:</h5>
                         <form action="submit_feedback.php" method="POST">
                             <textarea class="form-control" name="feedback" placeholder="Sila tulis maklum balas di sini.."></textarea>
@@ -284,7 +306,30 @@ $filterOptions = [
 
     <?php include('footer.php'); ?>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
-    
+
+    <script>
+        function toggleFavorite(kuehID) {
+            if (!confirm("Are you sure you want to remove this from favorites?")) return;
+
+            fetch('remove_favorite.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: 'KUEHID=' + kuehID
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById("saveRecipeButton").closest(".recipe-card").remove();
+                        alert("Recipe removed from favorites.");
+                    } else {
+                        alert("Failed to remove from favorites.");
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    </script>
 </body>
 
 </html>

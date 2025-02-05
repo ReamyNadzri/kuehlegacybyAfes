@@ -274,7 +274,7 @@ if (isset($_POST['login'])) {
         <?php endif; ?>
 
         <form method="post" action="">
-            <div class="w3-margin-bottom">
+            <div class="w3-margin-bottom w3-margin-top">
                 <div class="input-container">
                     <input type="email" name="email" class="w3-input1 w3-border w3-round-large" placeholder="Email" required>
                 </div>

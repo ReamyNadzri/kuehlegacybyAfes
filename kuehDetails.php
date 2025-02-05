@@ -92,7 +92,7 @@ if ($kueh_id) {
 }
 
 /* GET DETAIL OF THE KUEH'S CREATOR */
-$blobQuery = "SELECT COALESCE(u.NAME, a.NAME) AS NAME, u.IMAGE AS IMAGE
+$blobQuery = "SELECT COALESCE(u.USERNAME, a.USERNAME) AS USERNAME, COALESCE(u.NAME, a.NAME) AS NAME, u.IMAGE AS IMAGE
                     FROM KUEH k
                     LEFT JOIN USERS u ON k.USERNAME = u.USERNAME
                     LEFT JOIN ADMIN a ON k.USERNAME = a.USERNAME
@@ -104,6 +104,7 @@ oci_bind_by_name($blobStmt, ':kuehID', $kueh_id);
 oci_execute($blobStmt);
 
 if ($blobRow = oci_fetch_assoc($blobStmt)) {
+    $creator['USERNAMECREATOR'] = $blobRow['USERNAME'];
     $creator['NAMECREATOR'] = $blobRow['NAME'];
     $creator['CREATORIMAGE'] = $blobRow['IMAGE'];
 }
@@ -168,18 +169,26 @@ oci_free_statement($blobStmt);
                     <?php echo $kuehDetails['TAGKUEH']; ?>
                 </p>
                 <div class="mt-auto">
-                    <button type="button"
+                    <?php
+                    if($creator['USERNAMECREATOR']==($_SESSION['username'])){
+                        echo '<a href="editKueh.php?id='.$kueh_id.'" type="button" class="btn btn-outline-primary me-2 fw-bold"><i class="bi bi-pencil-square"></i> Sunting</a>';
+                    }else{ ?>
+                        <button type="button"
                         class="btn <?php echo $isFavorite ? 'btn-warning' : 'btn-outline-warning'; ?> me-2 fw-bold"
                         id="saveRecipeButton"
                         onclick="toggleFavorite(<?php echo $kueh_id; ?>)">
                         <i class="bi <?php echo $isFavorite ? 'bi-bookmark-fill' : 'bi-bookmark'; ?>"></i> Simpan Resipi
                     </button>
+                    <?php }
+                    ?>
                     <button type="button" class="btn btn-outline-secondary me-2 fw-bold"><i class="bi bi-folder-plus"></i> Tambah ke folder</button>
                     <button type="button" class="btn btn-outline-secondary me-2 fw-bold" onclick="copyToClipboard()">
                         <i class="bi bi-upload"></i> Kongsi
                     </button>
-                    <button type="button" class="btn btn-outline-secondary fw-bold"><i class="bi bi-printer"></i> Cetak</button>
-                    <button type="button" class="btn btn-outline-secondary fw-bold border-0"><i class="bi bi-three-dots"></i></button>
+                    <button type="button" class="btn btn-success me-2 fw-bold" onclick="copyToWhatsapp()">
+                        <i class="bi bi-whatsapp"></i> Kongsi ke Whatsapp
+                    </button>
+                    
                 </div>
             </div>
         </div>
@@ -225,6 +234,52 @@ oci_free_statement($blobStmt);
 
         // Copy the URL to the clipboard
         navigator.clipboard.writeText(currentUrl)
+            .then(() => {
+                // Show a SweetAlert2 success notification
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'success',
+                    title: 'Link has been copied to clipboard!',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer);
+                        toast.addEventListener('mouseleave', Swal.resumeTimer);
+                    }
+                });
+            })
+            .catch((error) => {
+                // Show a SweetAlert2 error notification if copying fails
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'error',
+                    title: 'Failed to copy link to clipboard!',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer);
+                        toast.addEventListener('mouseleave', Swal.resumeTimer);
+                    }
+                });
+                console.error('Failed to copy link: ', error);
+            });
+    }
+    function copyToWhatsapp() {
+        // Get the current URL
+        const currentUrl = window.location.href;
+
+        // Copy the URL to the clipboard
+        const message = "Check out this kuih I found on Kueh Legacy! "+" "+currentUrl;
+        const encodedMessage = encodeURIComponent(message);
+        const url = `https://wa.me/?text=${encodedMessage}`;
+        
+        // Open WhatsApp in a new tab
+        window.open(url, '_blank')
+
             .then(() => {
                 // Show a SweetAlert2 success notification
                 Swal.fire({
