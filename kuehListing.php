@@ -11,7 +11,9 @@ $foodName = htmlspecialchars($foodName, ENT_QUOTES, 'UTF-8');
 $sql = "SELECT k.KUEHID, k.KUEHNAME, LISTAGG(i.NAMEITEM, ', ') WITHIN GROUP (ORDER BY i.NAMEITEM) AS ITEMS
     FROM KUEH k
     JOIN ITEMS i ON k.KUEHID = i.KUEHID
-    WHERE UPPER(k.KUEHNAME) LIKE '%' || UPPER(:search) || '%'";
+    JOIN ORIGIN o ON k.ORIGINID = o.ORIGINCODE
+    WHERE UPPER(k.KUEHNAME) LIKE '%' || UPPER(:search) || '%' 
+    OR UPPER(o.NAMESTATE) LIKE '%' || UPPER(:search) || '%'";
 
 $sql .= " GROUP BY k.KUEHID, k.KUEHNAME ORDER BY k.KUEHID DESC";
 $stid = oci_parse($condb, $sql);
