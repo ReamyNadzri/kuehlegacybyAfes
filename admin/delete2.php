@@ -1,7 +1,7 @@
 <?php
 include('header_admin.php');
 include('../connection.php');
-
+//
 # Check if necessary parameters are passed
 if (isset($_GET['jadual']) && isset($_GET['medan_kp']) && isset($_GET['kp'])) {
     $jadual = $_GET['jadual'];  // Table name (ADMIN)
