@@ -73,8 +73,9 @@ oci_execute($laksana_sql_cari);
             <td>" . $rekod['EMAIL'] . "</td>
             <td>" . $rekod['PASSWORD'] . "</td>
             <td>
-                 <a href='delete.php?jadual=ADMIN&medan_kp=USERNAME&kp=" . $rekod['USERNAME'] . "' 
-                onClick=\"return confirm('Confirm delete this admin?')\" class='btn btn-danger btn-sm'>Delete</a> 
+                 <a href='delete2.php?jadual=ADMIN&medan_kp=USERNAME&kp=" . $rekod['USERNAME'] . "' 
+    onClick=\"return confirm('Confirm delete this admin?')\" class='btn btn-danger btn-sm'>Delete</a>
+
                  <a href='admin_update.php?adminName=" . $rekod['USERNAME'] . "&adminPhone=" . $rekod['EMAIL'] . "&adminPass=" . $rekod['PASSWORD'] . "' 
                 onClick=\"return confirm('Confirm update admin data?')\" class='btn btn-warning btn-sm'>Update</a> 
             </td>
