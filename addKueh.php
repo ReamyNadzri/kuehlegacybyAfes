@@ -251,7 +251,7 @@ oci_close($condb);
             </div>
 
             <!-- Dropdown Section -->
-            <div class="row mb-4">
+            <div class="row mb-4 gy-2">
             <div class="col-12 col-md-6 col-lg-3">
                     <label for="foodtype" class="form-label fw-bold">Jenis makanan</label>
                     <select name="foodtype" id="foodtype" class="form-select" required>

@@ -415,7 +415,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             </form>
         </div>
-    </div><br>
+    </div><br>\
+
+    <div class="w3-container" style="width:80%;display:flex;justify-content:center;align-items:center;margin-left:10%">
+                <?php include('kuehByUser.php'); ?>
+            </div>
     <hr>
 
     <script>

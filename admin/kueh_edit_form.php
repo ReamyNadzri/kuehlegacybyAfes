@@ -237,6 +237,9 @@ oci_close($condb);
 <body class="" style="background-color: #FFFAF0;">
     <div class="container w-75">
         <form id="kuehForm" method="POST" action="<?php echo $_SERVER['PHP_SELF']; ?>" enctype="multipart/form-data">
+            <div class="d-flex justify-content-end mt-4">
+                <button type="submit" name="submit" class="btn btn-primary mb-4">Simpan</button>
+            </div>
             <!-- Existing image and title section -->
             <div class="row">
                 <div class="col-12 col-md-4 my-4" id="imageContainer">
@@ -314,7 +317,7 @@ oci_close($condb);
                             <button type="button" class="btn btn-primary ms-3" id="addIngredientButton"><i class="bi bi-plus"></i></button>
                         </div>
                     </div>
-                    <div id="ingredientContainer">
+                    <div id="ingredientContainer" style="height: 250px; overflow-y: auto; padding: 10px;">
                         <?php if (isset($ingredients)): ?>
                             <?php foreach ($ingredients as $ingredient): ?>
                                 <div class="input-group mb-2">
@@ -335,7 +338,7 @@ oci_close($condb);
                             <button type="button" class="btn btn-primary ms-3" id="addStepButton"><i class="bi bi-plus"></i></button>
                         </div>
                     </div>
-                    <div id="stepContainer">
+                    <div id="stepContainer" style="height: 250px; overflow-y: auto; padding: 10px;">
                         <?php if (isset($steps)): ?>
                             <?php foreach ($steps as $step): ?>
                                 <div class="input-group mb-2">
@@ -349,13 +352,9 @@ oci_close($condb);
                 </div>
             </div>
             <input type="hidden" name="kuehId" value="<?php echo isset($kuehId) ? $kuehId : ''; ?>">
-            <div class="row mt-3">
-                <div class="col-12 d-flex justify-content-end">
-                    <button type="submit" name="submit" class="btn btn-primary mb-4">Save Recipe</button>
-                </div>
-            </div>
+
         </form>
-    </div>
+    </div><br><br>
 
     <script>
         // Function to handle the deletion of input fields

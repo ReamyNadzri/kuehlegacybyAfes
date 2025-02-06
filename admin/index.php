@@ -19,7 +19,7 @@ if (isset($_SESSION['adminid'])) {
 <br>
 
 <div class="w3-container w3-center w3-middle">
-  <img src="../sources/admin.png" style="max-width:800px">
+  <img src="../sources/header/logofull.svg" style="max-width:800px">
 
   <h2>WARNING!</h2>
   <h4>Now you are in the admin AFAS site.</h4>
