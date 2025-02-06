@@ -123,15 +123,25 @@ date_default_timezone_set("Asia/Kuala_Lumpur");
 
                 <style>
                     @keyframes glow {
-                        0% { box-shadow: 0 0 5px #FF0000; }
-                        40% { box-shadow: 0 0 20px #FF0000; }
-                        80% { box-shadow: 0 0 5px #FF0000; }
+                        0% {
+                            box-shadow: 0 0 5px #FF0000;
+                        }
+
+                        40% {
+                            box-shadow: 0 0 20px #FF0000;
+                        }
+
+                        80% {
+                            box-shadow: 0 0 5px #FF0000;
+                        }
                     }
+
                     .glow-button {
                         animation: glow 2s infinite;
                         background-color: #FFE4E1;
                         transition: all 0.3s ease;
                     }
+
                     .glow-button:hover {
                         background-color: #FF0000;
                         color: white;
@@ -157,14 +167,41 @@ date_default_timezone_set("Asia/Kuala_Lumpur");
                         Kegemaran
                     </a><br>
                 <?PHP
-                }if (empty($_SESSION['username'])) {
+                }
+                if (empty($_SESSION['username'])) {
                 ?>
-                    <br><p class="w3-small" style="padding-left: 5px;">Untuk mulakan perkongsian anda dan simpan resipi yang anda minat, sila <a href="register.php">daftar atau log masuk.</a></p>
+                    <br>
+                    <p class="w3-small" style="padding-left: 5px;">Untuk mulakan perkongsian anda dan simpan resipi yang anda minat, sila <a href="register.php">daftar atau log masuk.</a></p>
                 <?PHP
                 }
                 ?>
                 <!--<img src="sources/header/footer.png" class="w3-round-large" alt="" width="250px" style="margin-left: -16px; margin-top: 311px;">-->
+                <hr>
+                <hr><hr><hr>
+                <a href="kuehListing.php?search=johor" class="w3-bar-item w3-button w3-round w3-large">
 
+                    <img src="sources/negeri/johor.png" alt="" class="w3-round-large w3-hover-opacity w3-card" style="height: 75px; width: 100%; object-fit: cover;">
+
+
+                </a>
+                <a href="kuehListing.php?search=kedah" class="w3-bar-item w3-button w3-round w3-large">
+
+                    <img src="sources/negeri/kedah.png" alt="" class="w3-round-large w3-hover-opacity w3-card" style="height: 75px; width: 100%; object-fit: cover;">
+
+
+                </a>
+                <a href="kuehListing.php?search=kelantan" class="w3-bar-item w3-button w3-round w3-large">
+
+                    <img src="sources/negeri/kelantan.png" alt="" class="w3-round-large w3-hover-opacity w3-card" style="height: 75px; width: 100%; object-fit: cover;">
+
+
+                </a>
+                <a href="kuehListing.php?search=terengganu"class="w3-bar-item w3-button w3-round w3-large">
+
+                    <img src="sources/negeri/terengganu.png" alt="" class="w3-round-large w3-hover-opacity w3-card" style="height: 75px; width: 100%; object-fit: cover;">
+
+
+                </a>
 
 
             </div>
