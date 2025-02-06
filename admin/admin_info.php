@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-// Fetch admin records
+// Fetch admin records --
 $arahan_sql_cari = "SELECT * FROM ADMIN";
 $laksana_sql_cari = oci_parse($condb, $arahan_sql_cari);
 oci_execute($laksana_sql_cari);
