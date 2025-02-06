@@ -200,7 +200,7 @@ oci_close($condb);
 
 
 <?php if (!empty($recipes)): ?>
-    <div class="w3-container" style="width:60%;display:flex;justify-content:center;align-items:center;margin-left:10%">
+    <div class="w3-container" style="width:60%;margin-left:10%">
     <?php foreach ($recipes as $recipe): ?>
      
         <div class="col-12 mb-4">
