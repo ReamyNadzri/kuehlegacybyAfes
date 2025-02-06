@@ -40,8 +40,11 @@ if (isset($_GET['kuehId'])) {
         $steps[] = $row['STEP'];
     }
 
-    // Fetch image (BLOB)
-    $existingImage = $kuehData['IMAGE']->load();
+    // Check if IMAGE BLOB is not empty before loading
+    $existingImage = null;
+    if (!empty($kuehData['IMAGE']) && $kuehData['IMAGE']->size() > 0) {
+        $existingImage = $kuehData['IMAGE']->load();
+    }
 }
 
 if (isset($_POST['submit'])) {
@@ -244,7 +247,14 @@ oci_close($condb);
             <div class="row">
                 <div class="col-12 col-md-4 my-4" id="imageContainer">
                     <!-- Image Preview -->
-                    <img id="previewImage" src="<?php echo isset($existingImage) ? 'data:image/jpeg;base64,' . base64_encode($existingImage) : 'sources/uploadimage.jpg'; ?>" class="img-fluid text-center rounded-3" alt="Uploaded Image Preview">
+                    <img id="previewImage"
+                        src="<?php
+                                echo isset($existingImage) && !empty($existingImage)
+                                    ? 'data:image/jpeg;base64,' . base64_encode($existingImage)
+                                    : 'sources/kueh_default.png';
+                                ?>"
+                        class="img-fluid text-center rounded-3"
+                        alt="Uploaded Image Preview">
                     <!-- Hidden File Input -->
                     <input type="file" name="image" id="imageUpload" accept="image/*">
                 </div>
