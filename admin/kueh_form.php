@@ -333,7 +333,7 @@ oci_close($condb);
             </div>
 
         </form>
-    </div>
+    </div><br><br>
 
     <script>
         document.getElementById('addIngredientButton').addEventListener('click', function() {

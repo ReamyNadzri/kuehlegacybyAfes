@@ -74,12 +74,12 @@ $execute_sql_cari = oci_execute($laksana_sql_cari);
                     }
 
                     echo "<tr>
-                        <td class='w3-center'>" . ++$bil . "</td>
-                        <td>" . htmlspecialchars($rekod['KUEHNAME']) . "</td>
-                        <td class='w3-hide-small'>" . htmlspecialchars($rekod['KUEHDESC']) . "</td>
-                        <td>" . htmlspecialchars($rekod['TYPENAME']) . "</td>
-                        <td>" . htmlspecialchars($rekod['ORIGIN']) . "</td>
-                        <td>" . htmlspecialchars($rekod['METHODNAME']) . "</td>
+                        <td class='w3-center' style='vertical-align: middle;'>" . ++$bil . "</td>
+                        <td class='w3-center' style='vertical-align: middle;'>" . htmlspecialchars($rekod['KUEHNAME']) . "</td>
+                        <td class='w3-center w3-hide-small justify-text' style='vertical-align: middle;'>" . htmlspecialchars($rekod['KUEHDESC']) . "</td>
+                        <td class='w3-center' style='vertical-align: middle;'>" . htmlspecialchars($rekod['TYPENAME']) . "</td>
+                        <td class='w3-center' style='vertical-align: middle;'>" . htmlspecialchars($rekod['ORIGIN']) . "</td>
+                        <td class='w3-center' style='vertical-align: middle;'>" . htmlspecialchars($rekod['METHODNAME']) . "</td>
                         <td>";
                     if ($base64Image) {
                         echo "<img class='imgkueh' src='data:image/jpeg;base64," . $base64Image . "' alt='Kueh Image'>";
