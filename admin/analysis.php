@@ -57,7 +57,7 @@ oci_close($condb);
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <div class="container mt-4">
-        <h4>System Analytics</h4> <br><br>
+        <h4>Kueh Analytics</h4> <br><br>
         <div class="row g-3 mb-4">
             <div class="col-12 col-md-6">
                 <p><strong>Total Users who have uploaded data:</strong> <?php echo $totalUsers; ?></p>
@@ -71,9 +71,7 @@ oci_close($condb);
             <div class="col-12 col-md-6">
                 <p><strong>Total Uploaded Images:</strong> <?php echo $totalImages; ?></p>
             </div>
-            <div class="col-12 col-md-6">
-                <p><strong>Total Users who are signed in but haven't uploaded:</strong> <?php echo $totalInactiveUsers; ?></p>
-            </div>
+          
         </div>
 
         <br><br>
@@ -90,7 +88,7 @@ oci_close($condb);
     <script>
         // Data for the Circle Chart (Pie Chart)
         const data = {
-            labels: ['Users', 'Kueh', 'Food Types', 'Images', 'Inactive Users'],
+            labels: ['Users', 'Kueh', 'Food Types', 'Images'],
             datasets: [{
                 label: 'System Analytics',
                 data: [<?php echo $totalUsers; ?>, <?php echo $totalKueh; ?>, <?php echo $totalFoodTypes; ?>, <?php echo $totalImages; ?>, <?php echo $totalInactiveUsers; ?>],
@@ -98,15 +96,15 @@ oci_close($condb);
                     'rgb(54, 162, 235)',
                     'rgb(255, 99, 132)',
                     'rgb(75, 192, 192)',
-                    'rgb(153, 102, 255)',
-                    'rgb(255, 159, 64)'
+                    'rgb(153, 102, 255)'
+                    
                 ],
                 borderColor: [
                     'rgb(54, 162, 235)',
                     'rgb(255, 99, 132)',
                     'rgb(75, 192, 192)',
-                    'rgb(153, 102, 255)',
-                    'rgb(255, 159, 64)'
+                    'rgb(153, 102, 255)'
+                 
                 ],
                 borderWidth: 1
             }]
