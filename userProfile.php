@@ -441,6 +441,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </script>
 </body>
 
+<?php
+// Check if the message is present in the URL
+if (isset($_GET['msg'])) {
+    $msg = $_GET['msg'];
+
+    // Define messages based on the msg value
+    $messages = [
+        'delete_success' => 'Record deleted successfully!',
+        'delete_error' => 'Failed to delete the record.',
+        'add_success' => 'Record added successfully!',
+        'add_error' => 'Failed to add the record!',
+        'update_success' => 'Record updated successfully!',
+        'update_error' => 'Failed to update the record!'
+    ];
+
+    // Get the appropriate message
+    $toastMessage = $messages[$msg] ?? 'An unknown error occurred.';
+
+    // Determine the icon (success or error)
+    $icon = (strpos($msg, 'success') !== false) ? 'success' : 'error';
+
+    // Display the SweetAlert2 toast
+    echo "<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>";
+    echo "<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                toast: true,
+                position: 'top',
+                icon: '$icon',
+                title: '$toastMessage',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                }
+            });
+        });
+    </script>";
+}
+?>
 <?php include('footer.php') ?>
 
 </html>

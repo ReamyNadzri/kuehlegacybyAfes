@@ -3,28 +3,28 @@ include('header.php');
 include('connection.php');
 
 
-                    if (empty($_SESSION['username'])) {
-                    
-                        echo"<script>
+if (empty($_SESSION['username'])) {
+
+    echo "<script>
                             alert('Sila log masuk untuk mengakses laman ini');
                             window.location.href = 'userLogin.php';
-                        </script>";}
+                        </script>";
+}
 
-                        if(isset($_SESSION['google_user'])){
-                            $user = [
-                            "userName" => $_SESSION['google_user']['name'],
-                            "email" => $_SESSION['google_user']['email'],
-                            "profile_image" => $_SESSION['google_user']['picture'] // Avatar Profile
-                            ];
-                        }else{
-                            $user['userName'] = $_SESSION['username'];
-                            $user['email'] = $_SESSION['email'];
-                            $user['phoneNum'] = $_SESSION['phoneNum'];
-                            $user['profile_image'] = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAFdUlEQVR4nO1aS4hcRRR9UaPJxs9CVBT8oBmDEsVPFE0iGJxEMbixySKSTt+qe9+7t6dHRlQQlMadGozfGH8ouHAnoi5cmLjwFxJJ1CgiMaMjRpB8FxLJZybK7e6Zed0zk3RVve6ZhHegYJjX737Ou1V1696Kohw5cuTIkaOjIOq7FogTg7IBSDYZlEFAOQAkR2uj9jfv0mdA/JpBiSFJeqJTGdbKjUC8zqDsNiT/+Qwg/tOgPF+K+26IThHMMsQrgGSzr9NTDuRvrC3frzqimQgTxwsN8reZO94aFShbgMq3RDMFhYGBuUD8CiCPdNr5cRJ4BIhfKhaLc6bVeUiSHiD5oVuOT7JGfLcmjq+ZFudLJLcZ5H3T5XxqShwokSzqrvOY3GuQ/51u58cjQQ4ZkuXdcZ5kUbjz/Bcgvw8kTwMKAMlSnU7W9l3JzBfoUF0G5RcXEhD5jo46D0nSY4gPejmtOwRKnyZF7eozyM85RsL+jq0Jhdpq77Pg8Q79wt7R5ky0bO/I7gAor3oY83aIMYVC4UxDvMcj4l7MPMkB532e38wiazPE73oQMLyGyjdll96iW4anU6VSqZyThfJSqXIhED8CyIcdbdicSdpsiFe4fgFry8uijAHEFVc7dLvOQLG4HWxQdnbiwEJEs3X7dIyCr4OPtMaRdSB5NuoQgPgt5/XA8IIQheucwz+WB9IySjGvNsRDhvg9Q9IPxL3Wlufp3NZ1QncJY/ovMobn21geNCjPAMnPBmWg1R5DXPJYENd6E2B8ihmG5zeFrWdBRHcda/nmJnsML/CIyD8Csj5xNpyIzhszOO6700dGioRP0zYR0SU+cryyQ9Aanh8Bs8cIQH4ikICR1XF86ag8nTI+ciwxORNgUDb4KGuSQfJhCAH1UbYtMn3krHcngOTzcAJ4WygBgPJOMAHIG30i4PdQAoD472ACSL4IJ0AGPQhgr2pPi4zwognK7lACgGSvOwEkR0JDzZAcDyaA5EgLqRudCUA+7EwAOB4+Ws8AYGVVBs43Bj+UInV5dwgg2RuSA2gCkiEBQ6Nyi8WHz/d4f48zAQZl0FXRqkrl3BAC25nDSrL7+/yrTwRscjY2jheOEUjyVIYEPDkq19rkdg8Zn3WlBAbEr2eRTTbJtIItdr3hLAflZWcCDErsYfBwugBarVbPAOLfvAlAGVQZ44TKUtURSmJbsLY8zzNcD2nXaPyL8aMBBIwdiVVmowHiLsfI1c4EhGSDhuSj8VW7OEcvP3g4vzNdVwTiT3yjKPKFQX7Bk4Dj6QWxhHwXIB9ziKKj6X5fY+HzSqq0qONNACTJ9d7hS7yt6QsiS7vkpY+vtSMwynZfO6yV67wJUGhh0Z+E5mOozukT9Rcaz/qb3iFZ76s/uCg61gn2J0CNWBKlYGK5T1vak/xuf2uH19pkcYjuTMriCkD+yj8EJ/YItAucXtQA5eNiHF8x8XflZQFT8Mso0/s/5L7/6kDkW3316rteUYd8LPN7RIZkrcdXGCqKXDwqQ3sGWticSoc+S/cV9N16SX0G9CYKAwNzDfL37RnAu0oxm0KhcHZaRv2AxAeB5LF0sVP/NsiPN541FS9UhspqN5fQe0Nqa+YEKADk8hO2q1EGdQurVqtnRS3QlLbNaTScTn+b3+dCrWkypX7eV2K+KuokgGTJxJSUdxjilZMZ7nOO199OJadBxMq6zgkpeHcuS1mbLAbkf7QNrq0vvchwsnf0y7RLgO4SDrdSt6rz1iZ3R92EtZXLXLrA2uZqn4DmlthJMKthy8wGEPe2vZLH5Xui0w1A3NvOgai+h3NvdDqiqPt67TwgHwDxT7XOcX38qP/TZ+m8IUeOHDly5MiRI0fUOfwPWUs8T7LFLncAAAAASUVORK5CYII=";
-                        
-                        }
+if (isset($_SESSION['google_user'])) {
+    $user = [
+        "userName" => $_SESSION['google_user']['name'],
+        "email" => $_SESSION['google_user']['email'],
+        "profile_image" => $_SESSION['google_user']['picture'] // Avatar Profile
+    ];
+} else {
+    $user['userName'] = $_SESSION['username'];
+    $user['email'] = $_SESSION['email'];
+    $user['phoneNum'] = $_SESSION['phoneNum'];
+    $user['profile_image'] = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAFdUlEQVR4nO1aS4hcRRR9UaPJxs9CVBT8oBmDEsVPFE0iGJxEMbixySKSTt+qe9+7t6dHRlQQlMadGozfGH8ouHAnoi5cmLjwFxJJ1CgiMaMjRpB8FxLJZybK7e6Zed0zk3RVve6ZhHegYJjX737Ou1V1696Kohw5cuTIkaOjIOq7FogTg7IBSDYZlEFAOQAkR2uj9jfv0mdA/JpBiSFJeqJTGdbKjUC8zqDsNiT/+Qwg/tOgPF+K+26IThHMMsQrgGSzr9NTDuRvrC3frzqimQgTxwsN8reZO94aFShbgMq3RDMFhYGBuUD8CiCPdNr5cRJ4BIhfKhaLc6bVeUiSHiD5oVuOT7JGfLcmjq+ZFudLJLcZ5H3T5XxqShwokSzqrvOY3GuQ/51u58cjQQ4ZkuXdcZ5kUbjz/Bcgvw8kTwMKAMlSnU7W9l3JzBfoUF0G5RcXEhD5jo46D0nSY4gPejmtOwRKnyZF7eozyM85RsL+jq0Jhdpq77Pg8Q79wt7R5ky0bO/I7gAor3oY83aIMYVC4UxDvMcj4l7MPMkB532e38wiazPE73oQMLyGyjdll96iW4anU6VSqZyThfJSqXIhED8CyIcdbdicSdpsiFe4fgFry8uijAHEFVc7dLvOQLG4HWxQdnbiwEJEs3X7dIyCr4OPtMaRdSB5NuoQgPgt5/XA8IIQheucwz+WB9IySjGvNsRDhvg9Q9IPxL3Wlufp3NZ1QncJY/ovMobn21geNCjPAMnPBmWg1R5DXPJYENd6E2B8ihmG5zeFrWdBRHcda/nmJnsML/CIyD8Csj5xNpyIzhszOO6700dGioRP0zYR0SU+cryyQ9Aanh8Bs8cIQH4ikICR1XF86ag8nTI+ciwxORNgUDb4KGuSQfJhCAH1UbYtMn3krHcngOTzcAJ4WygBgPJOMAHIG30i4PdQAoD472ACSL4IJ0AGPQhgr2pPi4zwognK7lACgGSvOwEkR0JDzZAcDyaA5EgLqRudCUA+7EwAOB4+Ws8AYGVVBs43Bj+UInV5dwgg2RuSA2gCkiEBQ6Nyi8WHz/d4f48zAQZl0FXRqkrl3BAC25nDSrL7+/yrTwRscjY2jheOEUjyVIYEPDkq19rkdg8Zn3WlBAbEr2eRTTbJtIItdr3hLAflZWcCDErsYfBwugBarVbPAOLfvAlAGVQZ44TKUtURSmJbsLY8zzNcD2nXaPyL8aMBBIwdiVVmowHiLsfI1c4EhGSDhuSj8VW7OEcvP3g4vzNdVwTiT3yjKPKFQX7Bk4Dj6QWxhHwXIB9ziKKj6X5fY+HzSqq0qONNACTJ9d7hS7yt6QsiS7vkpY+vtSMwynZfO6yV67wJUGhh0Z+E5mOozukT9Rcaz/qb3iFZ76s/uCg61gn2J0CNWBKlYGK5T1vak/xuf2uH19pkcYjuTMriCkD+yj8EJ/YItAucXtQA5eNiHF8x8XflZQFT8Mso0/s/5L7/6kDkW3316rteUYd8LPN7RIZkrcdXGCqKXDwqQ3sGWticSoc+S/cV9N16SX0G9CYKAwNzDfL37RnAu0oxm0KhcHZaRv2AxAeB5LF0sVP/NsiPN541FS9UhspqN5fQe0Nqa+YEKADk8hO2q1EGdQurVqtnRS3QlLbNaTScTn+b3+dCrWkypX7eV2K+KuokgGTJxJSUdxjilZMZ7nOO199OJadBxMq6zgkpeHcuS1mbLAbkf7QNrq0vvchwsnf0y7RLgO4SDrdSt6rz1iZ3R92EtZXLXLrA2uZqn4DmlthJMKthy8wGEPe2vZLH5Xui0w1A3NvOgai+h3NvdDqiqPt67TwgHwDxT7XOcX38qP/TZ+m8IUeOHDly5MiRI0fUOfwPWUs8T7LFLncAAAAASUVORK5CYII=";
+}
 
-                        
+
 // Process form submission
 if (isset($_POST['submit'])) {
     // Process form data
@@ -113,8 +113,7 @@ if (isset($_POST['submit'])) {
 
             oci_commit($condb);
             echo "<script>
-                alert('Kueh details saved successfully!');
-                window.location.href = 'index.php';
+                window.location.href = 'userProfile.php?msg=add_success';
             </script>";
         } else {
             $e = oci_error($laksana_sql_kueh);
@@ -130,7 +129,22 @@ if (isset($_POST['submit'])) {
             oci_free_statement($laksana_sql_get_kuehid);
         }
     } else {
-        echo "<script>alert('Please Upload Image');</script>";
+        // Show SweetAlert2 toast if no image is uploaded
+        echo "<script>
+            Swal.fire({
+                toast: true,
+                position: 'top',
+                icon: 'error',
+                title: 'Please Insert Image',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                }
+            });
+        </script>";
     }
 }
 
@@ -212,7 +226,7 @@ oci_close($condb);
     </style>
     <!--CONTENT START HERE-->
     <div class="container w-75">
-        <form method="POST" action="<?php echo $_SERVER['PHP_SELF']; ?>" enctype="multipart/form-data">
+        <form id="kuehForm" method="POST" action="<?php echo $_SERVER['PHP_SELF']; ?>" enctype="multipart/form-data">
             <!-- Existing image and title section -->
             <div class="row">
                 <div class="col-12 col-md-4 my-4" id="imageContainer">
@@ -226,8 +240,7 @@ oci_close($condb);
                     <input type="file"
                         name="image"
                         id="imageUpload"
-                        accept="image/*"
-                        required>
+                        accept="image/*">
                 </div>
                 <div class="col-12 col-md gy-4">
                     <div class="col-12 bg-primary">
@@ -239,8 +252,8 @@ oci_close($condb);
                             <img src="<?php echo htmlspecialchars($user['profile_image']); ?>" alt="Profile Picture" class="rounded-circle border" width="50" height="50" style="">
                             <!-- Text -->
                             <div class="ms-3">
-                                <h6 class="mb-0"><?=$user['userName']?></h6>
-                                <small class="text-muted"><?=$user['email']?></small>
+                                <h6 class="mb-0"><?= $user['userName'] ?></h6>
+                                <small class="text-muted"><?= $user['email'] ?></small>
                             </div>
                         </div>
                     </div>
@@ -252,7 +265,7 @@ oci_close($condb);
 
             <!-- Dropdown Section -->
             <div class="row mb-4 gy-2">
-            <div class="col-12 col-md-6 col-lg-3">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label for="foodtype" class="form-label fw-bold">Jenis makanan</label>
                     <select name="foodtype" id="foodtype" class="form-select" required>
                         <option value="" disabled selected>Pilih Jenis</option>
@@ -329,7 +342,7 @@ oci_close($condb);
 
             <div class="row mt-3">
                 <div class="col-12 d-flex justify-content-end">
-                    <button type="submit" name="submit" class="btn btn-primary mb-4">Save Recipe</button>
+                    <button type="submit" name="submit" class="btn btn-primary mb-4">Terbitkan</button>
                 </div>
             </div>
 
@@ -401,6 +414,35 @@ oci_close($condb);
                     document.getElementById('previewImage').src = e.target.result;
                 };
                 reader.readAsDataURL(file); // Convert image to base64 for preview
+            }
+        });
+
+        // Form submission validation
+        document.getElementById('kuehForm').addEventListener('submit', function(event) {
+
+            // Check if an image is uploaded
+            const imageInput = document.getElementById('imageUpload');
+            if (!imageInput.files || imageInput.files.length === 0) {
+                // Prevent the form from submitting if no image is uploaded
+                event.preventDefault();
+
+                // Show SweetAlert2 toast if no image is uploaded
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'error',
+                    title: 'Please Insert Image',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer);
+                        toast.addEventListener('mouseleave', Swal.resumeTimer);
+                    }
+                });
+            } else {
+                // If an image is uploaded, submit the form
+                this.submit();
             }
         });
     </script>
