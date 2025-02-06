@@ -264,7 +264,7 @@ oci_close($condb);
                         </div>
                     </div>
                     <div class="col-12">
-                        <textarea class="w-100 p-1 border-0 shadow-none" name="kuehDesc" style="background-color: #FFFAF0;" placeholder="Share kisah resepi anda"><?php echo isset($kuehData['KUEHDESC']) ? htmlspecialchars($kuehData['KUEHDESC']) : ''; ?></textarea>
+                        <textarea class="w-100 p-1 border-0 shadow-none" name="kuehDesc" rows="6" style="background-color: #FFFAF0;" placeholder="Share kisah resepi anda"><?php echo isset($kuehData['KUEHDESC']) ? htmlspecialchars($kuehData['KUEHDESC']) : ''; ?></textarea>
                     </div>
                 </div>
             </div>

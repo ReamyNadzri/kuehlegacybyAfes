@@ -34,6 +34,17 @@ $execute_sql_cari = oci_execute($laksana_sql_cari);
         height: 100px;
         object-fit: cover;
     }
+
+    .text-truncate {
+        display: -webkit-box;
+        -webkit-line-clamp: 3; /* Limits to 3 lines */
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 250px; /* Adjust as needed */
+        word-wrap: break-word;
+        white-space: normal; /* Ensures text wraps properly */
+    }
 </style>
 
 <div class="w3-container">
@@ -75,8 +86,8 @@ $execute_sql_cari = oci_execute($laksana_sql_cari);
 
                     echo "<tr>
                         <td class='w3-center' style='vertical-align: middle;'>" . ++$bil . "</td>
-                        <td class='w3-center' style='vertical-align: middle;'>" . htmlspecialchars($rekod['KUEHNAME']) . "</td>
-                        <td class='w3-center w3-hide-small justify-text' style='vertical-align: middle;'>" . htmlspecialchars($rekod['KUEHDESC']) . "</td>
+                        <td class='' style='vertical-align: middle;max-width: 200px;'>" . htmlspecialchars($rekod['KUEHNAME']) . "</td>
+                        <td class='w3-hide-small justify-text' style='vertical-align: middle;word-wrap: break-word;'><div class='text-truncate'>" . htmlspecialchars($rekod['KUEHDESC']) . "</div></td>
                         <td class='w3-center' style='vertical-align: middle;'>" . htmlspecialchars($rekod['TYPENAME']) . "</td>
                         <td class='w3-center' style='vertical-align: middle;'>" . htmlspecialchars($rekod['ORIGIN']) . "</td>
                         <td class='w3-center' style='vertical-align: middle;'>" . htmlspecialchars($rekod['METHODNAME']) . "</td>
