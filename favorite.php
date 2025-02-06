@@ -306,7 +306,7 @@ oci_close($condb);
                     endforeach; ?>
                 <?php else: ?>
                     <div class="col-12">
-                        <p>No recipes found for "<?= htmlspecialchars($kuehName) ?>".</p>
+                        <p>Tiada resipi yang disimpan. Mulakan carian!</p>
                     </div>
                 <?php endif; ?>
             </div>
