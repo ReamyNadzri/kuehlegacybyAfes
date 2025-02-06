@@ -67,112 +67,6 @@ oci_close($condb);
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* Custom Styles */
-        .sticky-sidebar {
-            position: sticky;
-            top: 80px;
-            height: calc(100vh - 70px);
-            overflow-y: auto;
-            z-index: 999;
-        }
-
-        .card-hover-effect:hover {
-            background-color: beige;
-            transition: background-color 0.3s ease;
-        }
-
-        .related-search-btn {
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 20px;
-            padding: 5px 15px;
-            margin: 5px;
-            transition: all 0.3s ease;
-        }
-
-        .related-search-btn:hover {
-            background-color: #e9ecef;
-            transform: translateY(-2px);
-        }
-
-        .filter-card {
-            border: 1px solid #dee2e6;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .filter-card .card-body {
-            padding: 20px;
-        }
-
-        .filter-card .form-select {
-            border-radius: 10px;
-            border: 1px solid #dee2e6;
-        }
-
-        .filter-card .btn-primary {
-            background-color: #0d6efd;
-            border: none;
-            border-radius: 10px;
-            padding: 10px 20px;
-            transition: all 0.3s ease;
-        }
-
-        .filter-card .btn-primary:hover {
-            background-color: #0b5ed7;
-            transform: translateY(-2px);
-        }
-
-        .filter-card .btn-outline-secondary {
-            border-radius: 10px;
-            padding: 10px 20px;
-            transition: all 0.3s ease;
-        }
-
-        .filter-card .btn-outline-secondary:hover {
-            background-color: #f8f9fa;
-            transform: translateY(-2px);
-        }
-
-        .sticky-sidebar .card-body {
-            border-top: 1px solid gray;
-            /* Add a bold top border with your desired color */
-            padding-top: 15px;
-            /* Add spacing to avoid overlap with content */
-            margin-top: 15px;
-            /* Create space between stacked cards */
-        }
-
-        .sticky-sidebar .card-body:first-child {
-            border-top: none;
-            /* Remove the top border from the first card-body for a cleaner look */
-            margin-top: 0;
-            /* Ensure no extra space at the top */
-        }
-
-        .card-img-container {
-            width: 100%;
-            /* Fixed width for the image container */
-            height: 200px;
-            /* Fixed height for the image container */
-            overflow: hidden;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .card-img-container img {
-            width: 100%;
-            /* Make the image fill the container */
-            height: 100%;
-            /* Make the image fill the container */
-            object-fit: cover;
-            /* Ensure the image covers the container without distortion */
-        }
-
-        .card {
-            height: 175px;
-        }
-        
         /* Cooking Activity Container */
         .cooking-activity-container {
             display: flex;
@@ -200,7 +94,7 @@ oci_close($condb);
             margin-bottom: 10px;
         }
 
-        .cooking-activity-p{
+        .cooking-activity-p {
             font-size: 1.2rem;
             margin-bottom: 10px;
         }
@@ -224,57 +118,159 @@ oci_close($condb);
             background-color: #e65c36;
         }
 
+
+
+        .card-hover-effect:hover {
+            background-color: beige;
+            transition: background-color 0.3s ease;
+        }
+
+        .related-search-btn {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 20px;
+            padding: 5px 15px;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .related-search-btn:hover {
+            background-color: #e9ecef;
+            transform: translateY(-2px);
+        }
+
+        .recipe-page .card-img-container img {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .recipe-page .card-img-container {
+            width: 200px;
+            height: 200px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+
+        }
+
+
+        .recipe-page .card {
+            height: 200px;
+        }
+
+        /* Card body layout */
+        .recipe-page .card-body {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            padding: 1rem;
+        }
+
+        .card-content {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-header-section {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Ingredients text */
+        .ingredients-list {
+            flex: 1;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            margin: 0;
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
     </style>
 </head>
 
 
 
-<!-- Recipe Cards -->
-<div id="recipeContainer" class="row">
-                    <?php if (!empty($recipes)): ?>
-                        <?php foreach ($recipes as $recipe): ?>
-                            <div class="col-12 mb-4">
-                                <a href="kuehDetails.php?id=<?= $recipe['KUEHID'] ?>"
-                                    class="text-decoration-none shadow-sm text-dark">
-                                    <div class="card card-hover-effect rounded shadow-sm  border-0">
-                                        <div class="row g-0">
-                                            <div class="col-md-3">
-                                                <div class="card-img-container">
-                                                    <img src="<?= $recipe['IMAGE_DATA_URI'] ?? 'path/to/default/image.jpg' ?>"
-                                                        class="img-fluid rounded-start"
-                                                        alt="<?= htmlspecialchars($recipe['KUEHNAME']) ?>"
-                                                        style="max-width: 100%; max-height: 175px; object-fit: cover;">
-                                                </div>
-                                            </div>
-                                            <div class="col-md-9">
-                                                <div class="card-body">
-                                                    <div class="d-flex justify-content-between">
-                                                        <strong>
-                                                            <h2 class="card-title"><?= htmlspecialchars($recipe['KUEHNAME']) ?>
-                                                            </h2>
-                                                        </strong>
-                                                        <button type="button"
-                                                        class="btn me-2 fw-bold"
-                                                        id="saveRecipeButton"
-                                                        onclick="toggleFavorite(<?= $recipe['KUEHID'] ?>)">
-                                                        <i class="far fa-trash-can"></i></button>
-                                                    </div>
-                                                    <p class="card-text" style="font-size: 1.1rem;">
-                                                        <?= htmlspecialchars($recipe['ITEMS']) ?>
-                                                    </p>
 
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </a>
+<?php if (!empty($recipes)): ?>
+    <?php foreach ($recipes as $recipe): ?>
+        <div class="col-12 mb-4">
+            <a href="kuehDetails.php?id=<?= $recipe['KUEHID'] ?>"
+                class="text-decoration-none shadow-sm text-dark">
+                <div class="card card-hover-effect rounded shadow-sm  border-0">
+                    <div class="row g-0">
+                        <div class="col-md-3">
+                            <div class="recipe-page">
+                                <div class=" card-img-container">
+                                    <img src="<?= $recipe['IMAGE_DATA_URI'] ?? 'path/to/default/image.jpg' ?>"
+                                        class="img-fluid rounded-start"
+                                        alt="<?= htmlspecialchars($recipe['KUEHNAME']) ?>"
+                                        style="max-width: 100%; max-height: 200px; object-fit: cover;">
+                                </div>
                             </div>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <div class="cooking-activity-container">
-                            <p class="cooking-activity-p"><i class="fa fa-utensils cooking-activity-p"></i><br> Belum ada aktiviti membuat kueh</p>
-                            <h4 class="cooking-activity-h4"> Kongsi resipe idaman anda!</h4>
-                            <a href="addKueh.php" class="start-button">Mulakan!</a>     
                         </div>
-                    <?php endif; ?>
+                        <div class="col-md-9">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <strong>
+                                        <h2 class="card-title"><?= htmlspecialchars($recipe['KUEHNAME']) ?>
+                                        </h2>
+                                    </strong>
+                                    <button
+                                        class="btn btn-outline-danger me-2 fw-bold"
+                                        onclick="handleDelete(event, '<?= $recipe['KUEHID'] ?>')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+
+
+
+
+                                </div>
+                                <p class="card-text ingredients-list"
+                                    style="font-size: 1.1rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; position: relative; max-height: 3.3em; line-height: 1.65em;">
+                                    <?php
+                                    $items = explode(', ', $recipe['ITEMS']);
+                                    if (count($items) > 10) {
+                                        echo htmlspecialchars(implode(', ', array_slice($items, 0, 10))) . '...';
+                                    } else {
+                                        echo htmlspecialchars($recipe['ITEMS']);
+                                    }
+                                    ?>
+                                </p>
+
+                            </div>
+                        </div>
+                    </div>
                 </div>
+            </a>
+        </div>
+    <?php endforeach; ?>
+<?php else: ?>
+    <div class="cooking-activity-container">
+        <p class="cooking-activity-p"><i class="fa fa-utensils cooking-activity-p"></i><br> Belum ada aktiviti membuat kueh</p>
+        <h4 class="cooking-activity-h4"> Kongsi resipe idaman anda!</h4>
+        <a href="addKueh.php" class="start-button">Mulakan!</a>
+    </div>
+<?php endif; ?>
+
+
+<script>
+    function handleDelete(event, kuehId) {
+        // Prevent the default behavior
+        event.preventDefault();
+
+        // Confirm with the user before proceeding
+        const userConfirmed = confirm("Confirm to delete data?");
+        if (userConfirmed) {
+            // Redirect to the delete URL if confirmed
+            window.location.href = `deleteKueh.php?jadual=KUEH&medan_kp=KUEHID&kp=${kuehId}`;
+        }
+    }
+</script>

@@ -242,7 +242,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             width: 100%;
         }
 
-        .btn {
+        .btn .userProf {
             padding: 12px 20px;
             font-size: 1rem;
             border-radius: 6px;
@@ -410,7 +410,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <!-- Buttons -->
                 <div class="form-buttons">
-                    <button type="submit" class="btn btn-primary">Update</button>
+                    <button type="submit" class="btn userProf btn-primary">Update</button>
                     <button type="button" id="cancelBtn" class="btn btn-secondary">Cancel</button>
                 </div>
             </form>
