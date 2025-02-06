@@ -417,7 +417,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div><br>
 
-    <div class="w3-container" style="width:60%;display:flex;justify-content:center;align-items:center;margin-left:10%">
+   
                 <?php include('kuehByUser.php'); ?>
             </div>
     <hr>

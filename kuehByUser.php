@@ -200,7 +200,9 @@ oci_close($condb);
 
 
 <?php if (!empty($recipes)): ?>
+    <div class="w3-container" style="width:60%;display:flex;justify-content:center;align-items:center;margin-left:10%">
     <?php foreach ($recipes as $recipe): ?>
+     
         <div class="col-12 mb-4">
             <a href="kuehDetails.php?id=<?= $recipe['KUEHID'] ?>"
                 class="text-decoration-none shadow-sm text-dark">
@@ -228,10 +230,6 @@ oci_close($condb);
                                         onclick="handleDelete(event, '<?= $recipe['KUEHID'] ?>')">
                                         <i class="bi bi-trash"></i>
                                     </button>
-
-
-
-
                                 </div>
                                 <p class="card-text ingredients-list"
                                     style="font-size: 1.1rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; position: relative; max-height: 3.3em; line-height: 1.65em;">
@@ -251,13 +249,17 @@ oci_close($condb);
                 </div>
             </a>
         </div>
+       
     <?php endforeach; ?>
+    </div>
 <?php else: ?>
+    <div class="w3-container" style="width:80%;display:flex;justify-content:center;align-items:center;margin-left:10%">
     <div class="cooking-activity-container">
         <p class="cooking-activity-p"><i class="fa fa-utensils cooking-activity-p"></i><br> Belum ada aktiviti membuat kueh</p>
         <h4 class="cooking-activity-h4"> Kongsi resipe idaman anda!</h4>
         <a href="addKueh.php" class="start-button">Mulakan!</a>
     </div>
+</div>
 <?php endif; ?>
 
 
