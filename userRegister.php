@@ -91,7 +91,7 @@ if (isset($_POST['register'])) {
         if ($result) {
             echo "<script>
                 alert('Registration successful! You can now login.');
-                window.location.href = 'index.php';
+                window.location.href = 'userLogin.php';
             </script>";
         } else {
             $errors[] = "Registration failed. Please try again.";
