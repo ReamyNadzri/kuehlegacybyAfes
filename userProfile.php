@@ -394,12 +394,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         value="<?php echo htmlspecialchars($user['email']); ?>" required>
                 </div>
 
-                <!-- Phone Number Field -->
                 <div class="form-group">
                     <label for="phoneNum">Phone Number</label>
                     <input class="form-control" type="text" id="phoneNum" name="phoneNum"
                         value="<?php echo htmlspecialchars($user['phoneNum']); ?>" required>
                 </div>
+
+                <script>
+                    document.getElementById("phoneNum").addEventListener("input", function () {
+                        this.value = this.value.replace(/\D/g, '').slice(0, 10);
+                    });
+                </script>
+
+
 
                 <!-- Password Field -->
                 <div class="form-group">
@@ -417,9 +424,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div><br>
 
-   
-                <?php include('kuehByUser.php'); ?>
-            </div>
+
+    <?php include('kuehByUser.php'); ?>
+    </div>
     <hr>
 
     <script>
