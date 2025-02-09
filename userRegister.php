@@ -9,11 +9,11 @@ include('connection.php'); // Ensure this file correctly sets up $condb
 // Check if form is submitted
 if (isset($_POST['register'])) {
     // Get form data and sanitize inputs
-    $username = filter_var($_POST['username'], FILTER_SANITIZE_STRING);
+    $username = $_POST['username'];
     $password = $_POST['password']; // You should hash passwords before storing them
-    $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
-    $phoneNum = filter_var($_POST['phoneNum'], FILTER_SANITIZE_STRING);
-    $name = filter_var($_POST['name'], FILTER_SANITIZE_STRING);
+    $email = $_POST['email'];
+    $phoneNum = $_POST['phoneNum'];
+    $name = $_POST['name'];
 
     // Validate inputs based on database constraints
     $errors = [];
@@ -89,8 +89,9 @@ if (isset($_POST['register'])) {
         $result = oci_execute($stid, OCI_COMMIT_ON_SUCCESS);
 
         if ($result) {
+            $_SESSION['successMessage'] = "Registration successful! You can now login.";
+            
             echo "<script>
-                alert('Registration successful! You can now login.');
                 window.location.href = 'userLogin.php';
             </script>";
         } else {
@@ -291,11 +292,12 @@ if (isset($_POST['register'])) {
 
             /* Images are behind the login form */
         }
+
         .image-bottom {
             position: absolute;
             top: 0;
             bottom: 0;
-            
+
             /* Reduce the width of the image containers */
             display: flex;
             align-items: center;
@@ -345,72 +347,85 @@ if (isset($_POST['register'])) {
 
         <h2 class="w3-center w3-text-gray">Daftar Masuk</h2>
 
-        <!-- Display error message if login fails -->
-        <?php if (isset($errorMessage)): ?>
-            <div class="w3-text-red w3-center"><?php echo $errorMessage; ?></div>
-        <?php endif; ?>
-
         <form method="post" action="">
             <div class="w3-margin-top">
-                <input type="text" name="username" class="w3-input1 w3-border w3-round-large" placeholder="Nama Pengguna" required>    
+                <input type="text" name="username" class="w3-input1 w3-border w3-round-large"
+                    placeholder="Nama Pengguna" required>
             </div>
             <div class="">
-                <input type="text" name="name" class="w3-input1 w3-border w3-round-large" placeholder="Nama Penuh" required>
+                <input type="text" name="name" class="w3-input1 w3-border w3-round-large" placeholder="Nama Penuh"
+                    required>
             </div>
             <div class="">
-                <input type="text" name="phoneNum" class="w3-input1 w3-border w3-round-large" placeholder="Nombor Telefon Pengguna" required maxlength="11">
+                <input type="text" name="phoneNum" class="w3-input1 w3-border w3-round-large"
+                    placeholder="Nombor Telefon Pengguna" required maxlength="11">
             </div>
             <div class="">
-                <input type="email" name="email" class="w3-input1 w3-border w3-round-large" placeholder="Email Pengguna" required>
+                <input type="email" name="email" class="w3-input1 w3-border w3-round-large" placeholder="Email Pengguna"
+                    required>
             </div>
             <div class="">
-                <input type="password" name="password" class="w3-input1 w3-border w3-round-large" placeholder="Kata laluan" required>
+                <input type="password" name="password" class="w3-input1 w3-border w3-round-large"
+                    placeholder="Kata laluan" required>
             </div>
-            
-            <button type="submit" name="register" class="w3-button1 w3-block w3-round-large w3-blue w3-margin-top w3-orange">Daftar</button>
+
+            <button type="submit" name="register"
+                class="w3-button1 w3-block w3-round-large w3-blue w3-margin-top w3-orange">Daftar</button>
         </form>
         <hr>
 
-        <p class="w3-center w3-margin-top">Sudah mempunyai akaun? <a href="userLogin.php" class="w3-text-orange">Log Masuk</a></p>
+        <p class="w3-center w3-margin-top">Sudah mempunyai akaun? <a href="userLogin.php" class="w3-text-orange">Log
+                Masuk</a></p>
     </div>
 
     <div class="image-side right-image">
-    
+
         <img src="sources/register/kueh1.png" alt="Right Image" class="img-fluid">
     </div>
     <div class="image-bottom bottom-image">
-        <img src="sources/footer/footer.png" class="img-fluid" alt="" >
+        <img src="sources/footer/footer.png" class="img-fluid" alt="">
     </div>
-<!-- Toastify JS -->
-<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <!-- Toastify JS -->
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             // Display errors if any
-            if (typeof errors !== 'undefined') {
+            if (typeof errors !== 'undefined' && errors.length > 0) {
                 errors.forEach(function (error) {
-                    Toastify({
-                        text: error,
-                        duration: 5000, // Display for 5 seconds
-                        close: true,
-                        gravity: "top", // Position at the top
-                        position: "right", // Center the toast
-                        backgroundColor: "linear-gradient(to right, #ff6f61, #e95b4f)", // Error color
-                        stopOnFocus: true, // Stop timer when hovered
-                    }).showToast();
+                    Swal.fire({
+                        toast: true, // Enable toast mode
+                        position: 'top', // Position at the top
+                        icon: 'error', // Error icon
+                        title: error, // Error message
+                        showConfirmButton: false, // Hide the "OK" button
+                        timer: 5000, // Auto-close after 5 seconds
+                        timerProgressBar: true, // Show a progress bar
+                        didOpen: (toast) => {
+                            // Pause timer on hover
+                            toast.addEventListener('mouseenter', Swal.stopTimer);
+                            toast.addEventListener('mouseleave', Swal.resumeTimer);
+                        }
+                    });
                 });
             }
 
             // Display success message if registration is successful
             if (typeof successMessage !== 'undefined') {
-                Toastify({
-                    text: successMessage,
-                    duration: 5000, // Display for 5 seconds
-                    close: true,
-                    gravity: "top", // Position at the top
-                    position: "right", // Center the toast
-                    backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)", // Success color
-                    stopOnFocus: true, // Stop timer when hovered
-                }).showToast();
+                Swal.fire({
+                    toast: true, // Enable toast mode
+                    position: 'top', // Position at the top
+                    icon: 'success', // Success icon
+                    title: successMessage, // Success message
+                    showConfirmButton: false, // Hide the "OK" button
+                    timer: 5000, // Auto-close after 5 seconds
+                    timerProgressBar: true, // Show a progress bar
+                    didOpen: (toast) => {
+                        // Pause timer on hover
+                        toast.addEventListener('mouseenter', Swal.stopTimer);
+                        toast.addEventListener('mouseleave', Swal.resumeTimer);
+                    }
+                });
 
                 // Redirect to login page after 5 seconds
                 setTimeout(function () {
@@ -419,5 +434,5 @@ if (isset($_POST['register'])) {
             }
         });
     </script>
-<br><br><br><br><br><br><br>
+    <br><br><br><br><br><br><br>
 </body>

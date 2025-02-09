@@ -15,6 +15,11 @@ $url = $client->createAuthUrl();
 
 include('header.php');
 include('connection.php');
+// Check for success message
+if (isset($_SESSION['successMessage'])) {
+    $successMessage = $_SESSION['successMessage'];
+    unset($_SESSION['successMessage']); // Clear the message after displaying
+}
 
 // Check if the form is submitted
 if (isset($_POST['login'])) {
@@ -315,3 +320,21 @@ if (isset($_POST['login'])) {
 </body>
 
 <img src="sources/footer/footer.png" alt="" style="width: 100%;">
+<script>
+        // Display success message if it exists
+        <?php if (isset($successMessage)): ?>
+            Swal.fire({
+                toast: true,
+                position: 'top',
+                icon: 'success',
+                title: '<?php echo $successMessage; ?>',
+                showConfirmButton: false,
+                timer: 3000, // Auto-close after 3 seconds
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                }
+            });
+        <?php endif; ?>
+    </script>
