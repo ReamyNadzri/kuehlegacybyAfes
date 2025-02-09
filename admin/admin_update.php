@@ -2,34 +2,31 @@
 include('header_admin.php');
 include('../connection.php');
 
-
 $adminName = $_GET['adminName'];
-
 
 $arahan_sql_cari = "SELECT * FROM ADMIN WHERE USERNAME = :USERNAME";
 $stmt = oci_parse($condb, $arahan_sql_cari);
 oci_bind_by_name($stmt, ':USERNAME', $adminName);
 oci_execute($stmt);
 
-// Fetch the result
 $admin = oci_fetch_array($stmt, OCI_ASSOC + OCI_RETURN_NULLS);
 if (!$admin) {
     die("<script>alert('Admin not found'); window.history.back();</script>");
 }
 
-// Handle form submission for updating admin data
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $adminName = $_POST['adminName'];
-    $adminPhone = $_POST['adminPhone'];  
+    $adminEmail = $_POST['adminEmail'];  
     $adminPass = $_POST['adminPass'];   
 
-    // Ensure all fields are filled
-    if (empty($adminName) || empty($adminPhone) || empty($adminPass)) {
-        die("<script>alert('Please insert all the data');
-        window.history.back();</script>");
+    if (empty($adminName) || empty($adminEmail) || empty($adminPass)) {
+        die("<script>alert('Please insert all the data'); window.history.back();</script>");
     }
 
-    // Update query to save the updated admin data
+    if (!filter_var($adminEmail, FILTER_VALIDATE_EMAIL)) {
+        die("<script>alert('Invalid email format'); window.history.back();</script>");
+    }
+
     $arahan_sql_update = "UPDATE ADMIN 
         SET USERNAME = :USERNAME, NAME = :NAME, EMAIL = :EMAIL, PASSWORD = :PASSWORD 
         WHERE USERNAME = :OLD_USERNAME";
@@ -37,17 +34,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $stmt_update = oci_parse($condb, $arahan_sql_update);
     oci_bind_by_name($stmt_update, ':USERNAME', $adminName);
     oci_bind_by_name($stmt_update, ':NAME', $adminName);    
-    oci_bind_by_name($stmt_update, ':EMAIL', $adminPhone);
+    oci_bind_by_name($stmt_update, ':EMAIL', $adminEmail);
     oci_bind_by_name($stmt_update, ':PASSWORD', $adminPass);
     oci_bind_by_name($stmt_update, ':OLD_USERNAME', $admin['USERNAME']);  
 
-    // Execute the statement
     if (oci_execute($stmt_update)) {
-        echo "<script>alert('Update Success');
-        window.location.href='admin_info.php';</script>";
+        echo "<script>alert('Update Success'); window.location.href='admin_info.php';</script>";
     } else {
-        echo "<script>alert('Update Failure');
-        window.history.back();</script>";
+        echo "<script>alert('Update Failure'); window.history.back();</script>";
     }
 }
 ?>
@@ -62,18 +56,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <h4>Edit Admin Information</h4> <br><br>
 
-    <!-- Edit Form inside a Table -->
     <form method="POST" action="">
         <div class="container">
             <table class="table table-bordered">
                 <tr>
                     <th>Username</th>
                     <td><input type="text" id="adminName" name="adminName" class="form-control"
-                            value="<?php echo htmlspecialchars($admin['USERNAME']); ?>" ></td>
+                            value="<?php echo htmlspecialchars($admin['USERNAME']); ?>" required></td>
                 </tr>
                 <tr>
                     <th>Email</th>
-                    <td><input type="email" id="adminPhone" name="adminPhone" class="form-control"
+                    <td><input type="email" id="adminEmail" name="adminEmail" class="form-control"
                             value="<?php echo htmlspecialchars($admin['EMAIL']); ?>" required></td>
                 </tr>
                 <tr>
@@ -88,9 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                     </td>
                 </tr>
-                
             </table>
-
             <br>
             <div class="row mt-3">
                 <div class="col-md-6">
@@ -100,7 +91,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
     </form>
 
-    <!-- Script for toggling password visibility -->
     <script>
         function togglePasswordVisibility() {
             const passwordInput = document.getElementById('adminPass');

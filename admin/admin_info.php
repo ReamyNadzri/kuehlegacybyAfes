@@ -3,18 +3,24 @@
 include('header_admin.php');
 include('../connection.php');
 
-// Get the logged-in user's username from the session
+
 $loggedInAdmin = $_SESSION['adminid'] ?? null;
 
-// Menyemak kewujudan data POST
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $adminName = $_POST['adminName'];
-    $adminEmail = $_POST['adminPhone'];
+    $adminEmail = $_POST['adminEmail']; 
     $adminPass = $_POST['adminPass'];
 
     // Ensure all fields are filled
     if (empty($adminName) || empty($adminEmail) || empty($adminPass)) {
         die("<script>alert('Please insert all the data');
+        window.history.back();</script>");
+    }
+
+    // Validate email format
+    if (!filter_var($adminEmail, FILTER_VALIDATE_EMAIL)) {
+        die("<script>alert('Invalid email format. Please enter a valid email.');
         window.history.back();</script>");
     }
 
@@ -30,10 +36,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         VALUES (:USERNAME, :NAME, :EMAIL, :PASSWORD)";
 
     $stmt = oci_parse($condb, $arahan_sql_simpan);
-    oci_bind_by_name($stmt, ':USERNAME', $adminName);  // Using adminName as USERNAME
-    oci_bind_by_name($stmt, ':NAME', $adminName);      // Using adminName as NAME
-    oci_bind_by_name($stmt, ':EMAIL', $adminEmail);    // Using adminEmail as EMAIL
-    oci_bind_by_name($stmt, ':PASSWORD', $adminPass);  // Using adminPass as PASSWORD
+    oci_bind_by_name($stmt, ':USERNAME', $adminName);  
+    oci_bind_by_name($stmt, ':NAME', $adminName);      
+    oci_bind_by_name($stmt, ':EMAIL', $adminEmail);    
+    oci_bind_by_name($stmt, ':PASSWORD', $adminPass);  
 
     // Execute the statement
     if (oci_execute($stmt)) {
@@ -45,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-// Fetch admin records --
+
 $arahan_sql_cari = "SELECT * FROM ADMIN";
 $laksana_sql_cari = oci_parse($condb, $arahan_sql_cari);
 oci_execute($laksana_sql_cari);
@@ -62,19 +68,19 @@ oci_execute($laksana_sql_cari);
         <td>Actions</td>
     </tr>
     <tr>
-        <form action='' method='POST'>
+        <form action="" method="POST">
             <td>#</td>
-            <td><input type='text' name='adminName' required></td> <!-- Used for USERNAME -->
-            <td><input type='text' name='adminName' required></td> <!-- Used for NAME -->
-            <td><input type='text' name='adminPhone' required></td> <!-- Used for EMAIL -->
-            <td><input type='password' name='adminPass' required></td> <!-- Used for PASSWORD -->
+            <td><input type="text" name="adminName" required></td> 
+            <td><input type="text" name="adminName" required></td> 
+            <td><input type="email" name="adminEmail" required></td> 
+            <td><input type="password" id="adminPass" name="adminPass" required></td> 
             <td><input type="submit" value="Save" class="btn btn-success btn-sm"></td>
         </form>
     </tr>
     <?php
     $bil = 0;
     while ($rekod = oci_fetch_array($laksana_sql_cari, OCI_ASSOC + OCI_RETURN_NULLS)) {
-        // Skip the delete button for the logged-in user
+       
         $deleteButton = ($rekod['USERNAME'] == $loggedInAdmin) ? "" : "<a href='admin_delete.php?adminName=" . urlencode($rekod['USERNAME']) . "' 
                 onClick=\"return confirm('Are you sure you want to delete this admin?')\" 
                 class='btn btn-danger btn-sm'>Delete</a>";
@@ -89,7 +95,7 @@ oci_execute($laksana_sql_cari);
             <td>
                 $deleteButton
 
-                <a href='admin_update.php?adminName=" . urlencode($rekod['USERNAME']) . "&adminPhone=" . urlencode($rekod['EMAIL']) . "' 
+                <a href='admin_update.php?adminName=" . urlencode($rekod['USERNAME']) . "&adminEmail=" . urlencode($rekod['EMAIL']) . "' 
                 onClick=\"return confirm('Confirm update admin data?')\" 
                 class='btn btn-warning btn-sm'>Update</a> 
             </td>

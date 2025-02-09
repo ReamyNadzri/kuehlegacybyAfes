@@ -45,14 +45,15 @@ oci_execute($stmt);
     <h4>Upload Info</h4>
 
     <!-- Bootstrap row and columns to display info side by side with less space between them -->
-    <div class="row mb-4">
-        <div class="col-12 col-md-6 d-flex align-items-center justify-content-start">
+    <div class="row mb-1">
+        <div class="col-12 col-md-6 d-flex align-items-center justify-content-between">
             <p class="mb-0"><strong>Total Users who have uploaded data:</strong> <?php echo $totalUsers; ?></p>
         </div>
-        <div class="col-12 col-md-6 d-flex align-items-center justify-content-start">
+        <div class="col-12 col-md-6 d-flex align-items-center justify-content-between">
             <p class="mb-0"><strong>Total Kueh added:</strong> <?php echo $totalKueh; ?></p>
         </div>
     </div>
+
 
 
     <table class="w3-table-all" id='saiz' border='1'>
@@ -72,7 +73,7 @@ oci_execute($stmt);
         <?php
         $bil = 0;
         while ($row = oci_fetch_assoc($stmt)) {
-            
+
             $imageData = $row['IMAGE'];
             $imageBase64 = "";
             if ($imageData instanceof OCILob) {
