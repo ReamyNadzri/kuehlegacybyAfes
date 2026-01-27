@@ -9,22 +9,22 @@ if (isset($_GET['jadual']) && isset($_GET['medan_kp']) && isset($_GET['kp'])) {
     $kp = $_GET['kp'];  // Value to delete (the admin's username)
 
     # SQL query to delete the record
-    $arahan_sql_hapus = "DELETE FROM $jadual WHERE $medan_kp = :kp";
+    $arahan_sql_hapus = "DELETE FROM $jadual WHERE $medan_kp = ?";
 
     # Prepare the statement
-    $stmt = oci_parse($condb, $arahan_sql_hapus);
-    oci_bind_by_name($stmt, ':kp', $kp);
+    $stmt = mysqli_prepare($condb, $arahan_sql_hapus);
+    mysqli_stmt_bind_param($stmt, 's', $kp);
 
     # Execute the statement
-    if (oci_execute($stmt)) {
+    if (mysqli_stmt_execute($stmt)) {
         echo "<script>alert('Admin deleted successfully');
         window.location.href='admin_info.php';</script>";
     } else {
         echo "<script>alert('Failed to delete admin');
         window.history.back();</script>";
     }
+    mysqli_stmt_close($stmt);
 } else {
     echo "<script>alert('Missing parameters');
     window.history.back();</script>";
 }
-?>

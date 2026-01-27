@@ -20,30 +20,53 @@ namespace Google\Service\DiscoveryEngine;
 class GoogleCloudDiscoveryengineV1betaControlBoostAction extends \Google\Model
 {
   /**
+   * Strength of the boost, which should be in [-1, 1]. Negative boost means
+   * demotion. Default is 0.0 (No-op).
+   *
+   * @deprecated
    * @var float
    */
   public $boost;
   /**
+   * Required. Specifies which data store's documents can be boosted by this
+   * control. Full data store name e.g. projects/123/locations/global/collection
+   * s/default_collection/dataStores/default_data_store
+   *
    * @var string
    */
   public $dataStore;
   /**
+   * Required. Specifies which products to apply the boost to. If no filter is
+   * provided all products will be boosted (No-op). Syntax documentation:
+   * https://cloud.google.com/retail/docs/filter-and-order Maximum length is
+   * 5000 characters. Otherwise an INVALID ARGUMENT error is thrown.
+   *
    * @var string
    */
   public $filter;
   /**
+   * Optional. Strength of the boost, which should be in [-1, 1]. Negative boost
+   * means demotion. Default is 0.0 (No-op).
+   *
    * @var float
    */
   public $fixedBoost;
+  protected $interpolationBoostSpecType = GoogleCloudDiscoveryengineV1betaControlBoostActionInterpolationBoostSpec::class;
+  protected $interpolationBoostSpecDataType = '';
 
   /**
-   * @param float
+   * Strength of the boost, which should be in [-1, 1]. Negative boost means
+   * demotion. Default is 0.0 (No-op).
+   *
+   * @deprecated
+   * @param float $boost
    */
   public function setBoost($boost)
   {
     $this->boost = $boost;
   }
   /**
+   * @deprecated
    * @return float
    */
   public function getBoost()
@@ -51,7 +74,11 @@ class GoogleCloudDiscoveryengineV1betaControlBoostAction extends \Google\Model
     return $this->boost;
   }
   /**
-   * @param string
+   * Required. Specifies which data store's documents can be boosted by this
+   * control. Full data store name e.g. projects/123/locations/global/collection
+   * s/default_collection/dataStores/default_data_store
+   *
+   * @param string $dataStore
    */
   public function setDataStore($dataStore)
   {
@@ -65,7 +92,12 @@ class GoogleCloudDiscoveryengineV1betaControlBoostAction extends \Google\Model
     return $this->dataStore;
   }
   /**
-   * @param string
+   * Required. Specifies which products to apply the boost to. If no filter is
+   * provided all products will be boosted (No-op). Syntax documentation:
+   * https://cloud.google.com/retail/docs/filter-and-order Maximum length is
+   * 5000 characters. Otherwise an INVALID ARGUMENT error is thrown.
+   *
+   * @param string $filter
    */
   public function setFilter($filter)
   {
@@ -79,7 +111,10 @@ class GoogleCloudDiscoveryengineV1betaControlBoostAction extends \Google\Model
     return $this->filter;
   }
   /**
-   * @param float
+   * Optional. Strength of the boost, which should be in [-1, 1]. Negative boost
+   * means demotion. Default is 0.0 (No-op).
+   *
+   * @param float $fixedBoost
    */
   public function setFixedBoost($fixedBoost)
   {
@@ -91,6 +126,23 @@ class GoogleCloudDiscoveryengineV1betaControlBoostAction extends \Google\Model
   public function getFixedBoost()
   {
     return $this->fixedBoost;
+  }
+  /**
+   * Optional. Complex specification for custom ranking based on customer
+   * defined attribute value.
+   *
+   * @param GoogleCloudDiscoveryengineV1betaControlBoostActionInterpolationBoostSpec $interpolationBoostSpec
+   */
+  public function setInterpolationBoostSpec(GoogleCloudDiscoveryengineV1betaControlBoostActionInterpolationBoostSpec $interpolationBoostSpec)
+  {
+    $this->interpolationBoostSpec = $interpolationBoostSpec;
+  }
+  /**
+   * @return GoogleCloudDiscoveryengineV1betaControlBoostActionInterpolationBoostSpec
+   */
+  public function getInterpolationBoostSpec()
+  {
+    return $this->interpolationBoostSpec;
   }
 }
 

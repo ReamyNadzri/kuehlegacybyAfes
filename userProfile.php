@@ -42,33 +42,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_SESSION['username'])) {
         $userName = $_SESSION['username'];
 
-        $query = "UPDATE USERS SET USERNAME = :username, EMAIL = :email, PHONENUM = :phoneNum, IMAGE = :profile_image WHERE USERNAME = :username";
+        $query = "UPDATE USERS SET USERNAME = ?, EMAIL = ?, PHONENUM = ?, IMAGE = ? WHERE USERNAME = ?";
 
         // update new password
         if (!empty($password)) {
-            $query = "UPDATE USERS SET USERNAME = :username, EMAIL = :email, PHONENUM = :phoneNum, PASSWORD = :password, IMAGE = :profile_image WHERE USERNAME = :username";
+            $query = "UPDATE USERS SET USERNAME = ?, EMAIL = ?, PHONENUM = ?, PASSWORD = ?, IMAGE = ? WHERE USERNAME = ?";
         }
 
         // Parse the SQL statement
-        $stmt = oci_parse($condb, $query);
+        $stmt = mysqli_prepare($condb, $query);
 
         // Bind the parameters
-        oci_bind_by_name($stmt, ':username', $userName);
-        oci_bind_by_name($stmt, ':email', $email);
-        oci_bind_by_name($stmt, ':phoneNum', $phoneNum);
-        oci_bind_by_name($stmt, ':profile_image', $profileImage);
-
-
         if (!empty($password)) {
-            oci_bind_by_name($stmt, ':password', $password);
+            mysqli_stmt_bind_param($stmt, 'ssssss', $userName, $email, $phoneNum, $password, $profileImage, $userName);
+        } else {
+            mysqli_stmt_bind_param($stmt, 'sssss', $userName, $email, $phoneNum, $profileImage, $userName);
         }
 
         // Execute the query
-        if (oci_execute($stmt)) {
-            oci_commit($condb); // Commit the transaction
-
-
-
+        if (mysqli_stmt_execute($stmt)) {
             $_SESSION['username'] = $userName;
             $_SESSION['email'] = $email;
             $_SESSION['phoneNum'] = $phoneNum;
@@ -84,6 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $message = "Failed to update profile. Please try again.";
         }
+        mysqli_stmt_close($stmt);
     }
 }
 ?>
@@ -333,8 +326,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="profile-img-container">
                 <!-- Profile Image with Upload -->
                 <label for="fileInput">
-                    <img src="<?php echo htmlspecialchars($user['profile_image']); ?>" alt="Profile Image"
-                        class="profile-img" id="profileImage">
+                    <img src="<?php echo htmlspecialchars($user['profile_image']); ?>"
+                        alt="Profile Image"
+                        class="profile-img"
+                        id="profileImage"
+                        onerror="this.src='https://static.vecteezy.com/system/resources/previews/024/983/914/non_2x/simple-user-default-icon-free-png.png';">
                     <i class="fa fa-camera camera-icon"></i>
                 </label>
                 <form method="POST" enctype="multipart/form-data" style="display: none;">
@@ -401,7 +397,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <script>
-                    document.getElementById("phoneNum").addEventListener("input", function () {
+                    document.getElementById("phoneNum").addEventListener("input", function() {
                         this.value = this.value.replace(/\D/g, '').slice(0, 10);
                     });
                 </script>
@@ -430,17 +426,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <hr>
 
     <script>
-        document.getElementById('editProfileBtn').onclick = function () {
+        document.getElementById('editProfileBtn').onclick = function() {
             document.getElementById('editForm').style.display = 'block';
         };
 
-        document.getElementById('cancelBtn').onclick = function () {
+        document.getElementById('cancelBtn').onclick = function() {
             document.getElementById('editForm').style.display = 'none';
         };
 
         function previewImage(event) {
             const reader = new FileReader();
-            reader.onload = function () {
+            reader.onload = function() {
                 document.getElementById('profileImage').src = reader.result;
             };
             reader.readAsDataURL(event.target.files[0]);

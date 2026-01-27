@@ -6,17 +6,18 @@ include('connection.php');
 $username = $_GET['username'];
 
 // Fetch user data based on the username
-$sql = "SELECT USERNAME, EMAIL, PHONENUM, PASSWORD, NAME FROM USERS WHERE USERNAME = :username";
-$stmt = oci_parse($condb, $sql);
-oci_bind_by_name($stmt, ":username", $username);
-oci_execute($stmt);
+$sql = "SELECT USERNAME, EMAIL, PASSWORD, NAME FROM USERS WHERE USERNAME = ?";
+$stmt = mysqli_prepare($condb, $sql);
+mysqli_stmt_bind_param($stmt, "s", $username);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
 
 // Fetch the user details
-$row = oci_fetch_assoc($stmt);
+$row = mysqli_fetch_assoc($result);
 
 // Close the connection
-oci_free_statement($stmt);
-oci_close($condb);
+mysqli_stmt_close($stmt);
+mysqli_close($condb);
 
 if (!$row) {
     header("Location: user_list.php");
@@ -47,11 +48,6 @@ if (!$row) {
                     <th>Email</th>
                     <td><input type="email" id="email" name="email" class="form-control"
                             value="<?php echo htmlspecialchars($row['EMAIL']); ?>" required></td>
-                </tr>
-                <tr>
-                    <th>Phone Number</th>
-                    <td><input type="text" id="phone" name="phone" class="form-control"
-                            value="<?php echo htmlspecialchars($row['PHONENUM']); ?>" required></td>
                 </tr>
                 <tr>
                     <th>Password</th>

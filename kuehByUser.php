@@ -5,55 +5,51 @@ include('connection.php'); // Include the database connection
 $username = $_SESSION['username'];
 
 // Prepare SQL statement
-$sql = "SELECT k.KUEHID, k.KUEHNAME, LISTAGG(i.NAMEITEM, ', ') WITHIN GROUP (ORDER BY i.NAMEITEM) AS ITEMS
+$sql = "SELECT k.KUEHID, k.KUEHNAME, k.IMAGE, GROUP_CONCAT(i.NAMEITEM ORDER BY i.NAMEITEM SEPARATOR ', ') AS ITEMS
         FROM KUEH k 
         JOIN ITEMS i ON k.KUEHID = i.KUEHID
-        WHERE k.USERNAME = :username
-        GROUP BY k.KUEHID, k.KUEHNAME";
+        WHERE k.USERNAME = ?
+        GROUP BY k.KUEHID, k.KUEHNAME, k.IMAGE";
 
 // Prepare the statement
-$stid = oci_parse($condb, $sql);
-oci_bind_by_name($stid, ':username', $username);
-oci_execute($stid);
+$stmt = mysqli_prepare($condb, $sql);
+mysqli_stmt_bind_param($stmt, 's', $username);
 
 // Execute the query
-if (oci_execute($stid)) {
+if (mysqli_stmt_execute($stmt)) {
     $recipes = [];
     $total_recipes = 0;
+    $result = mysqli_stmt_get_result($stmt);
 
-    while ($row = oci_fetch_assoc($stid)) {
-        $blobQuery = "SELECT IMAGE FROM KUEH WHERE KUEHID = :kuehID";
-        $blobStmt = oci_parse($condb, $blobQuery);
-        oci_bind_by_name($blobStmt, ':kuehID', $row['KUEHID']);
-        oci_execute($blobStmt);
-
-        if ($blobRow = oci_fetch_assoc($blobStmt)) {
-            $blobData = $blobRow['IMAGE']->load(); // Fetch BLOB data
-            $row['IMAGE_DATA_URI'] = 'data:image/jpeg;base64,' . base64_encode($blobData);
+    while ($row = mysqli_fetch_assoc($result)) {
+        // Convert image filename to file path
+        if (!empty($row['IMAGE'])) {
+            $imagePath = 'kueh_images/' . $row['IMAGE'];
+            $row['IMAGE_DATA_URI'] = file_exists($imagePath) ? $imagePath : 'sources/default-kueh.jpg';
+        } else {
+            $row['IMAGE_DATA_URI'] = 'sources/default-kueh.jpg';
         }
 
-        oci_free_statement($blobStmt);
-
-        $blobQuery = "SELECT COALESCE(u.USERNAME, k.USERNAME) AS NAME
+        // Get creator details
+        $creatorQuery = "SELECT COALESCE(u.USERNAME, k.USERNAME) AS NAME
               FROM KUEH k
               LEFT JOIN USERS u ON k.USERNAME = u.USERNAME
-              WHERE k.KUEHID = :kuehID";
-        $blobStmt = oci_parse($condb, $blobQuery);
-        oci_bind_by_name($blobStmt, ':kuehID', $row['KUEHID']);
-        oci_execute($blobStmt);
+              WHERE k.KUEHID = ?";
+        $creatorStmt = mysqli_prepare($condb, $creatorQuery);
+        mysqli_stmt_bind_param($creatorStmt, 'i', $row['KUEHID']);
+        mysqli_stmt_execute($creatorStmt);
+        mysqli_stmt_close($creatorStmt);
 
-        oci_free_statement($blobStmt);
         $recipes[] = $row;
         $total_recipes++;
     }
 } else {
     // Handle query execution error
-    $error = oci_error($stid);
-    $error_message = "Database error: " . $error['message'];
+    $error_message = "Database error: " . mysqli_error($condb);
 }
 
-oci_free_statement($stid);
-oci_close($condb);
+mysqli_stmt_close($stmt);
+mysqli_close($condb);
 
 
 ?>
@@ -201,65 +197,65 @@ oci_close($condb);
 
 <?php if (!empty($recipes)): ?>
     <div class="w3-container" style="width:60%;margin-left:10%">
-    <?php foreach ($recipes as $recipe): ?>
-     
-        <div class="col-12 mb-4">
-            <a href="kuehDetails.php?id=<?= $recipe['KUEHID'] ?>"
-                class="text-decoration-none shadow-sm text-dark">
-                <div class="card card-hover-effect rounded shadow-sm  border-0">
-                    <div class="row g-0">
-                        <div class="col-md-3">
-                            <div class="recipe-page">
-                                <div class=" card-img-container">
-                                    <img src="<?= $recipe['IMAGE_DATA_URI'] ?? 'path/to/default/image.jpg' ?>"
-                                        class="img-fluid rounded-start"
-                                        alt="<?= htmlspecialchars($recipe['KUEHNAME']) ?>"
-                                        style="max-width: 100%; max-height: 200px; object-fit: cover;">
+        <?php foreach ($recipes as $recipe): ?>
+
+            <div class="col-12 mb-4">
+                <a href="kuehDetails.php?id=<?= $recipe['KUEHID'] ?>"
+                    class="text-decoration-none shadow-sm text-dark">
+                    <div class="card card-hover-effect rounded shadow-sm  border-0">
+                        <div class="row g-0">
+                            <div class="col-md-3">
+                                <div class="recipe-page">
+                                    <div class=" card-img-container">
+                                        <img src="<?= $recipe['IMAGE_DATA_URI'] ?? 'path/to/default/image.jpg' ?>"
+                                            class="img-fluid rounded-start"
+                                            alt="<?= htmlspecialchars($recipe['KUEHNAME']) ?>"
+                                            style="max-width: 100%; max-height: 200px; object-fit: cover;">
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-9">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <strong>
-                                        <h2 class="card-title"><?= htmlspecialchars($recipe['KUEHNAME']) ?>
-                                        </h2>
-                                    </strong>
-                                    <button
-                                        class="btn btn-outline-danger me-2 fw-bold"
-                                        onclick="handleDelete(event, '<?= $recipe['KUEHID'] ?>')">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </div>
-                                <p class="card-text ingredients-list"
-                                    style="font-size: 1.1rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; position: relative; max-height: 3.3em; line-height: 1.65em;">
-                                    <?php
-                                    $items = explode(', ', $recipe['ITEMS']);
-                                    if (count($items) > 10) {
-                                        echo htmlspecialchars(implode(', ', array_slice($items, 0, 10))) . '...';
-                                    } else {
-                                        echo htmlspecialchars($recipe['ITEMS']);
-                                    }
-                                    ?>
-                                </p>
+                            <div class="col-md-9">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <strong>
+                                            <h2 class="card-title"><?= htmlspecialchars($recipe['KUEHNAME']) ?>
+                                            </h2>
+                                        </strong>
+                                        <button
+                                            class="btn btn-outline-danger me-2 fw-bold"
+                                            onclick="handleDelete(event, '<?= $recipe['KUEHID'] ?>')">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                    <p class="card-text ingredients-list"
+                                        style="font-size: 1.1rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; position: relative; max-height: 3.3em; line-height: 1.65em;">
+                                        <?php
+                                        $items = explode(', ', $recipe['ITEMS']);
+                                        if (count($items) > 10) {
+                                            echo htmlspecialchars(implode(', ', array_slice($items, 0, 10))) . '...';
+                                        } else {
+                                            echo htmlspecialchars($recipe['ITEMS']);
+                                        }
+                                        ?>
+                                    </p>
 
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </a>
-        </div>
-       
-    <?php endforeach; ?>
+                </a>
+            </div>
+
+        <?php endforeach; ?>
     </div>
 <?php else: ?>
     <div class="w3-container" style="width:80%;display:flex;justify-content:center;align-items:center;margin-left:10%">
-    <div class="cooking-activity-container">
-        <p class="cooking-activity-p"><i class="fa fa-utensils cooking-activity-p"></i><br> Belum ada aktiviti membuat kueh</p>
-        <h4 class="cooking-activity-h4"> Kongsi resipe idaman anda!</h4>
-        <a href="addKueh.php" class="start-button">Mulakan!</a>
+        <div class="cooking-activity-container">
+            <p class="cooking-activity-p"><i class="fa fa-utensils cooking-activity-p"></i><br> Belum ada aktiviti membuat kueh</p>
+            <h4 class="cooking-activity-h4"> Kongsi resipe idaman anda!</h4>
+            <a href="addKueh.php" class="start-button">Mulakan!</a>
+        </div>
     </div>
-</div>
 <?php endif; ?>
 
 

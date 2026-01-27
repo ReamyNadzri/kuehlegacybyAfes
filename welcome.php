@@ -20,15 +20,14 @@ if (isset($_POST['login'])) {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
-    $sql = "SELECT * FROM users WHERE email = :email AND password = :password";
-    $stmt = oci_parse($condb, $sql);
+    $sql = "SELECT * FROM users WHERE email = ? AND password = ?";
+    $stmt = mysqli_prepare($condb, $sql);
 
-    oci_bind_by_name($stmt, ':email', $email);
-    oci_bind_by_name($stmt, ':password', $password);
+    mysqli_stmt_bind_param($stmt, 'ss', $email, $password);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
 
-    oci_execute($stmt);
-
-    $user = oci_fetch_assoc($stmt);
+    $user = mysqli_fetch_assoc($result);
 
     if ($user) {
         // Successful login
@@ -43,6 +42,7 @@ if (isset($_POST['login'])) {
         // Login failed
         $errorMessage = "Invalid email or password.";
     }
+    mysqli_stmt_close($stmt);
 }
 
 ?>

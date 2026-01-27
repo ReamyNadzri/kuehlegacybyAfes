@@ -4,45 +4,50 @@ include('connection.php');
 
 // SQL Queries to get the required totals
 $userCountSql = "SELECT COUNT(DISTINCT USERNAME) AS total_users FROM KUEH";
-$userCountStmt = oci_parse($condb, $userCountSql);
-oci_execute($userCountStmt);
-$userCountRow = oci_fetch_assoc($userCountStmt);
-$totalUsers = $userCountRow['TOTAL_USERS'];
+$userCountStmt = mysqli_prepare($condb, $userCountSql);
+mysqli_stmt_execute($userCountStmt);
+$result = mysqli_stmt_get_result($userCountStmt);
+$userCountRow = mysqli_fetch_assoc($result);
+$totalUsers = $userCountRow['total_users'];
+mysqli_stmt_close($userCountStmt);
 
 $kuehCountSql = "SELECT COUNT(*) AS total_kueh FROM KUEH";
-$kuehCountStmt = oci_parse($condb, $kuehCountSql);
-oci_execute($kuehCountStmt);
-$kuehCountRow = oci_fetch_assoc($kuehCountStmt);
-$totalKueh = $kuehCountRow['TOTAL_KUEH'];
+$kuehCountStmt = mysqli_prepare($condb, $kuehCountSql);
+mysqli_stmt_execute($kuehCountStmt);
+$result = mysqli_stmt_get_result($kuehCountStmt);
+$kuehCountRow = mysqli_fetch_assoc($result);
+$totalKueh = $kuehCountRow['total_kueh'];
+mysqli_stmt_close($kuehCountStmt);
 
 // Count the total number of kueh types
 $foodTypeCountSql = "SELECT COUNT(*) AS total_food_types FROM FOODTYPE";
-$foodTypeCountStmt = oci_parse($condb, $foodTypeCountSql);
-oci_execute($foodTypeCountStmt);
-$foodTypeCountRow = oci_fetch_assoc($foodTypeCountStmt);
-$totalFoodTypes = $foodTypeCountRow['TOTAL_FOOD_TYPES'];
+$foodTypeCountStmt = mysqli_prepare($condb, $foodTypeCountSql);
+mysqli_stmt_execute($foodTypeCountStmt);
+$result = mysqli_stmt_get_result($foodTypeCountStmt);
+$foodTypeCountRow = mysqli_fetch_assoc($result);
+$totalFoodTypes = $foodTypeCountRow['total_food_types'];
+mysqli_stmt_close($foodTypeCountStmt);
 
 // Count the total number of images uploaded
 $imageCountSql = "SELECT COUNT(*) AS total_images FROM KUEH WHERE IMAGE IS NOT NULL";
-$imageCountStmt = oci_parse($condb, $imageCountSql);
-oci_execute($imageCountStmt);
-$imageCountRow = oci_fetch_assoc($imageCountStmt);
-$totalImages = $imageCountRow['TOTAL_IMAGES'];
+$imageCountStmt = mysqli_prepare($condb, $imageCountSql);
+mysqli_stmt_execute($imageCountStmt);
+$result = mysqli_stmt_get_result($imageCountStmt);
+$imageCountRow = mysqli_fetch_assoc($result);
+$totalImages = $imageCountRow['total_images'];
+mysqli_stmt_close($imageCountStmt);
 
 // Count the total number of users who have not uploaded any image
 $inactiveUserCountSql = "SELECT COUNT(DISTINCT USERNAME) AS inactive_users FROM KUEH WHERE IMAGE IS NULL";
-$inactiveUserCountStmt = oci_parse($condb, $inactiveUserCountSql);
-oci_execute($inactiveUserCountStmt);
-$inactiveUserCountRow = oci_fetch_assoc($inactiveUserCountStmt);
-$totalInactiveUsers = $inactiveUserCountRow['INACTIVE_USERS'];
+$inactiveUserCountStmt = mysqli_prepare($condb, $inactiveUserCountSql);
+mysqli_stmt_execute($inactiveUserCountStmt);
+$result = mysqli_stmt_get_result($inactiveUserCountStmt);
+$inactiveUserCountRow = mysqli_fetch_assoc($result);
+$totalInactiveUsers = $inactiveUserCountRow['inactive_users'];
+mysqli_stmt_close($inactiveUserCountStmt);
 
-// Close the SQL statements and connection
-oci_free_statement($userCountStmt);
-oci_free_statement($kuehCountStmt);
-oci_free_statement($foodTypeCountStmt);
-oci_free_statement($imageCountStmt);
-oci_free_statement($inactiveUserCountStmt);
-oci_close($condb);
+// Close the connection
+mysqli_close($condb);
 ?>
 
 <body style="background-color: #FFFAF0;">
@@ -71,7 +76,7 @@ oci_close($condb);
             <div class="col-12 col-md-6">
                 <p><strong>Total Uploaded Images:</strong> <?php echo $totalImages; ?></p>
             </div>
-          
+
         </div>
 
         <br><br>
@@ -97,14 +102,14 @@ oci_close($condb);
                     'rgb(255, 99, 132)',
                     'rgb(75, 192, 192)',
                     'rgb(153, 102, 255)'
-                    
+
                 ],
                 borderColor: [
                     'rgb(54, 162, 235)',
                     'rgb(255, 99, 132)',
                     'rgb(75, 192, 192)',
                     'rgb(153, 102, 255)'
-                 
+
                 ],
                 borderWidth: 1
             }]

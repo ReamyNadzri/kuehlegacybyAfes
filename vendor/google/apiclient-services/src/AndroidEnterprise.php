@@ -39,6 +39,7 @@ class AndroidEnterprise extends \Google\Service
       "https://www.googleapis.com/auth/androidenterprise";
 
   public $devices;
+  public $enrollmentTokens;
   public $enterprises;
   public $entitlements;
   public $grouplicenses;
@@ -202,6 +203,26 @@ class AndroidEnterprise extends \Google\Service
           ]
         ]
     );
+    $this->enrollmentTokens = new AndroidEnterprise\Resource\EnrollmentTokens(
+        $this,
+        $this->serviceName,
+        'enrollmentTokens',
+        [
+          'methods' => [
+            'create' => [
+              'path' => 'androidenterprise/v1/enterprises/{enterpriseId}/enrollmentTokens',
+              'httpMethod' => 'POST',
+              'parameters' => [
+                'enterpriseId' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+              ],
+            ],
+          ]
+        ]
+    );
     $this->enterprises = new AndroidEnterprise\Resource\Enterprises(
         $this,
         $this->serviceName,
@@ -230,16 +251,6 @@ class AndroidEnterprise extends \Google\Service
                   'type' => 'string',
                 ],
               ],
-            ],'createEnrollmentToken' => [
-              'path' => 'androidenterprise/v1/enterprises/{enterpriseId}/createEnrollmentToken',
-              'httpMethod' => 'POST',
-              'parameters' => [
-                'enterpriseId' => [
-                  'location' => 'path',
-                  'type' => 'string',
-                  'required' => true,
-                ],
-              ],
             ],'createWebToken' => [
               'path' => 'androidenterprise/v1/enterprises/{enterpriseId}/createWebToken',
               'httpMethod' => 'POST',
@@ -260,6 +271,25 @@ class AndroidEnterprise extends \Google\Service
                   'required' => true,
                 ],
               ],
+            ],'generateEnterpriseUpgradeUrl' => [
+              'path' => 'androidenterprise/v1/enterprises/{enterpriseId}/generateEnterpriseUpgradeUrl',
+              'httpMethod' => 'POST',
+              'parameters' => [
+                'enterpriseId' => [
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ],
+                'adminEmail' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                ],
+                'allowedDomains' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                  'repeated' => true,
+                ],
+              ],
             ],'generateSignupUrl' => [
               'path' => 'androidenterprise/v1/enterprises/signupUrl',
               'httpMethod' => 'POST',
@@ -267,6 +297,11 @@ class AndroidEnterprise extends \Google\Service
                 'adminEmail' => [
                   'location' => 'query',
                   'type' => 'string',
+                ],
+                'allowedDomains' => [
+                  'location' => 'query',
+                  'type' => 'string',
+                  'repeated' => true,
                 ],
                 'callbackUrl' => [
                   'location' => 'query',

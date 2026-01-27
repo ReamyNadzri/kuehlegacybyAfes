@@ -1,0 +1,10 @@
+.env
+vendor/
+node_modules/
+*.log
+.DS_Store
+Thumbs.db
+kueh_images/*
+!kueh_images/.gitkeep
+admin/admin_images/*
+!admin/admin_images/.gitkeep

@@ -50,7 +50,7 @@ class GoogleCloudDialogflowCxV3beta1Intent extends \Google\Collection
   protected $trainingPhrasesDataType = 'array';
 
   /**
-   * @param string
+   * @param string $description
    */
   public function setDescription($description)
   {
@@ -64,7 +64,7 @@ class GoogleCloudDialogflowCxV3beta1Intent extends \Google\Collection
     return $this->description;
   }
   /**
-   * @param string
+   * @param string $displayName
    */
   public function setDisplayName($displayName)
   {
@@ -78,7 +78,7 @@ class GoogleCloudDialogflowCxV3beta1Intent extends \Google\Collection
     return $this->displayName;
   }
   /**
-   * @param bool
+   * @param bool $isFallback
    */
   public function setIsFallback($isFallback)
   {
@@ -92,7 +92,7 @@ class GoogleCloudDialogflowCxV3beta1Intent extends \Google\Collection
     return $this->isFallback;
   }
   /**
-   * @param string[]
+   * @param string[] $labels
    */
   public function setLabels($labels)
   {
@@ -106,7 +106,7 @@ class GoogleCloudDialogflowCxV3beta1Intent extends \Google\Collection
     return $this->labels;
   }
   /**
-   * @param string
+   * @param string $name
    */
   public function setName($name)
   {
@@ -120,7 +120,7 @@ class GoogleCloudDialogflowCxV3beta1Intent extends \Google\Collection
     return $this->name;
   }
   /**
-   * @param GoogleCloudDialogflowCxV3beta1IntentParameter[]
+   * @param GoogleCloudDialogflowCxV3beta1IntentParameter[] $parameters
    */
   public function setParameters($parameters)
   {
@@ -134,7 +134,7 @@ class GoogleCloudDialogflowCxV3beta1Intent extends \Google\Collection
     return $this->parameters;
   }
   /**
-   * @param int
+   * @param int $priority
    */
   public function setPriority($priority)
   {
@@ -148,7 +148,7 @@ class GoogleCloudDialogflowCxV3beta1Intent extends \Google\Collection
     return $this->priority;
   }
   /**
-   * @param GoogleCloudDialogflowCxV3beta1IntentTrainingPhrase[]
+   * @param GoogleCloudDialogflowCxV3beta1IntentTrainingPhrase[] $trainingPhrases
    */
   public function setTrainingPhrases($trainingPhrases)
   {

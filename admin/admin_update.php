@@ -4,20 +4,23 @@ include('../connection.php');
 
 $adminName = $_GET['adminName'];
 
-$arahan_sql_cari = "SELECT * FROM ADMIN WHERE USERNAME = :USERNAME";
-$stmt = oci_parse($condb, $arahan_sql_cari);
-oci_bind_by_name($stmt, ':USERNAME', $adminName);
-oci_execute($stmt);
+$arahan_sql_cari = "SELECT * FROM ADMIN WHERE USERNAME = ?";
+$stmt = mysqli_prepare($condb, $arahan_sql_cari);
+mysqli_stmt_bind_param($stmt, 's', $adminName);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
+$admin = mysqli_fetch_assoc($result);
 
-$admin = oci_fetch_array($stmt, OCI_ASSOC + OCI_RETURN_NULLS);
 if (!$admin) {
     die("<script>alert('Admin not found'); window.history.back();</script>");
 }
+mysqli_stmt_close($stmt);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $adminName = $_POST['adminName'];
-    $adminEmail = $_POST['adminEmail'];  
-    $adminPass = $_POST['adminPass'];   
+    $adminEmail = $_POST['adminEmail'];
+    $adminPass = $_POST['adminPass'];
+    $oldUsername = $admin['USERNAME'];
 
     if (empty($adminName) || empty($adminEmail) || empty($adminPass)) {
         die("<script>alert('Please insert all the data'); window.history.back();</script>");
@@ -28,21 +31,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     $arahan_sql_update = "UPDATE ADMIN 
-        SET USERNAME = :USERNAME, NAME = :NAME, EMAIL = :EMAIL, PASSWORD = :PASSWORD 
-        WHERE USERNAME = :OLD_USERNAME";
+        SET USERNAME = ?, NAME = ?, EMAIL = ?, PASSWORD = ? 
+        WHERE USERNAME = ?";
 
-    $stmt_update = oci_parse($condb, $arahan_sql_update);
-    oci_bind_by_name($stmt_update, ':USERNAME', $adminName);
-    oci_bind_by_name($stmt_update, ':NAME', $adminName);    
-    oci_bind_by_name($stmt_update, ':EMAIL', $adminEmail);
-    oci_bind_by_name($stmt_update, ':PASSWORD', $adminPass);
-    oci_bind_by_name($stmt_update, ':OLD_USERNAME', $admin['USERNAME']);  
+    $stmt_update = mysqli_prepare($condb, $arahan_sql_update);
+    mysqli_stmt_bind_param($stmt_update, 'sssss', $adminName, $adminName, $adminEmail, $adminPass, $oldUsername);
 
-    if (oci_execute($stmt_update)) {
+    if (mysqli_stmt_execute($stmt_update)) {
         echo "<script>alert('Update Success'); window.location.href='admin_info.php';</script>";
     } else {
         echo "<script>alert('Update Failure'); window.history.back();</script>";
     }
+    mysqli_stmt_close($stmt_update);
 }
 ?>
 

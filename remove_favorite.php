@@ -8,19 +8,20 @@ $username = isset($_SESSION['google_user']) ? $_SESSION['google_user']['name'] :
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['KUEHID']) && !empty($username)) {
     $kuehID = $_POST['KUEHID'];
 
-    $sql = "DELETE FROM FAVORITE WHERE KUEHID = :kuehID AND USERNAME = :username";
-    $stmt = oci_parse($condb, $sql);
-    oci_bind_by_name($stmt, ':kuehID', $kuehID);
-    oci_bind_by_name($stmt, ':username', $username);
+    $sql = "DELETE FROM FAVORITE WHERE KUEHID = ? AND USERNAME = ?";
+    $stmt = mysqli_prepare($condb, $sql);
+    mysqli_stmt_bind_param($stmt, 'is', $kuehID, $username);
 
     $response = ["success" => false];
 
-    if (oci_execute($stmt)) {
+    if (mysqli_stmt_execute($stmt)) {
         $response["success"] = true;
     }
+
+    mysqli_stmt_close($stmt);
+    mysqli_close($condb);
 
     echo json_encode($response);
 } else {
     echo json_encode(["success" => false, "error" => "Unauthorized"]);
 }
-?>

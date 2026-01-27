@@ -2,16 +2,23 @@
 include('header_admin.php');
 include('connection.php');
 
+// Add Intervention Image configuration
+use Intervention\Image\ImageManagerStatic as Image;
+
+Image::configure(['driver' => 'gd']);
+
 // Check if KUEHID is provided in the query string (for update mode)
 if (isset($_GET['kuehId'])) {
     $kuehId = $_GET['kuehId'];
 
     // Fetch existing kueh data
-    $sql_fetch_kueh = "SELECT * FROM KUEH WHERE KUEHID = :kuehId";
-    $stmt_fetch_kueh = oci_parse($condb, $sql_fetch_kueh);
-    oci_bind_by_name($stmt_fetch_kueh, ":kuehId", $kuehId);
-    oci_execute($stmt_fetch_kueh);
-    $kuehData = oci_fetch_assoc($stmt_fetch_kueh);
+    $sql_fetch_kueh = "SELECT * FROM KUEH WHERE KUEHID = ?";
+    $stmt_fetch_kueh = mysqli_prepare($condb, $sql_fetch_kueh);
+    mysqli_stmt_bind_param($stmt_fetch_kueh, "i", $kuehId);
+    mysqli_stmt_execute($stmt_fetch_kueh);
+    $result_fetch_kueh = mysqli_stmt_get_result($stmt_fetch_kueh);
+    $kuehData = mysqli_fetch_assoc($result_fetch_kueh);
+    mysqli_stmt_close($stmt_fetch_kueh);
 
     // Initialize existing values for dropdowns
     $existingFoodType = $kuehData['FOODTYPECODE'];
@@ -21,29 +28,33 @@ if (isset($_GET['kuehId'])) {
     $existingLink = $kuehData['VIDEO'];
 
     // Fetch ingredients
-    $sql_fetch_ingredients = "SELECT NAMEITEM FROM ITEMS WHERE KUEHID = :kuehId";
-    $stmt_fetch_ingredients = oci_parse($condb, $sql_fetch_ingredients);
-    oci_bind_by_name($stmt_fetch_ingredients, ":kuehId", $kuehId);
-    oci_execute($stmt_fetch_ingredients);
+    $sql_fetch_ingredients = "SELECT NAMEITEM FROM ITEMS WHERE KUEHID = ?";
+    $stmt_fetch_ingredients = mysqli_prepare($condb, $sql_fetch_ingredients);
+    mysqli_stmt_bind_param($stmt_fetch_ingredients, "i", $kuehId);
+    mysqli_stmt_execute($stmt_fetch_ingredients);
+    $result_ingredients = mysqli_stmt_get_result($stmt_fetch_ingredients);
     $ingredients = [];
-    while ($row = oci_fetch_assoc($stmt_fetch_ingredients)) {
+    while ($row = mysqli_fetch_assoc($result_ingredients)) {
         $ingredients[] = $row['NAMEITEM'];
     }
+    mysqli_stmt_close($stmt_fetch_ingredients);
 
     // Fetch steps
-    $sql_fetch_steps = "SELECT STEP FROM STEPS WHERE KUEHID = :kuehId";
-    $stmt_fetch_steps = oci_parse($condb, $sql_fetch_steps);
-    oci_bind_by_name($stmt_fetch_steps, ":kuehId", $kuehId);
-    oci_execute($stmt_fetch_steps);
+    $sql_fetch_steps = "SELECT STEP FROM STEPS WHERE KUEHID = ?";
+    $stmt_fetch_steps = mysqli_prepare($condb, $sql_fetch_steps);
+    mysqli_stmt_bind_param($stmt_fetch_steps, "i", $kuehId);
+    mysqli_stmt_execute($stmt_fetch_steps);
+    $result_steps = mysqli_stmt_get_result($stmt_fetch_steps);
     $steps = [];
-    while ($row = oci_fetch_assoc($stmt_fetch_steps)) {
+    while ($row = mysqli_fetch_assoc($result_steps)) {
         $steps[] = $row['STEP'];
     }
+    mysqli_stmt_close($stmt_fetch_steps);
 
-    // Check if IMAGE BLOB is not empty before loading
-    $existingImage = null;
-    if (!empty($kuehData['IMAGE']) && $kuehData['IMAGE']->size() > 0) {
-        $existingImage = $kuehData['IMAGE']->load();
+    // Get existing image path
+    $existingImagePath = null;
+    if (!empty($kuehData['IMAGE'])) {
+        $existingImagePath = '../kueh_images/' . $kuehData['IMAGE'];
     }
 }
 
@@ -61,138 +72,171 @@ if (isset($_POST['submit'])) {
 
     // Check if KUEHID is provided (update mode)
     if ($kuehID != null) {
+        $filename = null;
 
         // Check if a new image is uploaded
         if (!empty($_FILES['image']['tmp_name'])) {
-            // New image is uploaded
-            $imageData = file_get_contents($_FILES['image']['tmp_name']);
-            $sql_kueh = "UPDATE KUEH SET KUEHNAME = :kuehName, KUEHDESC = :kuehDesc, FOODTYPECODE = :foodTypeCode, METHODID = :methodId, POPULARID = :popularId, ORIGINID = :originId, VIDEO = :video, IMAGE = EMPTY_BLOB() WHERE KUEHID = :kuehId RETURNING IMAGE INTO :image";
-            $lob = oci_new_descriptor($condb, OCI_D_LOB);
+            // File upload validation
+            $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'jfif'];
+            $allowed_mimes = ['image/jpeg', 'image/png', 'image/gif'];
+            $max_size = 5 * 1024 * 1024; // 5MB
+
+            $file_ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+            $file_mime = $_FILES['image']['type'];
+            $file_size = $_FILES['image']['size'];
+
+            if (!in_array($file_ext, $allowed_extensions)) {
+                die("<script>alert('Invalid file extension.');</script>");
+            }
+            if (!in_array($file_mime, $allowed_mimes)) {
+                die("<script>alert('Invalid file type.');</script>");
+            }
+            if ($file_size > $max_size) {
+                die("<script>alert('File size exceeds 5MB limit.');</script>");
+            }
+
+            // Verify it's actually an image
+            $image_info = getimagesize($_FILES['image']['tmp_name']);
+            if ($image_info === false) {
+                die("<script>alert('File is not a valid image.');</script>");
+            }
+
+            // Delete old image file
+            $old_image_query = "SELECT image FROM kueh WHERE kuehId = ?";
+            $old_image_stmt = mysqli_prepare($condb, $old_image_query);
+            mysqli_stmt_bind_param($old_image_stmt, "i", $kuehID);
+            mysqli_stmt_execute($old_image_stmt);
+            $old_result = mysqli_stmt_get_result($old_image_stmt);
+            $old_row = mysqli_fetch_assoc($old_result);
+            if ($old_row && !empty($old_row['image'])) {
+                $old_path = '../kueh_images/' . $old_row['image'];
+                if (file_exists($old_path)) {
+                    unlink($old_path);
+                }
+            }
+            mysqli_stmt_close($old_image_stmt);
+
+            // Generate unique filename
+            $filename = uniqid() . '_' . time() . '.' . $file_ext;
+            $targetPath = '../kueh_images/' . $filename;
+
+            // Optimize and save image
+            $img = Image::make($_FILES['image']['tmp_name']);
+            if ($img->width() > 1920) {
+                $img->resize(1920, null, function ($constraint) {
+                    $constraint->aspectRatio();
+                });
+            }
+            $img->save($targetPath, 80);
+
+            // Update with new image
+            $sql_kueh = "UPDATE KUEH SET KUEHNAME = ?, KUEHDESC = ?, FOODTYPECODE = ?, METHODID = ?, POPULARID = ?, ORIGINID = ?, VIDEO = ?, IMAGE = ? WHERE KUEHID = ?";
+            $laksana_sql_kueh = mysqli_prepare($condb, $sql_kueh);
+            mysqli_stmt_bind_param($laksana_sql_kueh, "sssissssi", $kuehName, $kuehDesc, $foodTypeCode, $methodId, $popularId, $originId, $video, $filename, $kuehID);
         } else {
-            // No new image is uploaded, retain the existing image
-            $sql_kueh = "UPDATE KUEH SET KUEHNAME = :kuehName, KUEHDESC = :kuehDesc, FOODTYPECODE = :foodTypeCode, METHODID = :methodId, POPULARID = :popularId, ORIGINID = :originId, VIDEO = :video WHERE KUEHID = :kuehId";
+            // No new image uploaded, retain existing
+            $sql_kueh = "UPDATE KUEH SET KUEHNAME = ?, KUEHDESC = ?, FOODTYPECODE = ?, METHODID = ?, POPULARID = ?, ORIGINID = ?, VIDEO = ? WHERE KUEHID = ?";
+            $laksana_sql_kueh = mysqli_prepare($condb, $sql_kueh);
+            mysqli_stmt_bind_param($laksana_sql_kueh, "sssisssi", $kuehName, $kuehDesc, $foodTypeCode, $methodId, $popularId, $originId, $video, $kuehID);
         }
-
-        $laksana_sql_kueh = oci_parse($condb, $sql_kueh);
-        oci_bind_by_name($laksana_sql_kueh, ":kuehId", $kuehID);
-    }
-    // Bind parameters
-    oci_bind_by_name($laksana_sql_kueh, ":kuehName", $kuehName);
-    oci_bind_by_name($laksana_sql_kueh, ":kuehDesc", $kuehDesc);
-    oci_bind_by_name($laksana_sql_kueh, ":foodTypeCode", $foodTypeCode);
-    oci_bind_by_name($laksana_sql_kueh, ":methodId", $methodId);
-    oci_bind_by_name($laksana_sql_kueh, ":popularId", $popularId);
-    oci_bind_by_name($laksana_sql_kueh, ":originId", $originId);
-    oci_bind_by_name($laksana_sql_kueh, ":video", $video);
-
-    // Bind the BLOB descriptor
-    if (isset($lob)) {
-        oci_bind_by_name($laksana_sql_kueh, ":image", $lob, -1, SQLT_BLOB);
     }
 
-    if (oci_execute($laksana_sql_kueh, OCI_DEFAULT)) {
-        if (isset($lob)) {
-            // Save the new image data into the BLOB
-            $lob->save($imageData);
-            oci_commit($condb);
-            $lob->free();
-        }
+    if (mysqli_stmt_execute($laksana_sql_kueh)) {
 
         // Handle ingredients and steps updates
         // Delete existing ingredients and steps for update mode
         if (isset($kuehID)) {
-            $sql_delete_ingredients = "DELETE FROM ITEMS WHERE KUEHID = :kuehId";
-            $stmt_delete_ingredients = oci_parse($condb, $sql_delete_ingredients);
-            oci_bind_by_name($stmt_delete_ingredients, ":kuehId", $kuehID);
-            oci_execute($stmt_delete_ingredients);
+            $sql_delete_ingredients = "DELETE FROM ITEMS WHERE KUEHID = ?";
+            $stmt_delete_ingredients = mysqli_prepare($condb, $sql_delete_ingredients);
+            mysqli_stmt_bind_param($stmt_delete_ingredients, "i", $kuehID);
+            mysqli_stmt_execute($stmt_delete_ingredients);
+            mysqli_stmt_close($stmt_delete_ingredients);
 
-            $sql_delete_steps = "DELETE FROM STEPS WHERE KUEHID = :kuehId";
-            $stmt_delete_steps = oci_parse($condb, $sql_delete_steps);
-            oci_bind_by_name($stmt_delete_steps, ":kuehId", $kuehID);
-            oci_execute($stmt_delete_steps);
+            $sql_delete_steps = "DELETE FROM STEPS WHERE KUEHID = ?";
+            $stmt_delete_steps = mysqli_prepare($condb, $sql_delete_steps);
+            mysqli_stmt_bind_param($stmt_delete_steps, "i", $kuehID);
+            mysqli_stmt_execute($stmt_delete_steps);
+            mysqli_stmt_close($stmt_delete_steps);
         }
 
         // Insert new ingredients
         if (!empty($ingredients)) {
-            $sql_items = "INSERT INTO ITEMS (KUEHID, NAMEITEM) VALUES (:kuehId, :nameitem)";
-            $laksana_sql_items = oci_parse($condb, $sql_items);
+            $sql_items = "INSERT INTO ITEMS (KUEHID, NAMEITEM) VALUES (?, ?)";
+            $laksana_sql_items = mysqli_prepare($condb, $sql_items);
 
             foreach ($ingredients as $ingredient) {
-                oci_bind_by_name($laksana_sql_items, ":kuehId", $kuehID);
-                oci_bind_by_name($laksana_sql_items, ":nameitem", $ingredient);
-                if (!oci_execute($laksana_sql_items)) {
-                    $e = oci_error($laksana_sql_items);
-                    echo "Error inserting ingredient: " . htmlentities($e['message']);
+                mysqli_stmt_bind_param($laksana_sql_items, "is", $kuehID, $ingredient);
+                if (!mysqli_stmt_execute($laksana_sql_items)) {
+                    echo "Error inserting ingredient: " . htmlentities(mysqli_error($condb));
                 }
             }
-            oci_free_statement($laksana_sql_items);
+            mysqli_stmt_close($laksana_sql_items);
         }
 
         // Insert new steps
         if (!empty($steps)) {
-            $sql_steps = "INSERT INTO STEPS (KUEHID, STEP) VALUES (:kuehId, :step)";
-            $laksana_sql_steps = oci_parse($condb, $sql_steps);
+            $sql_steps = "INSERT INTO STEPS (KUEHID, STEP) VALUES (?, ?)";
+            $laksana_sql_steps = mysqli_prepare($condb, $sql_steps);
 
             foreach ($steps as $step) {
-                oci_bind_by_name($laksana_sql_steps, ":kuehId", $kuehID);
-                oci_bind_by_name($laksana_sql_steps, ":step", $step);
-                if (!oci_execute($laksana_sql_steps)) {
-                    $e = oci_error($laksana_sql_steps);
-                    echo "Error inserting step: " . htmlentities($e['message']);
+                mysqli_stmt_bind_param($laksana_sql_steps, "is", $kuehID, $step);
+                if (!mysqli_stmt_execute($laksana_sql_steps)) {
+                    echo "Error inserting step: " . htmlentities(mysqli_error($condb));
                 }
             }
-            oci_free_statement($laksana_sql_steps);
+            mysqli_stmt_close($laksana_sql_steps);
         }
 
-        oci_commit($condb);
         echo "<script>
             window.location.href = 'kueh_info.php?msg=update_success';
         </script>";
         exit();
     } else {
-        $e = oci_error($laksana_sql_kueh);
-        echo "<script>alert('Error saving kueh details: " . htmlentities($e['message']) . "');</script>";
+        echo "<script>alert('Error saving kueh details: " . htmlentities(mysqli_error($condb)) . "');</script>";
     }
 
-    oci_free_statement($laksana_sql_kueh);
+    mysqli_stmt_close($laksana_sql_kueh);
 }
 
 function getOptionsWithIdAndName($query, $idField, $nameField, $selectedValue = null)
 {
     global $condb;
-    $stid = oci_parse($condb, $query);
-    oci_execute($stid);
+    $stmt = mysqli_prepare($condb, $query);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
     $options = "";
-    while ($row = oci_fetch_assoc($stid)) {
+    while ($row = mysqli_fetch_assoc($result)) {
         $selected = ($row[$idField] == $selectedValue) ? 'selected' : '';
         $options .= "<option value='{$row[$idField]}' $selected>{$row[$nameField]}</option>";
     }
-    oci_free_statement($stid);
+    mysqli_stmt_close($stmt);
     return $options;
 }
 
 // Populate dropdowns with existing values
 $foodtypeOptions = getOptionsWithIdAndName("SELECT FOODTYPECODE, TYPENAME FROM FOODTYPE", "FOODTYPECODE", "TYPENAME", $existingFoodType ?? null);
 $methodOptions = getOptionsWithIdAndName("SELECT METHODID, METHODNAME FROM METHOD", "METHODID", "METHODNAME", $existingMethod ?? null);
-$popularOptions = getOptionsWithIdAndName("SELECT POPULARID, LEVELSTAR FROM POPULARITY", "POPULARID", "LEVELSTAR", $existingPopularity ?? null);
+$popularOptions = getOptionsWithIdAndName("SELECT POPULARID, LEVEL FROM POPULARITY", "POPULARID", "LEVEL", $existingPopularity ?? null);
 $originOptions = getOptionsWithIdAndName("SELECT ORIGINCODE, NAMESTATE FROM ORIGIN", "ORIGINCODE", "NAMESTATE", $existingOrigin ?? null);
 
 
 if (isset($_SESSION['adminid'])) {
     $adminId = $_SESSION['adminid'];
-    $sql = "SELECT USERNAME, EMAIL, IMAGE FROM admin WHERE USERNAME = :adminid";
-    $stmt = oci_parse($condb, $sql);
-    oci_bind_by_name($stmt, ":adminid", $adminId);
-    oci_execute($stmt);
-    $adminData = oci_fetch_assoc($stmt);
+    $sql = "SELECT USERNAME, EMAIL, IMAGE FROM admin WHERE USERNAME = ?";
+    $stmt = mysqli_prepare($condb, $sql);
+    mysqli_stmt_bind_param($stmt, "s", $adminId);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $adminData = mysqli_fetch_assoc($result);
 
     if ($adminData) {
         $username = $adminData['USERNAME'];
         $email = $adminData['EMAIL'];
     }
+    mysqli_stmt_close($stmt);
 }
 
-oci_close($condb);
+mysqli_close($condb);
 ?>
 
 <!DOCTYPE html>

@@ -6,60 +6,59 @@ include('connection.php'); // Include the database connection
 $username = $_SESSION['username'] ?? null;
 
 // Prepare SQL statement
-$sql = "SELECT f.KUEHID, k.KUEHNAME, LISTAGG(i.NAMEITEM, ', ') WITHIN GROUP (ORDER BY i.NAMEITEM) AS ITEMS
+$sql = "SELECT f.KUEHID, k.KUEHNAME, k.IMAGE, GROUP_CONCAT(i.NAMEITEM ORDER BY i.NAMEITEM SEPARATOR ', ') AS ITEMS
         FROM FAVORITE f
         JOIN KUEH k ON f.KUEHID = k.KUEHID
         JOIN ITEMS i ON f.KUEHID = i.KUEHID
-        WHERE f.USERNAME = :username 
-        GROUP BY f.KUEHID, k.KUEHNAME";
+        WHERE f.USERNAME = ? 
+        GROUP BY f.KUEHID, k.KUEHNAME, k.IMAGE";
 
-$stid = oci_parse($condb, $sql);
-oci_bind_by_name($stid, ':username', $username);
+$stmt = mysqli_prepare($condb, $sql);
+mysqli_stmt_bind_param($stmt, 's', $username);
 
 // Execute the query
-if (oci_execute($stid)) {
+if (mysqli_stmt_execute($stmt)) {
     $recipes = [];
     $total_recipes = 0;
+    $result = mysqli_stmt_get_result($stmt);
 
-    while ($row = oci_fetch_assoc($stid)) {
-        $blobQuery = "SELECT IMAGE FROM KUEH WHERE KUEHID = :kuehID";
-        $blobStmt = oci_parse($condb, $blobQuery);
-        oci_bind_by_name($blobStmt, ':kuehID', $row['KUEHID']);
-        oci_execute($blobStmt);
-
-        if ($blobRow = oci_fetch_assoc($blobStmt)) {
-            $blobData = $blobRow['IMAGE']->load(); // Fetch BLOB data
-            $row['IMAGE_DATA_URI'] = 'data:image/jpeg;base64,' . base64_encode($blobData);
+    while ($row = mysqli_fetch_assoc($result)) {
+        // Convert image filename to file path
+        if (!empty($row['IMAGE'])) {
+            $imagePath = 'kueh_images/' . $row['IMAGE'];
+            $row['IMAGE_DATA_URI'] = file_exists($imagePath) ? $imagePath : 'sources/default-kueh.jpg';
+        } else {
+            $row['IMAGE_DATA_URI'] = 'sources/default-kueh.jpg';
         }
 
-        oci_free_statement($blobStmt);
-
-        $blobQuery = "SELECT COALESCE(u.NAME, a.NAME) AS NAME
+        // Get creator details
+        $creatorQuery = "SELECT COALESCE(u.NAME, a.NAME) AS NAME
               FROM KUEH k
               LEFT JOIN USERS u ON k.USERNAME = u.USERNAME
               LEFT JOIN ADMIN a ON k.USERNAME = a.USERNAME
-              WHERE k.KUEHID = :kuehID";
-        $blobStmt = oci_parse($condb, $blobQuery);
-        oci_bind_by_name($blobStmt, ':kuehID', $row['KUEHID']);
-        oci_execute($blobStmt);
+              WHERE k.KUEHID = ?";
+        $creatorStmt = mysqli_prepare($condb, $creatorQuery);
+        mysqli_stmt_bind_param($creatorStmt, 'i', $row['KUEHID']);
+        mysqli_stmt_execute($creatorStmt);
+        $creatorResult = mysqli_stmt_get_result($creatorStmt);
 
-        if ($blobRow = oci_fetch_assoc($blobStmt)) {
-            $row['NAMECREATOR'] = $blobRow['NAME'];
-            $row['CREATORIMAGE'] = $blobRow['IMAGE'] ?? NULL;
+        if ($creatorRow = mysqli_fetch_assoc($creatorResult)) {
+            $row['NAMECREATOR'] = $creatorRow['NAME'];
+            $row['CREATORIMAGE'] = $creatorRow['IMAGE'] ?? NULL;
         }
 
-
-        oci_free_statement($blobStmt);
+        mysqli_stmt_close($creatorStmt);
 
         $isFavorite = false;
         if ($username) {
-            $sql_check = "SELECT COUNT(*) AS count FROM FAVORITE WHERE KUEHID = :kueh_id AND USERNAME = :username";
-            $stid_check = oci_parse($condb, $sql_check);
-            oci_bind_by_name($stid_check, ':kueh_id', $row['KUEHID']);
-            oci_bind_by_name($stid_check, ':username', $username);
-            oci_execute($stid_check);
-            $favoriteRow = oci_fetch_array($stid_check, OCI_ASSOC);
-            $isFavorite = ($favoriteRow['COUNT'] > 0);
+            $sql_check = "SELECT COUNT(*) AS count FROM FAVORITE WHERE KUEHID = ? AND USERNAME = ?";
+            $stmt_check = mysqli_prepare($condb, $sql_check);
+            mysqli_stmt_bind_param($stmt_check, 'is', $row['KUEHID'], $username);
+            mysqli_stmt_execute($stmt_check);
+            $checkResult = mysqli_stmt_get_result($stmt_check);
+            $favoriteRow = mysqli_fetch_assoc($checkResult);
+            $isFavorite = ($favoriteRow['count'] > 0);
+            mysqli_stmt_close($stmt_check);
         }
 
         $row['IS_FAVORITE'] = $isFavorite; // Add the favorite status to the row
@@ -68,12 +67,11 @@ if (oci_execute($stid)) {
     }
 } else {
     // Handle query execution error
-    $error = oci_error($stid);
-    $error_message = "Database error: " . $error['message'];
+    $error_message = "Database error: " . mysqli_error($condb);
 }
 
-oci_free_statement($stid);
-oci_close($condb);
+mysqli_stmt_close($stmt);
+mysqli_close($condb);
 ?>
 
 
@@ -281,16 +279,14 @@ oci_close($condb);
                                                 </p>
                                                 <div class="d-flex align-items-center profile-section">
                                                     <?PHP
-                                                    if ($recipe['CREATORIMAGE'] != null) {
-                                                    ?><img src="<?= $recipe['CREATORIMAGE'] ?>"
-                                                            alt="Profile Picture" class="rounded-circle me-2 border" width="40"
-                                                            height="40"><?PHP
-                                                                    } else {
-                                                                        ?>
-                                                        <img src="sources/header/logo.png" alt="Profile Picture"
-                                                            class="rounded-circle me-2 border" width="40" height="40"><?PHP
-                                                                                                                    }
-                                                                                                                        ?>
+                                                    $defaultProfileImage = 'https://static.vecteezy.com/system/resources/previews/024/983/914/non_2x/simple-user-default-icon-free-png.png';
+                                                    $profileImage = !empty($recipe['CREATORIMAGE']) ? $recipe['CREATORIMAGE'] : $defaultProfileImage;
+                                                    ?>
+                                                    <img src="<?= htmlspecialchars($profileImage) ?>"
+                                                        alt="Profile Picture"
+                                                        class="rounded-circle me-2 border"
+                                                        width="40" height="40"
+                                                        onerror="this.src='<?= $defaultProfileImage ?>';">
                                                     <p class="card-text" style="font-size: 1.1rem;">
                                                         <?= htmlspecialchars($recipe['NAMECREATOR']) ?>
                                                     </p>
@@ -342,8 +338,6 @@ oci_close($condb);
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 
 <script>
-
-
     function toggleFavorite(kueh_id, event) {
         event.preventDefault(); // Prevent the default action of the button
         event.stopPropagation(); // Stop the event from bubbling up

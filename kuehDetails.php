@@ -5,64 +5,79 @@ include('connection.php');
 // Fetch kueh details by kueh_id
 function fetchKuehDetails($conn, $kueh_id)
 {
-    $sql = "SELECT KUEHID, KUEHNAME, KUEHDESC, TAGKUEH, FOODTYPECODE, METHODID, VIDEO, IMAGE FROM KUEH WHERE KUEHID = :kueh_id";
-    $stid = oci_parse($conn, $sql);
-    oci_bind_by_name($stid, ':kueh_id', $kueh_id);
-    oci_execute($stid);
+    $sql = "SELECT KUEHID, KUEHNAME, KUEHDESC, TAGKUEH, FOODTYPECODE, METHODID, VIDEO, IMAGE FROM KUEH WHERE KUEHID = ?";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, 'i', $kueh_id);
+    mysqli_stmt_execute($stmt);
 
-    $kuehDetails = oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS);
+    $result = mysqli_stmt_get_result($stmt);
+    $kuehDetails = mysqli_fetch_assoc($result);
 
-    // Convert BLOB image to Base64
-    if ($kuehDetails && isset($kuehDetails['IMAGE'])) {
-        $blobData = $kuehDetails['IMAGE']->load(); // Load BLOB data
-        $base64Image = base64_encode($blobData); // Convert to Base64
-        $kuehDetails['KUEH_IMAGE_BASE64'] = 'data:image/jpeg;base64,' . $base64Image; // Add Base64 string to the array
+    // Convert image filename to file path
+    if ($kuehDetails && !empty($kuehDetails['IMAGE'])) {
+        $imagePath = 'kueh_images/' . $kuehDetails['IMAGE'];
+        if (file_exists($imagePath)) {
+            $kuehDetails['KUEH_IMAGE_PATH'] = $imagePath;
+        } else {
+            $kuehDetails['KUEH_IMAGE_PATH'] = 'sources/default-kueh.jpg';
+        }
+    } else {
+        $kuehDetails['KUEH_IMAGE_PATH'] = 'sources/default-kueh.jpg';
     }
 
+    mysqli_stmt_close($stmt);
     return $kuehDetails;
 }
 
 // Fetch ingredients by kueh_id
 function fetchIngredients($conn, $kueh_id)
 {
-    $sql = "SELECT NAMEITEM FROM ITEMS WHERE KUEHID = :kueh_id"; // Adjust the query as per your table structure
-    $stid = oci_parse($conn, $sql);
-    oci_bind_by_name($stid, ':kueh_id', $kueh_id);
-    oci_execute($stid);
+    $sql = "SELECT NAMEITEM FROM ITEMS WHERE KUEHID = ?";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, 'i', $kueh_id);
+    mysqli_stmt_execute($stmt);
 
+    $result = mysqli_stmt_get_result($stmt);
     $ingredients = [];
-    while ($row = oci_fetch_array($stid, OCI_ASSOC)) {
-        $ingredients[] = $row['NAMEITEM']; // Adjust the column name as per your table
+    while ($row = mysqli_fetch_assoc($result)) {
+        $ingredients[] = $row['NAMEITEM'];
     }
+
+    mysqli_stmt_close($stmt);
     return $ingredients;
 }
 
 // Fetch steps by kueh_id
 function fetchSteps($conn, $kueh_id)
 {
-    $sql = "SELECT STEP FROM steps WHERE KUEHID = :kueh_id"; // Adjust the query as per your table structure
-    $stid = oci_parse($conn, $sql);
-    oci_bind_by_name($stid, ':kueh_id', $kueh_id);
-    oci_execute($stid);
+    $sql = "SELECT STEP FROM steps WHERE KUEHID = ?";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, 'i', $kueh_id);
+    mysqli_stmt_execute($stmt);
 
+    $result = mysqli_stmt_get_result($stmt);
     $steps = [];
-    while ($row = oci_fetch_array($stid, OCI_ASSOC)) {
-        $steps[] = $row['STEP']; // Adjust the column name as per your table
+    while ($row = mysqli_fetch_assoc($result)) {
+        $steps[] = $row['STEP'];
     }
+
+    mysqli_stmt_close($stmt);
     return $steps;
 }
 
 // Function to check if the kueh is in the user's favorites
 function isKuehInFavorites($conn, $kueh_id, $username)
 {
-    $sql = "SELECT COUNT(*) AS count FROM FAVORITE WHERE KUEHID = :kueh_id AND USERNAME = :username";
-    $stid = oci_parse($conn, $sql);
-    oci_bind_by_name($stid, ':kueh_id', $kueh_id);
-    oci_bind_by_name($stid, ':username', $username);
-    oci_execute($stid);
+    $sql = "SELECT COUNT(*) AS count FROM FAVORITE WHERE KUEHID = ? AND USERNAME = ?";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, 'is', $kueh_id, $username);
+    mysqli_stmt_execute($stmt);
 
-    $row = oci_fetch_array($stid, OCI_ASSOC);
-    return ($row['COUNT'] > 0); // Returns true if the kueh is in favorites
+    $result = mysqli_stmt_get_result($stmt);
+    $row = mysqli_fetch_assoc($result);
+
+    mysqli_stmt_close($stmt);
+    return ($row['count'] > 0);
 }
 
 //START============================================================================================================================
@@ -82,10 +97,7 @@ if ($username && $kueh_id) {
 if ($kueh_id) {
     $kuehDetails = fetchKuehDetails($condb, $kueh_id);
     $ingredients = fetchIngredients($condb, $kueh_id);
-
-
     $steps = fetchSteps($condb, $kueh_id);
-    oci_close($condb);
 } else {
     // Handle case where kueh_id is not provided
     die("Kueh ID is missing.");
@@ -96,20 +108,22 @@ $blobQuery = "SELECT COALESCE(u.USERNAME, a.USERNAME) AS USERNAME, COALESCE(u.NA
                     FROM KUEH k
                     LEFT JOIN USERS u ON k.USERNAME = u.USERNAME
                     LEFT JOIN ADMIN a ON k.USERNAME = a.USERNAME
-                    WHERE k.KUEHID = :kuehID
+                    WHERE k.KUEHID = ?
                     ORDER BY k.KUEHID DESC";
 
-$blobStmt = oci_parse($condb, $blobQuery);
-oci_bind_by_name($blobStmt, ':kuehID', $kueh_id);
-oci_execute($blobStmt);
+$blobStmt = mysqli_prepare($condb, $blobQuery);
+mysqli_stmt_bind_param($blobStmt, 'i', $kueh_id);
+mysqli_stmt_execute($blobStmt);
 
-if ($blobRow = oci_fetch_assoc($blobStmt)) {
+$blobResult = mysqli_stmt_get_result($blobStmt);
+if ($blobRow = mysqli_fetch_assoc($blobResult)) {
     $creator['USERNAMECREATOR'] = $blobRow['USERNAME'];
     $creator['NAMECREATOR'] = $blobRow['NAME'];
     $creator['CREATORIMAGE'] = $blobRow['IMAGE'];
 }
 
-oci_free_statement($blobStmt);
+mysqli_stmt_close($blobStmt);
+mysqli_close($condb);
 ?>
 
 <head>
@@ -123,19 +137,21 @@ oci_free_statement($blobStmt);
     <link href="https://fonts.cdnfonts.com/css/product-sans" rel="stylesheet">
     <style>
         .video-container {
-      position: relative;
-      padding-bottom: 56.25%; /* 16:9 aspect ratio */
-      overflow: hidden;
-      height: 0;
-      max-width: 100%;
-    }
-    .video-container iframe {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-    }
+            position: relative;
+            padding-bottom: 56.25%;
+            /* 16:9 aspect ratio */
+            overflow: hidden;
+            height: 0;
+            max-width: 100%;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
     </style>
 </head>
 
@@ -144,12 +160,12 @@ oci_free_statement($blobStmt);
     <div class="container w-75">
         <div class="row">
             <div class="col-12 col-md-4 my-4">
-                <?php if (isset($kuehDetails['KUEH_IMAGE_BASE64'])): ?>
+                <?php if (isset($kuehDetails['KUEH_IMAGE_PATH'])): ?>
                     <!-- Fixed size image container -->
                     <div style="width: 300px; height: 300px; overflow: hidden; border-radius: 10px;">
-                        <img src="<?php echo $kuehDetails['KUEH_IMAGE_BASE64']; ?>"
+                        <img src="<?php echo htmlspecialchars($kuehDetails['KUEH_IMAGE_PATH']); ?>"
                             class="img-fluid text-center rounded-3"
-                            alt="<?php echo $kuehDetails['KUEHNAME']; ?>"
+                            alt="<?php echo htmlspecialchars($kuehDetails['KUEHNAME']); ?>"
                             style="width: 100%; height: 100%; object-fit: cover;">
                     </div>
                 <?php else: ?>
@@ -162,18 +178,17 @@ oci_free_statement($blobStmt);
                 </div>
                 <div class="col-12">
                     <div class="d-flex align-items-center my-2">
-                    <?PHP
-                                                        if ($creator['CREATORIMAGE'] != null) {
-                                                            ?><img src="<?= $creator['CREATORIMAGE'] ?>"
-                                                                alt="Profile Picture" class="rounded-circle me-2 border" width="40"
-                                                                height="40"><?PHP
-                                                        } else {
-                                                            ?>
-                                                            <img src="sources/header/logo.png" alt="Profile Picture"
-                                                                class="rounded-circle me-2 border" width="40" height="40"><?PHP
-                                                        }
-                                                        ?>
-                        
+                        <?PHP
+                        // Default profile image URL
+                        $defaultProfileImage = 'https://static.vecteezy.com/system/resources/previews/024/983/914/non_2x/simple-user-default-icon-free-png.png';
+                        $profileImage = !empty($creator['CREATORIMAGE']) ? $creator['CREATORIMAGE'] : $defaultProfileImage;
+                        ?>
+                        <img src="<?= htmlspecialchars($profileImage) ?>"
+                            alt="Profile Picture"
+                            class="rounded-circle me-2 border"
+                            width="40" height="40"
+                            onerror="this.src='<?= $defaultProfileImage ?>';">
+
                         <div class="ms-3">
                             <h6 class="mb-0"><?php echo $creator['NAMECREATOR'] ?></h6> <!--NAMA ORANG SHARE KUIH -->
                             <!-- <small class="text-muted">@Uchu • Pahang, Malaysia</small> -->
@@ -186,37 +201,34 @@ oci_free_statement($blobStmt);
                 </p>
                 <div class="mt-auto">
                     <?php
-                    if($creator['USERNAMECREATOR']==($_SESSION['username'])){
-                        echo '<a href="editKueh.php?kuehId='.$kueh_id.'" type="button" class="btn btn-outline-primary me-2 fw-bold"><i class="bi bi-pencil-square"></i> Sunting</a>';
-                        echo '<a href="deleteKueh.php?jadual=KUEH&medan_kp=KUEHID&kp='.$kueh_id.'" type="button" class="btn btn-outline-danger me-2 fw-bold" onClick=\"return confirm("Confirm to delete data?")\"><i class="bi bi-trash"></i> Padam</a>';
-
-                    
-                    }else{ ?>
+                    if (isset($_SESSION['username']) && $creator['USERNAMECREATOR'] == $_SESSION['username']) {
+                        echo '<a href="editKueh.php?kuehId=' . $kueh_id . '" type="button" class="btn btn-outline-primary me-2 fw-bold"><i class="bi bi-pencil-square"></i> Sunting</a>';
+                        echo '<a href="deleteKueh.php?jadual=KUEH&medan_kp=KUEHID&kp=' . $kueh_id . '" type="button" class="btn btn-outline-danger me-2 fw-bold" onClick=\"return confirm("Confirm to delete data?")\"><i class="bi bi-trash"></i> Padam</a>';
+                    } else { ?>
                         <button type="button"
-                        class="btn <?php echo $isFavorite ? 'btn-warning' : 'btn-outline-warning'; ?> me-2 fw-bold"
-                        id="saveRecipeButton"
-                        onclick="toggleFavorite(<?php echo $kueh_id; ?>)">
-                        <i class="bi <?php echo $isFavorite ? 'bi-bookmark-fill' : 'bi-bookmark'; ?>"></i> Simpan Resipi
-                    </button>
+                            class="btn <?php echo $isFavorite ? 'btn-warning' : 'btn-outline-warning'; ?> me-2 fw-bold"
+                            id="saveRecipeButton"
+                            onclick="toggleFavorite(<?php echo $kueh_id; ?>)">
+                            <i class="bi <?php echo $isFavorite ? 'bi-bookmark-fill' : 'bi-bookmark'; ?>"></i> Simpan Resipi
+                        </button>
                     <?php }
                     ?>
-                    <button type="button" class="btn btn-outline-secondary me-2 fw-bold"><i class="bi bi-folder-plus"></i> Tambah ke folder</button>
                     <button type="button" class="btn btn-outline-secondary me-2 fw-bold" onclick="copyToClipboard()">
                         <i class="bi bi-upload"></i> Kongsi
                     </button>
                     <button type="button" class="btn btn-success me-2 fw-bold" onclick="copyToWhatsapp()">
                         <i class="bi bi-whatsapp"></i> Kongsi ke Whatsapp
                     </button>
-                    
+
                 </div>
             </div>
         </div>
-        
+
         <div class="row mt-5">
-            <?php if($kuehDetails['VIDEO'] != null) { ?>
-        <h1 class="fw-bolder">Video Rujukan</h1>
-        <div class="video-container w3-margin"><iframe id="youtube-embed" frameborder="0" allowfullscreen></iframe></div>
-        <?php } ?>
+            <?php if ($kuehDetails['VIDEO'] != null) { ?>
+                <h1 class="fw-bolder">Video Rujukan</h1>
+                <div class="video-container w3-margin"><iframe id="youtube-embed" frameborder="0" allowfullscreen></iframe></div>
+            <?php } ?>
 
             <div class="col-12 col-lg-3 col-md-6 py-3">
                 <h1 class="fw-bolder">Ramuan</h1>
@@ -258,19 +270,19 @@ oci_free_statement($blobStmt);
 
     // Function to extract video ID from URL
     function getVideoId(url) {
-  if (url.includes("v=")) {
-    // For full URLs (https://www.youtube.com/watch?v=...)
-    const videoId = url.split("v=")[1];
-    const ampersandPosition = videoId.indexOf("&");
-    return ampersandPosition !== -1 ? videoId.substring(0, ampersandPosition) : videoId;
-  } else if (url.includes("youtu.be")) {
-    // For shortened URLs (https://youtu.be/...)
-    const videoId = url.split("/").pop(); // Get the last part of the URL
-    const questionMarkPosition = videoId.indexOf("?");
-    return questionMarkPosition !== -1 ? videoId.substring(0, questionMarkPosition) : videoId;
-  }
-  return null; // Return null if the URL is invalid
-}
+        if (url.includes("v=")) {
+            // For full URLs (https://www.youtube.com/watch?v=...)
+            const videoId = url.split("v=")[1];
+            const ampersandPosition = videoId.indexOf("&");
+            return ampersandPosition !== -1 ? videoId.substring(0, ampersandPosition) : videoId;
+        } else if (url.includes("youtu.be")) {
+            // For shortened URLs (https://youtu.be/...)
+            const videoId = url.split("/").pop(); // Get the last part of the URL
+            const questionMarkPosition = videoId.indexOf("?");
+            return questionMarkPosition !== -1 ? videoId.substring(0, questionMarkPosition) : videoId;
+        }
+        return null; // Return null if the URL is invalid
+    }
 
     // Set the iframe src dynamically
     const videoId = getVideoId(youtubeUrl);
@@ -319,15 +331,16 @@ oci_free_statement($blobStmt);
                 console.error('Failed to copy link: ', error);
             });
     }
+
     function copyToWhatsapp() {
         // Get the current URL
         const currentUrl = window.location.href;
 
         // Copy the URL to the clipboard
-        const message = "Check out this kuih I found on Kueh Legacy! "+" "+currentUrl;
+        const message = "Check out this kuih I found on Kueh Legacy! " + " " + currentUrl;
         const encodedMessage = encodeURIComponent(message);
         const url = `https://wa.me/?text=${encodedMessage}`;
-        
+
         // Open WhatsApp in a new tab
         window.open(url, '_blank')
 

@@ -41,80 +41,53 @@ if (!isset($adminid)) {
 $arahan_sql_bilkueh = "SELECT COUNT(KUEHID) AS BILKUEH FROM KUEH";
 
 // Laksanakan arahan mencari bilangan kereta yang ada yang pernah berdaftar
-$laksana_sql_bilkueh = oci_parse($condb, $arahan_sql_bilkueh);
-
-$execute_bilkueh = oci_execute($laksana_sql_bilkueh);
+$laksana_sql_bilkueh = mysqli_prepare($condb, $arahan_sql_bilkueh);
+mysqli_stmt_execute($laksana_sql_bilkueh);
+$result_bilkueh = mysqli_stmt_get_result($laksana_sql_bilkueh);
 
 // pembolehubah $rekod_bilkereta mengambil data bilangan kereta yang pernah berdaftar
-$rekod_bilkueh = oci_fetch_assoc($laksana_sql_bilkueh);
+$rekod_bilkueh = mysqli_fetch_assoc($result_bilkueh);
 
-/* // -----------------------------------------------------------------------------
-// arahan SQL untuk mencari bilangan kereta yang telah ada di jual (jadual pembelian)
-$arahan_sql_bilkeretajual = "SELECT COUNT(KUEHID) AS BIL_KUEH FROM PURCHASE";
-
-// laksanakan arahan  mencari bilangan kereta yang telah ada di jual
-$laksana_sql_bilkeretajual = oci_parse($condb, $arahan_sql_bilkeretajual);
-
-$execute_bilkeretajual = oci_execute($laksana_sql_bilkeretajual);
-
-// pembolehubah $rekod_bilkeretajual mengambil data bilangan kereta yang telah dijual
-$rekod_bilkeretajual = oci_fetch_assoc($laksana_sql_bilkeretajual);
-
-// -----------------------------------------------------------------------------
-// arahan SQL untuk mengira jumlah harga_awal kereta yang telah dijual
-$arahan_sql_untung = "SELECT SUM(INITIALPRICE) AS untung FROM CAR
-WHERE NUMPLATE IN (SELECT NUMPLATE FROM PURCHASE)";
-
-// laksanakan arahan mengira jumlah harga_awal kereta yang telah dijual
-$laksana_sql_untung = oci_parse($condb, $arahan_sql_untung);
-
-$execute_untung = oci_execute($laksana_sql_untung);
-
-
-// pemboleh ubah $rekod_untung mengambil data jumlah keuntungan
-$rekod_untung = oci_fetch_assoc($laksana_sql_untung);
- */
 // -----------------------------------------------------------------------------
 $arahan_sql_biladmin = "SELECT COUNT(USERNAME) AS biladmin FROM ADMIN";
 
 // Laksanakan arahan mencari bilangan kereta yang ada yang pernah berdaftar
-$laksana_sql_biladmin = oci_parse($condb, $arahan_sql_biladmin);
-
-$execute_biladmin = oci_execute($laksana_sql_biladmin);
+$laksana_sql_biladmin = mysqli_prepare($condb, $arahan_sql_biladmin);
+mysqli_stmt_execute($laksana_sql_biladmin);
+$result_biladmin = mysqli_stmt_get_result($laksana_sql_biladmin);
 
 // pembolehubah $rekod_biladmin mengambil data bilangan admin
-$rekod_biladmin = oci_fetch_assoc($laksana_sql_biladmin);
+$rekod_biladmin = mysqli_fetch_assoc($result_biladmin);
 
 /* users count */
 $arahan_sql_bilcust = "SELECT COUNT(USERNAME) AS bilcust FROM USERS";
 
 // Laksanakan arahan mencari bilangan pelanggan
-$laksana_sql_bilcust = oci_parse($condb, $arahan_sql_bilcust);
-
-$execute_bilcust = oci_execute($laksana_sql_bilcust);
+$laksana_sql_bilcust = mysqli_prepare($condb, $arahan_sql_bilcust);
+mysqli_stmt_execute($laksana_sql_bilcust);
+$result_bilcust = mysqli_stmt_get_result($laksana_sql_bilcust);
 
 // pembolehubah $rekod_bilcust mengambil data bilangan pelanggan
-$rekod_bilcust = oci_fetch_assoc($laksana_sql_bilcust);
+$rekod_bilcust = mysqli_fetch_assoc($result_bilcust);
 
 // --------------------------------------------------------------------------------------------------------------------
 $arahan_sql_biltype = "SELECT COUNT(FOODTYPECODE) AS biltype FROM FOODTYPE";
 
 // Laksanakan arahan mencari bilangan kereta yang ada yang pernah berdaftar
-$laksana_sql_biltype = oci_parse($condb, $arahan_sql_biltype);
-
-
-$execute_biltype = oci_execute($laksana_sql_biltype);
+$laksana_sql_biltype = mysqli_prepare($condb, $arahan_sql_biltype);
+mysqli_stmt_execute($laksana_sql_biltype);
+$result_biltype = mysqli_stmt_get_result($laksana_sql_biltype);
 
 // pembolehubah $rekod_biladmin mengambil data bilangan admin
-$rekod_biltype = oci_fetch_assoc($laksana_sql_biltype);
+$rekod_biltype = mysqli_fetch_assoc($result_biltype);
 
 
 // ---  End of Queries ----
 // Free resources at the end to avoid issues later
-oci_free_statement($laksana_sql_bilkueh);
-oci_free_statement($laksana_sql_biltype);
-oci_free_statement($laksana_sql_biladmin);
-oci_free_statement($laksana_sql_bilcust);
+mysqli_stmt_close($laksana_sql_bilkueh);
+mysqli_stmt_close($laksana_sql_biltype);
+mysqli_stmt_close($laksana_sql_biladmin);
+mysqli_stmt_close($laksana_sql_bilcust);
 
 // Note that connection is not closed, as it is used by the next scripts
 
@@ -136,7 +109,7 @@ oci_free_statement($laksana_sql_bilcust);
           <div class="w3-left "><i class="fas fa-cookie w3-xxxlarge" style="padding-top: 10px;"></i></div>
           <div class="w3-right">
             <h2 class="num">
-              <?php echo $rekod_bilkueh['BILKUEH']; ?>
+              <?php echo $rekod_bilkueh['bilkueh']; ?>
             </h2>
           </div>
           <div class="w3-clear"></div>
@@ -148,7 +121,7 @@ oci_free_statement($laksana_sql_bilcust);
           <div class="w3-left "><i class="fas fa-cookie w3-xxxlarge" style="padding-top: 10px;"></i></div>
           <div class="w3-right">
             <h2 class="num">
-              <?php echo $rekod_biltype['BILTYPE']; ?>
+              <?php echo $rekod_biltype['biltype']; ?>
             </h2>
           </div>
           <div class="w3-clear"></div>
@@ -200,7 +173,7 @@ oci_free_statement($laksana_sql_bilcust);
           <div class="w3-left "><i class="fas fa-user w3-xxxlarge" style="padding-top: 10px;"></i></div>
           <div class="w3-right">
             <h2 class="num">
-              <?php echo $rekod_bilcust['BILCUST']; ?>
+              <?php echo $rekod_bilcust['bilcust']; ?>
             </h2>
           </div>
           <div class="w3-clear"></div>
@@ -212,7 +185,7 @@ oci_free_statement($laksana_sql_bilcust);
           <div class="w3-left"><i class="fas fa-user w3-xxxlarge" style="padding-top: 10px;"></i></div>
           <div class="w3-right">
             <h2 class="num">
-              <?php echo $rekod_biladmin['BILADMIN']; ?>
+              <?php echo $rekod_biladmin['biladmin']; ?>
             </h2>
           </div>
           <div class="w3-clear"></div>

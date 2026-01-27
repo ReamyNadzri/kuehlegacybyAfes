@@ -3,26 +3,26 @@ include('header_admin.php');
 include('connection.php');
 
 // SQL Query to count total users who uploaded data
-$userCountSql = "SELECT COUNT(DISTINCT USERNAME) AS total_users
-                 FROM KUEH";
-
-$userCountStmt = oci_parse($condb, $userCountSql);
-oci_execute($userCountStmt);
-$userCountRow = oci_fetch_assoc($userCountStmt);
-$totalUsers = $userCountRow['TOTAL_USERS'];
+$userCountSql = "SELECT COUNT(DISTINCT USERNAME) AS total_users FROM KUEH";
+$userCountStmt = mysqli_prepare($condb, $userCountSql);
+mysqli_stmt_execute($userCountStmt);
+$result = mysqli_stmt_get_result($userCountStmt);
+$userCountRow = mysqli_fetch_assoc($result);
+$totalUsers = $userCountRow['total_users'];
+mysqli_stmt_close($userCountStmt);
 
 // SQL Query to count total kueh added
-$kuehCountSql = "SELECT COUNT(*) AS total_kueh
-                 FROM KUEH";
-
-$kuehCountStmt = oci_parse($condb, $kuehCountSql);
-oci_execute($kuehCountStmt);
-$kuehCountRow = oci_fetch_assoc($kuehCountStmt);
-$totalKueh = $kuehCountRow['TOTAL_KUEH'];
+$kuehCountSql = "SELECT COUNT(*) AS total_kueh FROM KUEH";
+$kuehCountStmt = mysqli_prepare($condb, $kuehCountSql);
+mysqli_stmt_execute($kuehCountStmt);
+$result2 = mysqli_stmt_get_result($kuehCountStmt);
+$kuehCountRow = mysqli_fetch_assoc($result2);
+$totalKueh = $kuehCountRow['total_kueh'];
+mysqli_stmt_close($kuehCountStmt);
 
 // SQL Query to retrieve kueh data 
-$sql = "SELECT K.KUEHID, K.KUEHNAME, P.LEVELSTAR, O.ORIGINCODE AS ORIGINID, 
-               O.NAMESTATE AS STATE, P.POPULARID, P.RATING, K.IMAGE, 
+$sql = "SELECT K.KUEHID, K.KUEHNAME, P.LEVEL, O.ORIGINCODE AS ORIGINID, 
+               O.NAMESTATE AS STATE, P.POPULARID, K.IMAGE, 
                COALESCE(A.USERNAME, U.USERNAME) AS UPLOADED_BY
         FROM KUEH K
         LEFT JOIN POPULARITY P ON K.POPULARID = P.POPULARID
@@ -30,8 +30,9 @@ $sql = "SELECT K.KUEHID, K.KUEHNAME, P.LEVELSTAR, O.ORIGINCODE AS ORIGINID,
         LEFT JOIN USERS U ON K.USERNAME = U.USERNAME
         LEFT JOIN ADMIN A ON K.USERNAME = A.USERNAME";
 
-$stmt = oci_parse($condb, $sql);
-oci_execute($stmt);
+$stmt = mysqli_prepare($condb, $sql);
+mysqli_stmt_execute($stmt);
+$kueh_result = mysqli_stmt_get_result($stmt);
 ?>
 
 <body style="background-color: #FFFAF0;">
@@ -66,19 +67,14 @@ oci_execute($stmt);
             <td>Origin ID</td>
             <td>State</td>
             <td>Popularity ID</td>
-            <td>Rating</td>
             <td>Image</td>
         </tr>
 
         <?php
         $bil = 0;
-        while ($row = oci_fetch_assoc($stmt)) {
+        while ($row = mysqli_fetch_assoc($kueh_result)) {
 
-            $imageData = $row['IMAGE'];
-            $imageBase64 = "";
-            if ($imageData instanceof OCILob) {
-                $imageBase64 = base64_encode($imageData->load());
-            }
+            $imagePath = !empty($row['IMAGE']) ? '../kueh_images/' . $row['IMAGE'] : null;
 
             // Show the admin or user who uploaded the kueh
             echo "<tr>
@@ -86,15 +82,14 @@ oci_execute($stmt);
                     <td>" . (!empty($row['UPLOADED_BY']) ? $row['UPLOADED_BY'] : $_SESSION['admin_username']) . "</td>
                     <td>{$row['KUEHID']}</td>
                     <td>{$row['KUEHNAME']}</td>
-                    <td>{$row['LEVELSTAR']}</td>
+                    <td>{$row['LEVEL']}</td>
                     <td>{$row['ORIGINID']}</td>
                     <td>{$row['STATE']}</td>
                     <td>{$row['POPULARID']}</td>
-                    <td>{$row['RATING']}</td>
                     <td>";
 
-            if (!empty($imageBase64)) {
-                echo "<img src='data:image/jpeg;base64,{$imageBase64}' alt='Kueh Image' width='100' height='100'>";
+            if ($imagePath && file_exists($imagePath)) {
+                echo "<img src='{$imagePath}' alt='Kueh Image' width='100' height='100'>";
             } else {
                 echo "No Image";
             }
@@ -106,10 +101,8 @@ oci_execute($stmt);
     </table>
 
     <?php
-    oci_free_statement($stmt);
-    oci_free_statement($userCountStmt);
-    oci_free_statement($kuehCountStmt);
-    oci_close($condb);
+    mysqli_stmt_close($stmt);
+    mysqli_close($condb);
     ?>
 
 </body>

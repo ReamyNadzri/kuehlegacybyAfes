@@ -7,73 +7,61 @@ $foodName = htmlspecialchars($_GET['search'] ?? ''); // Sanitize input
 $withIngredients = isset($_GET['with']) ? array_filter(explode(',', $_GET['with'])) : [];
 $withoutIngredients = isset($_GET['without']) ? array_filter(explode(',', $_GET['without'])) : [];
 
-// Prepare base SQL statement
-$sql = "SELECT k.KUEHID, k.KUEHNAME, LISTAGG(i.NAMEITEM, ', ') WITHIN GROUP (ORDER BY i.NAMEITEM) AS ITEMS
+// Prepare base SQL statement (converted LISTAGG to GROUP_CONCAT)
+$sql = "SELECT k.KUEHID, k.KUEHNAME, k.IMAGE, GROUP_CONCAT(i.NAMEITEM ORDER BY i.NAMEITEM SEPARATOR ', ') AS ITEMS
         FROM KUEH k
         JOIN ITEMS i ON k.KUEHID = i.KUEHID
-        WHERE UPPER(k.KUEHNAME) LIKE '%' || UPPER(:search) || '%'
-        GROUP BY k.KUEHID, k.KUEHNAME";
+        WHERE UPPER(k.KUEHNAME) LIKE UPPER(CONCAT('%', ?, '%'))
+        GROUP BY k.KUEHID, k.KUEHNAME, k.IMAGE";
 
-$stid = oci_parse($condb, $sql);
-oci_bind_by_name($stid, ':search', $foodName);
+$stmt = mysqli_prepare($condb, $sql);
+mysqli_stmt_bind_param($stmt, 's', $foodName);
 
 // Execute the query
-if (oci_execute($stid)) {
+if (mysqli_stmt_execute($stmt)) {
+    $result = mysqli_stmt_get_result($stmt);
     $recipes = [];
     $total_recipes = 0;
 
-    while ($row = oci_fetch_assoc($stid)) {
-        // Fetch BLOB data for the image
-        $blobQuery = "SELECT IMAGE FROM KUEH WHERE KUEHID = :kuehID";
-        $blobStmt = oci_parse($condb, $blobQuery);
-        oci_bind_by_name($blobStmt, ':kuehID', $row['KUEHID']);
-        if (!oci_execute($blobStmt)) {
-            $error = oci_error($blobStmt);
-            error_log("Database error: " . $error['message']);
-            continue; // Skip this row if there's an error
+    while ($row = mysqli_fetch_assoc($result)) {
+        // Image is now a filename
+        if (!empty($row['IMAGE']) && file_exists('kueh_images/' . $row['IMAGE'])) {
+            $row['IMAGE_DATA_URI'] = 'kueh_images/' . $row['IMAGE'];
+        } else {
+            $row['IMAGE_DATA_URI'] = 'sources/default-kueh.jpg'; // Default image
         }
-
-        if ($blobRow = oci_fetch_assoc($blobStmt)) {
-            $blobData = $blobRow['IMAGE']->load(); // Fetch BLOB data
-            $row['IMAGE_DATA_URI'] = 'data:image/jpeg;base64,' . base64_encode($blobData);
-        }
-        oci_free_statement($blobStmt);
 
         // Fetch the creator's name
-        $blobQuery = "SELECT COALESCE(u.NAME, a.NAME) AS NAME
-              FROM KUEH k
-              LEFT JOIN USERS u ON k.USERNAME = u.USERNAME
-              LEFT JOIN ADMIN a ON k.USERNAME = a.USERNAME
-              WHERE k.KUEHID = :kuehID";
-        $blobStmt = oci_parse($condb, $blobQuery);
-        oci_bind_by_name($blobStmt, ':kuehID', $row['KUEHID']);
-        if (!oci_execute($blobStmt)) {
-            $error = oci_error($blobStmt);
-            error_log("Database error: " . $error['message']);
-            continue; // Skip this row if there's an error
-        }
+        $sql_creator = "SELECT COALESCE(u.NAME, a.NAME) AS NAME
+                        FROM KUEH k
+                        LEFT JOIN USERS u ON k.USERNAME = u.USERNAME
+                        LEFT JOIN ADMIN a ON k.USERNAME = a.USERNAME
+                        WHERE k.KUEHID = ?";
+        $stmt_creator = mysqli_prepare($condb, $sql_creator);
+        mysqli_stmt_bind_param($stmt_creator, 'i', $row['KUEHID']);
 
-        if ($blobRow = oci_fetch_assoc($blobStmt)) {
-            $row['NAMECREATOR'] = $blobRow['NAME'];
+        if (mysqli_stmt_execute($stmt_creator)) {
+            $result_creator = mysqli_stmt_get_result($stmt_creator);
+            if ($creator_row = mysqli_fetch_assoc($result_creator)) {
+                $row['NAMECREATOR'] = $creator_row['NAME'];
+            }
         }
-        oci_free_statement($blobStmt);
+        mysqli_stmt_close($stmt_creator);
 
         // Check if the kueh is in the user's favorites
         $username = $_SESSION['username'] ?? null;
         $isFavorite = false;
         if ($username) {
-            $sql_check = "SELECT COUNT(*) AS count FROM FAVORITE WHERE KUEHID = :kueh_id AND USERNAME = :username";
-            $stid_check = oci_parse($condb, $sql_check);
-            oci_bind_by_name($stid_check, ':kueh_id', $row['KUEHID']);
-            oci_bind_by_name($stid_check, ':username', $username);
-            if (!oci_execute($stid_check)) {
-                $error = oci_error($stid_check);
-                error_log("Database error: " . $error['message']);
-                continue; // Skip this row if there's an error
-            }
+            $sql_check = "SELECT COUNT(*) AS count FROM FAVORITE WHERE KUEHID = ? AND USERNAME = ?";
+            $stmt_check = mysqli_prepare($condb, $sql_check);
+            mysqli_stmt_bind_param($stmt_check, 'is', $row['KUEHID'], $username);
 
-            $favoriteRow = oci_fetch_array($stid_check, OCI_ASSOC);
-            $isFavorite = ($favoriteRow['COUNT'] > 0);
+            if (mysqli_stmt_execute($stmt_check)) {
+                $result_check = mysqli_stmt_get_result($stmt_check);
+                $favoriteRow = mysqli_fetch_assoc($result_check);
+                $isFavorite = ($favoriteRow['count'] > 0);
+            }
+            mysqli_stmt_close($stmt_check);
         }
         $row['IS_FAVORITE'] = $isFavorite;
 
@@ -109,14 +97,14 @@ if (oci_execute($stid)) {
             $total_recipes++;
         }
     }
-    oci_free_statement($stid);
+
+    mysqli_stmt_close($stmt);
 } else {
-    $error = oci_error($stid);
-    error_log("Database error: " . $error['message']);
-    die("Database error: " . $error['message']);
+    error_log("Database error: " . mysqli_error($condb));
+    die("Database error: " . mysqli_error($condb));
 }
 
-oci_close($condb);
+mysqli_close($condb);
 
 // Prepare the response
 $response = [

@@ -2,11 +2,15 @@
 
 require __DIR__ . "/vendor/autoload.php";
 
+// Load environment variables
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
 $client = new Google\Client;
 
-$client->setClientId("86003731304-ujapfaslp3bk71imksdn5oq21ebl8i07.apps.googleusercontent.com");
-$client->setClientSecret("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");
-$client->setRedirectUri("http://localhost/kuehlegacybyAfes/callback.php");
+$client->setClientId($_ENV['GOOGLE_CLIENT_ID']);
+$client->setClientSecret($_ENV['GOOGLE_CLIENT_SECRET']);
+$client->setRedirectUri($_ENV['GOOGLE_REDIRECT_URI']);
 
 $client->addScope("email");
 $client->addScope("profile");
@@ -26,18 +30,14 @@ if (isset($_POST['login'])) {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
+    $sql = "SELECT * FROM users WHERE email = ? AND password = ?";
 
-    $sql = "SELECT * FROM users WHERE email = :email AND password = :password";
+    $stmt = mysqli_prepare($condb, $sql);
+    mysqli_stmt_bind_param($stmt, 'ss', $email, $password);
+    mysqli_stmt_execute($stmt);
 
-    $stmt = oci_parse($condb, $sql);
-
-    oci_bind_by_name($stmt, ':email', $email);
-    oci_bind_by_name($stmt, ':password', $password);
-
-    oci_execute($stmt);
-
-
-    $user = oci_fetch_assoc($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $user = mysqli_fetch_assoc($result);
 
     if ($user) {
         // Successful login
@@ -313,7 +313,7 @@ if (isset($_POST['login'])) {
     </div>
 
     <div class="image-side right-image">
-    
+
         <img src="sources/register/kueh1.png" alt="Right Image" class="img-fluid">
     </div><iframe width="100" height="15" src="https://www.myinstants.com/instant/diamlah-bodoh-11927/embed/" frameborder="0" scrolling="no"></iframe>
 
@@ -321,20 +321,20 @@ if (isset($_POST['login'])) {
 
 <img src="sources/footer/footer.png" alt="" style="width: 100%;">
 <script>
-        // Display success message if it exists
-        <?php if (isset($successMessage)): ?>
-            Swal.fire({
-                toast: true,
-                position: 'top',
-                icon: 'success',
-                title: '<?php echo $successMessage; ?>',
-                showConfirmButton: false,
-                timer: 3000, // Auto-close after 3 seconds
-                timerProgressBar: true,
-                didOpen: (toast) => {
-                    toast.addEventListener('mouseenter', Swal.stopTimer);
-                    toast.addEventListener('mouseleave', Swal.resumeTimer);
-                }
-            });
-        <?php endif; ?>
-    </script>
+    // Display success message if it exists
+    <?php if (isset($successMessage)): ?>
+        Swal.fire({
+            toast: true,
+            position: 'top',
+            icon: 'success',
+            title: '<?php echo $successMessage; ?>',
+            showConfirmButton: false,
+            timer: 3000, // Auto-close after 3 seconds
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer);
+                toast.addEventListener('mouseleave', Swal.resumeTimer);
+            }
+        });
+    <?php endif; ?>
+</script>

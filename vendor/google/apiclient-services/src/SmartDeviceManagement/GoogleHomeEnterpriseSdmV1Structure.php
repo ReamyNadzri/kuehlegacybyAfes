@@ -20,16 +20,48 @@ namespace Google\Service\SmartDeviceManagement;
 class GoogleHomeEnterpriseSdmV1Structure extends \Google\Model
 {
   /**
+   * Output only. The unique identifier for the structure in Google Home
+   * Platform. Format: homegraph.googleapis.com/Structure/{structure_id}
+   *
+   * @var string
+   */
+  public $ghpName;
+  /**
+   * Output only. The resource name of the structure. For example:
+   * "enterprises/XYZ/structures/ABC".
+   *
    * @var string
    */
   public $name;
   /**
+   * Structure traits.
+   *
    * @var array[]
    */
   public $traits;
 
   /**
-   * @param string
+   * Output only. The unique identifier for the structure in Google Home
+   * Platform. Format: homegraph.googleapis.com/Structure/{structure_id}
+   *
+   * @param string $ghpName
+   */
+  public function setGhpName($ghpName)
+  {
+    $this->ghpName = $ghpName;
+  }
+  /**
+   * @return string
+   */
+  public function getGhpName()
+  {
+    return $this->ghpName;
+  }
+  /**
+   * Output only. The resource name of the structure. For example:
+   * "enterprises/XYZ/structures/ABC".
+   *
+   * @param string $name
    */
   public function setName($name)
   {
@@ -43,7 +75,9 @@ class GoogleHomeEnterpriseSdmV1Structure extends \Google\Model
     return $this->name;
   }
   /**
-   * @param array[]
+   * Structure traits.
+   *
+   * @param array[] $traits
    */
   public function setTraits($traits)
   {

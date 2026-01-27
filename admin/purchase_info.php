@@ -3,14 +3,15 @@ include('header_admin.php');
 include('connection.php');
 
 
-$sql = "SELECT K.KUEHID, K.KUEHNAME, P.LEVELSTAR, O.ORIGINCODE AS ORIGINID, O.NAMESTATE AS STATE, P.POPULARID, P.RATING, K.IMAGE, U.USERNAME 
+$sql = "SELECT K.KUEHID, K.KUEHNAME, P.LEVEL, O.ORIGINCODE AS ORIGINID, O.NAMESTATE AS STATE, P.POPULARID, K.IMAGE, U.USERNAME 
         FROM USERS U
         JOIN FAVORITE F ON U.USERNAME = F.USERNAME
         JOIN KUEH K ON F.KUEHID = K.KUEHID
         JOIN POPULARITY P ON K.POPULARID = P.POPULARID
         JOIN ORIGIN O ON K.ORIGINID = O.ORIGINCODE";
-$stmt = oci_parse($condb, $sql);
-oci_execute($stmt);
+$stmt = mysqli_prepare($condb, $sql);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
 ?>
 
 <body class="" style="background-color: #FFFAF0;">
@@ -32,35 +33,39 @@ oci_execute($stmt);
             <td>Origin ID</td>
             <td>State</td>
             <td>Popularity ID</td>
-            <td>Rating</td>
             <td>Image</td>
         </tr>
 
         <?php
         $bil = 0;
-       
-        while ($row = oci_fetch_assoc($stmt)) {
+
+        while ($row = mysqli_fetch_assoc($result)) {
+            $imagePath = !empty($row['IMAGE']) ? '../kueh_images/' . $row['IMAGE'] : null;
             echo "<tr>
                     <td>" . ++$bil . "</td>
                     <td>{$row['USERNAME']}</td>
                     <td>{$row['KUEHID']}</td>
                     <td>{$row['KUEHNAME']}</td>
-                    <td>{$row['LEVELSTAR']}</td>
+                    <td>{$row['LEVEL']}</td>
                     <td>{$row['ORIGINID']}</td>
                     <td>{$row['STATE']}</td>
                     <td>{$row['POPULARID']}</td>
-                    <td>{$row['RATING']}</td>
-                    <td><img src='data:image/jpeg;base64," . base64_encode($row['IMAGE']) . "' alt='Kueh Image' width='100' height='100'></td>
-                </tr>";
+                    <td>";
+            if ($imagePath && file_exists($imagePath)) {
+                echo "<img src='{$imagePath}' alt='Kueh Image' width='100' height='100'>";
+            } else {
+                echo "No Image";
+            }
+            echo "</td></tr>";
         }
         ?>
 
     </table>
 
     <?php
-   
-    oci_free_statement($stmt);
-    oci_close($condb);
+
+    mysqli_stmt_close($stmt);
+    mysqli_close($condb);
     ?>
 
 </body>

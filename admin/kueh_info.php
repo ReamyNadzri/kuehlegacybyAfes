@@ -19,8 +19,9 @@ $arahan_sql_cari = "
 ";
 
 // melaksanakan arahan sql cari tersebut
-$laksana_sql_cari = oci_parse($condb, $arahan_sql_cari);
-$execute_sql_cari = oci_execute($laksana_sql_cari);
+$laksana_sql_cari = mysqli_prepare($condb, $arahan_sql_cari);
+mysqli_stmt_execute($laksana_sql_cari);
+$result_sql_cari = mysqli_stmt_get_result($laksana_sql_cari);
 
 ?>
 
@@ -37,13 +38,16 @@ $execute_sql_cari = oci_execute($laksana_sql_cari);
 
     .text-truncate {
         display: -webkit-box;
-        -webkit-line-clamp: 3; /* Limits to 3 lines */
+        -webkit-line-clamp: 3;
+        /* Limits to 3 lines */
         -webkit-box-orient: vertical;
         overflow: hidden;
         text-overflow: ellipsis;
-        max-width: 250px; /* Adjust as needed */
+        max-width: 250px;
+        /* Adjust as needed */
         word-wrap: break-word;
-        white-space: normal; /* Ensures text wraps properly */
+        white-space: normal;
+        /* Ensures text wraps properly */
     }
 </style>
 
@@ -76,12 +80,14 @@ $execute_sql_cari = oci_execute($laksana_sql_cari);
             <tbody>
                 <?php
                 $bil = 0;
-                while ($rekod = oci_fetch_assoc($laksana_sql_cari)) {
-                    // Fetch image BLOB data and convert it to base64
-                    $imageData = $rekod['IMAGE'];
-                    $base64Image = '';
-                    if ($imageData instanceof OCILob && $imageData->size() > 0) {
-                        $base64Image = base64_encode($imageData->load());
+                while ($rekod = mysqli_fetch_assoc($result_sql_cari)) {
+                    // Convert image filename to file path
+                    $imagePath = '';
+                    if (!empty($rekod['IMAGE'])) {
+                        $imageFile = '../kueh_images/' . $rekod['IMAGE'];
+                        $imagePath = file_exists($imageFile) ? $imageFile : '../sources/default-kueh.jpg';
+                    } else {
+                        $imagePath = '../sources/default-kueh.jpg';
                     }
 
                     echo "<tr>
@@ -92,8 +98,8 @@ $execute_sql_cari = oci_execute($laksana_sql_cari);
                         <td class='w3-center' style='vertical-align: middle;'>" . htmlspecialchars($rekod['ORIGIN']) . "</td>
                         <td class='w3-center' style='vertical-align: middle;'>" . htmlspecialchars($rekod['METHODNAME']) . "</td>
                         <td>";
-                    if ($base64Image) {
-                        echo "<img class='imgkueh' src='data:image/jpeg;base64," . $base64Image . "' alt='Kueh Image'>";
+                    if ($imagePath) {
+                        echo "<img class='imgkueh' src='" . htmlspecialchars($imagePath) . "' alt='Kueh Image'>";
                     } else {
                         echo "No Image";
                     }

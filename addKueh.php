@@ -2,6 +2,11 @@
 include('header.php');
 include('connection.php');
 
+// Configure Intervention Image
+use Intervention\Image\ImageManagerStatic as Image;
+
+Image::configure(['driver' => 'gd']);
+
 
 if (empty($_SESSION['username'])) {
 
@@ -39,95 +44,177 @@ if (isset($_POST['submit'])) {
     $ingredients = $_POST['ingredients'] ?? [];
     $steps = $_POST['steps'] ?? [];
 
-    // Validate uploaded image
+    // Validate and process uploaded image
     if (!empty($_FILES['image']['tmp_name'])) {
-        // Initialize BLOB descriptor
-        $lob = oci_new_descriptor($condb, OCI_D_LOB);
 
-        // Read the image file
-        $imageData = file_get_contents($_FILES['image']['tmp_name']);
+        // File validation
+        $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'jfif'];
+        $maxFileSize = 5 * 1024 * 1024; // 5MB
 
-        // Insert into KUEH table
-        $sql_kueh = "INSERT INTO KUEH (KUEHNAME, KUEHDESC, FOODTYPECODE, METHODID, VIDEO, POPULARID, ORIGINID, IMAGE, USERNAME) 
-                     VALUES (:kuehName, :kuehDesc, :foodTypeCode, :methodId, :video, :popularId, :originId, EMPTY_BLOB(), :username)
-                     RETURNING IMAGE INTO :image";
-        $laksana_sql_kueh = oci_parse($condb, $sql_kueh);
+        $fileSize = $_FILES['image']['size'];
+        $fileMime = $_FILES['image']['type'];
+        $fileName = basename($_FILES['image']['name']);
+        $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
-        // Bind parameters
-        oci_bind_by_name($laksana_sql_kueh, ":kuehName", $kuehName);
-        oci_bind_by_name($laksana_sql_kueh, ":kuehDesc", $kuehDesc);
-        oci_bind_by_name($laksana_sql_kueh, ":foodTypeCode", $foodTypeCode);
-        oci_bind_by_name($laksana_sql_kueh, ":methodId", $methodId);
-        oci_bind_by_name($laksana_sql_kueh, ":video", $video);
-        oci_bind_by_name($laksana_sql_kueh, ":popularId", $popularId);
-        oci_bind_by_name($laksana_sql_kueh, ":originId", $originId);
-        oci_bind_by_name($laksana_sql_kueh, ":image", $lob, -1, SQLT_BLOB);
-        oci_bind_by_name($laksana_sql_kueh, ":username", $user['userName']);
-
-        // Execute the query
-        if (oci_execute($laksana_sql_kueh, OCI_DEFAULT)) {
-            // Save the image data into the BLOB
-            $lob->save($imageData);
-
-            // Commit the transaction
-            oci_commit($condb);
-
-            // Get the last inserted KUEHID
-            $sql_get_kuehid = "SELECT MAX(KUEHID) AS KUEHID FROM KUEH";
-            $laksana_sql_get_kuehid = oci_parse($condb, $sql_get_kuehid);
-            oci_execute($laksana_sql_get_kuehid);
-            $kuehIdResult = oci_fetch_assoc($laksana_sql_get_kuehid);
-            $kuehId = $kuehIdResult['KUEHID'];
-
-
-            // Insert ingredients into ITEMS table
-            if (!empty($ingredients)) {
-                $sql_items = "INSERT INTO ITEMS (KUEHID, NAMEITEM) VALUES (:kuehId, :nameitem)";
-                $laksana_sql_items = oci_parse($condb, $sql_items);
-
-                foreach ($ingredients as $ingredient) {
-                    oci_bind_by_name($laksana_sql_items, ":kuehId", $kuehId);
-                    oci_bind_by_name($laksana_sql_items, ":nameitem", $ingredient);
-                    if (!oci_execute($laksana_sql_items)) {
-                        $e = oci_error($laksana_sql_items);
-                        echo "Error inserting ingredient: " . htmlentities($e['message']);
-                    }
-                }
-                oci_free_statement($laksana_sql_items);
-            }
-
-            // Insert steps into STEPS table
-            if (!empty($steps)) {
-                $sql_steps = "INSERT INTO STEPS (KUEHID, STEP) VALUES (:kuehId, :step)";
-                $laksana_sql_steps = oci_parse($condb, $sql_steps);
-
-                foreach ($steps as $step) {
-                    oci_bind_by_name($laksana_sql_steps, ":kuehId", $kuehId);
-                    oci_bind_by_name($laksana_sql_steps, ":step", $step);
-                    if (!oci_execute($laksana_sql_steps)) {
-                        $e = oci_error($laksana_sql_steps);
-                        echo "Error inserting step: " . htmlentities($e['message']);
-                    }
-                }
-                oci_free_statement($laksana_sql_steps);
-            }
-
-            oci_commit($condb);
+        // Validate file size
+        if ($fileSize > $maxFileSize) {
             echo "<script>
-                window.location.href = 'userProfile.php?msg=add_success';
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'error',
+                    title: 'File size exceeds 5MB limit',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+            </script>";
+        }
+        // Validate MIME type
+        elseif (!in_array($fileMime, $allowedTypes)) {
+            echo "<script>
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'error',
+                    title: 'Invalid file type. Only JPG, PNG, GIF allowed',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+            </script>";
+        }
+        // Validate extension
+        elseif (!in_array($fileExt, $allowedExtensions)) {
+            echo "<script>
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'error',
+                    title: 'Invalid file extension',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+            </script>";
+        }
+        // Verify it's actually an image
+        elseif (getimagesize($_FILES['image']['tmp_name']) === false) {
+            echo "<script>
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'error',
+                    title: 'File is not a valid image',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
             </script>";
         } else {
-            $e = oci_error($laksana_sql_kueh);
-            echo "<script>alert('Error saving kueh details: " . htmlentities($e['message']) . "');</script>";
-        }
+            // Insert into KUEH table first (without image)
+            $sql_kueh = "INSERT INTO KUEH (KUEHNAME, KUEHDESC, FOODTYPECODE, METHODID, VIDEO, POPULARID, ORIGINID, IMAGE, USERNAME) 
+                         VALUES (?, ?, ?, ?, ?, ?, ?, '', ?)";
 
-        // Free the BLOB descriptor
-        $lob->free();
+            $stmt_kueh = mysqli_prepare($condb, $sql_kueh);
+            mysqli_stmt_bind_param(
+                $stmt_kueh,
+                "ssiisiss",
+                $kuehName,
+                $kuehDesc,
+                $foodTypeCode,
+                $methodId,
+                $video,
+                $popularId,
+                $originId,
+                $user['userName']
+            );
 
-        // Free resources
-        oci_free_statement($laksana_sql_kueh);
-        if (isset($laksana_sql_get_kuehid)) {
-            oci_free_statement($laksana_sql_get_kuehid);
+            if (mysqli_stmt_execute($stmt_kueh)) {
+                // Get the last inserted KUEHID
+                $kuehId = mysqli_insert_id($condb);
+
+                // Process and optimize image with Intervention Image
+                try {
+                    $img = \Intervention\Image\ImageManagerStatic::make($_FILES['image']['tmp_name']);
+
+                    // Resize if larger than 1920px width
+                    if ($img->width() > 1920) {
+                        $img->resize(1920, null, function ($constraint) {
+                            $constraint->aspectRatio();
+                            $constraint->upsize();
+                        });
+                    }
+
+                    // Generate unique filename
+                    $newFileName = $kuehId . '_' . time() . '.jpg';
+                    $uploadPath = __DIR__ . '/kueh_images/' . $newFileName;
+
+                    // Save optimized image (80% quality)
+                    $img->save($uploadPath, 80);
+
+                    // Update database with filename
+                    $sql_update_image = "UPDATE KUEH SET IMAGE = ? WHERE KUEHID = ?";
+                    $stmt_update = mysqli_prepare($condb, $sql_update_image);
+                    mysqli_stmt_bind_param($stmt_update, "si", $newFileName, $kuehId);
+                    mysqli_stmt_execute($stmt_update);
+                    mysqli_stmt_close($stmt_update);
+                } catch (Exception $e) {
+                    // Fallback to standard upload if optimization fails
+                    $newFileName = $kuehId . '_' . time() . '.' . $fileExt;
+                    $uploadPath = __DIR__ . '/kueh_images/' . $newFileName;
+
+                    if (move_uploaded_file($_FILES['image']['tmp_name'], $uploadPath)) {
+                        $sql_update_image = "UPDATE KUEH SET IMAGE = ? WHERE KUEHID = ?";
+                        $stmt_update = mysqli_prepare($condb, $sql_update_image);
+                        mysqli_stmt_bind_param($stmt_update, "si", $newFileName, $kuehId);
+                        mysqli_stmt_execute($stmt_update);
+                        mysqli_stmt_close($stmt_update);
+                    }
+                }
+
+                // Insert ingredients into ITEMS table
+                if (!empty($ingredients)) {
+                    $sql_items = "INSERT INTO ITEMS (KUEHID, NAMEITEM) VALUES (?, ?)";
+                    $stmt_items = mysqli_prepare($condb, $sql_items);
+
+                    foreach ($ingredients as $ingredient) {
+                        if (!empty(trim($ingredient))) {
+                            mysqli_stmt_bind_param($stmt_items, "is", $kuehId, $ingredient);
+                            if (!mysqli_stmt_execute($stmt_items)) {
+                                echo "Error inserting ingredient: " . mysqli_error($condb);
+                            }
+                        }
+                    }
+                    mysqli_stmt_close($stmt_items);
+                }
+
+                // Insert steps into STEPS table
+                if (!empty($steps)) {
+                    $sql_steps = "INSERT INTO STEPS (KUEHID, STEP) VALUES (?, ?)";
+                    $stmt_steps = mysqli_prepare($condb, $sql_steps);
+
+                    foreach ($steps as $step) {
+                        if (!empty(trim($step))) {
+                            mysqli_stmt_bind_param($stmt_steps, "is", $kuehId, $step);
+                            if (!mysqli_stmt_execute($stmt_steps)) {
+                                echo "Error inserting step: " . mysqli_error($condb);
+                            }
+                        }
+                    }
+                    mysqli_stmt_close($stmt_steps);
+                }
+
+                mysqli_commit($condb);
+                echo "<script>
+                    window.location.href = 'userProfile.php?msg=add_success';
+                </script>";
+            } else {
+                echo "<script>alert('Error saving kueh details: " . mysqli_error($condb) . "');</script>";
+            }
+
+            mysqli_stmt_close($stmt_kueh);
         }
     } else {
         // Show SweetAlert2 toast if no image is uploaded
@@ -154,23 +241,24 @@ if (isset($_POST['submit'])) {
 function getOptionsWithIdAndName($query, $idField, $nameField)
 {
     global $condb;
-    $stid = oci_parse($condb, $query);
-    oci_execute($stid);
+    $stid = mysqli_prepare($condb, $query);
+    mysqli_stmt_execute($stid);
+    $result = mysqli_stmt_get_result($stid);
     $options = "";
-    while ($row = oci_fetch_assoc($stid)) {
+    while ($row = mysqli_fetch_assoc($result)) {
         $options .= "<option value='{$row[$idField]}'>{$row[$nameField]}</option>";
     }
-    oci_free_statement($stid);
+    mysqli_stmt_close($stid);
     return $options;
 }
 
 // Populate dropdowns
 $foodtypeOptions = getOptionsWithIdAndName("SELECT FOODTYPECODE, TYPENAME FROM FOODTYPE", "FOODTYPECODE", "TYPENAME");
 $methodOptions = getOptionsWithIdAndName("SELECT METHODID, METHODNAME FROM METHOD", "METHODID", "METHODNAME");
-$popularOptions = getOptionsWithIdAndName("SELECT POPULARID, LEVELSTAR FROM POPULARITY", "POPULARID", "LEVELSTAR");
+$popularOptions = getOptionsWithIdAndName("SELECT POPULARID, LEVEL FROM POPULARITY", "POPULARID", "LEVEL");
 $originOptions = getOptionsWithIdAndName("SELECT ORIGINCODE, NAMESTATE FROM ORIGIN", "ORIGINCODE", "NAMESTATE");
 
-oci_close($condb);
+mysqli_close($condb);
 ?>
 
 <body class="" style="background-color: #FFFAF0;">
@@ -250,7 +338,11 @@ oci_close($condb);
                     <div class="col-12">
                         <div class="d-flex align-items-center my-2">
                             <!-- Avatar -->
-                            <img src="<?php echo htmlspecialchars($user['profile_image']); ?>" alt="Profile Picture" class="rounded-circle border" width="50" height="50" style="">
+                            <img src="<?php echo htmlspecialchars($user['profile_image']); ?>"
+                                alt="Profile Picture"
+                                class="rounded-circle border"
+                                width="50" height="50"
+                                onerror="this.src='https://static.vecteezy.com/system/resources/previews/024/983/914/non_2x/simple-user-default-icon-free-png.png';">
                             <!-- Text -->
                             <div class="ms-3">
                                 <h6 class="mb-0"><?= $user['userName'] ?></h6>

@@ -18,21 +18,21 @@ if (isset($_POST['register'])) {
     // Validate inputs based on database constraints
     $errors = [];
 
-    // Username validation (VARCHAR2(50 BYTE))
+    // Username validation (VARCHAR(50))
     if (empty($username)) {
         $errors[] = "Username is required";
     } elseif (strlen($username) > 50) {
         $errors[] = "Username must be less than 50 characters";
     }
 
-    // Password validation (VARCHAR2(30 BYTE))
+    // Password validation (VARCHAR(30))
     if (empty($password)) {
         $errors[] = "Password is required";
     } elseif (strlen($password) > 30) {
         $errors[] = "Password must be less than 30 characters";
     }
 
-    // Email validation (VARCHAR2(100 BYTE))
+    // Email validation (VARCHAR(100))
     if (empty($email)) {
         $errors[] = "Email is required";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -41,62 +41,62 @@ if (isset($_POST['register'])) {
         $errors[] = "Email must be less than 100 characters";
     }
 
-    // Phone number validation (VARCHAR2(15 BYTE))
+    // Phone number validation (VARCHAR(15))
     if (!empty($phoneNum) && strlen($phoneNum) > 15) {
         $errors[] = "Phone number must be less than 11 characters";
     }
 
-    // Name validation (VARCHAR2(100 BYTE))
+    // Name validation (VARCHAR(100))
     if (!empty($name) && strlen($name) > 100) {
         $errors[] = "Name must be less than 100 characters";
     }
 
     // Check if username already exists
-    $sql = "SELECT COUNT(*) AS USER_COUNT FROM USERS WHERE USERNAME = :username";
-    $stid = oci_parse($condb, $sql);
-    oci_bind_by_name($stid, ":username", $username);
-    oci_execute($stid);
-    $row = oci_fetch_assoc($stid);
+    $sql = "SELECT COUNT(*) AS USER_COUNT FROM USERS WHERE USERNAME = ?";
+    $stmt = mysqli_prepare($condb, $sql);
+    mysqli_stmt_bind_param($stmt, "s", $username);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $row = mysqli_fetch_assoc($result);
 
     if ($row['USER_COUNT'] > 0) {
         $errors[] = "Username already exists";
     }
+    mysqli_stmt_close($stmt);
 
-    // Check if username already exists
-    $sql = "SELECT COUNT(*) AS USER_COUNT FROM USERS WHERE EMAIL = :EMAIL";
-    $stid = oci_parse($condb, $sql);
-    oci_bind_by_name($stid, ":EMAIL", $email);
-    oci_execute($stid);
-    $row = oci_fetch_assoc($stid);
+    // Check if email already exists
+    $sql = "SELECT COUNT(*) AS USER_COUNT FROM USERS WHERE EMAIL = ?";
+    $stmt = mysqli_prepare($condb, $sql);
+    mysqli_stmt_bind_param($stmt, "s", $email);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $row = mysqli_fetch_assoc($result);
 
     if ($row['USER_COUNT'] > 0) {
         $errors[] = "Email already exists";
     }
+    mysqli_stmt_close($stmt);
 
     // If no errors, proceed with registration
     if (empty($errors)) {
-        $sql = "INSERT INTO USERS (USERNAME, PASSWORD, EMAIL, PHONENUM, NAME) VALUES (:username, :password, :email, :phoneNum, :name)";
-        $stid = oci_parse($condb, $sql);
+        $sql = "INSERT INTO USERS (USERNAME, PASSWORD, EMAIL, PHONENUM, NAME) VALUES (?, ?, ?, ?, ?)";
+        $stmt = mysqli_prepare($condb, $sql);
 
-        // Bind parameters
-        oci_bind_by_name($stid, ":username", $username);
-        oci_bind_by_name($stid, ":password", $password);
-        oci_bind_by_name($stid, ":email", $email);
-        oci_bind_by_name($stid, ":phoneNum", $phoneNum);
-        oci_bind_by_name($stid, ":name", $name);
+        mysqli_stmt_bind_param($stmt, "sssss", $username, $password, $email, $phoneNum, $name);
 
-        // Execute the statement
-        $result = oci_execute($stid, OCI_COMMIT_ON_SUCCESS);
+        $result = mysqli_stmt_execute($stmt);
 
         if ($result) {
             $_SESSION['successMessage'] = "Registration successful! You can now login.";
-            
+
             echo "<script>
                 window.location.href = 'userLogin.php';
             </script>";
         } else {
             $errors[] = "Registration failed. Please try again.";
         }
+
+        mysqli_stmt_close($stmt);
     }
 
     // If there were errors, store them in session and redirect back to registration page
@@ -389,10 +389,10 @@ if (isset($_POST['register'])) {
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", function() {
             // Display errors if any
             if (typeof errors !== 'undefined' && errors.length > 0) {
-                errors.forEach(function (error) {
+                errors.forEach(function(error) {
                     Swal.fire({
                         toast: true, // Enable toast mode
                         position: 'top', // Position at the top
@@ -428,7 +428,7 @@ if (isset($_POST['register'])) {
                 });
 
                 // Redirect to login page after 5 seconds
-                setTimeout(function () {
+                setTimeout(function() {
                     window.location.href = "userLogin.php";
                 }, 5000);
             }

@@ -1,10 +1,24 @@
-<?PHP
-// php & Oracle DB connection file  
-$user = "kuehlegacy"; //oracle username  
-$pass = "kuehlegacy"; //Oracle password 
-$host = "localhost:1521/xe"; //server name or ip address 
-# membuka hubungan antara laman dan pangkalan data.
-# menghantar 4 parameter asas iaitu
-# nama host - ("localhost"), username SQL ("root"), katalaluan SQL (""), nama pangkalan data ("kereta_terpakai_basic")
-$condb=oci_connect($user, $pass, $host); 
-?>
+<?php
+// MySQL Database Connection with Environment Variables
+require_once __DIR__ . '/../vendor/autoload.php';
+
+// Load environment variables
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
+$dotenv->load();
+
+// Database connection parameters from .env
+$db_host = $_ENV['DB_HOST'];
+$db_user = $_ENV['DB_USER'];
+$db_pass = $_ENV['DB_PASS'];
+$db_name = $_ENV['DB_NAME'];
+
+// Create MySQLi connection
+$condb = mysqli_connect($db_host, $db_user, $db_pass, $db_name);
+
+// Check connection
+if (!$condb) {
+    die("Connection failed: " . mysqli_connect_error());
+}
+
+// Set charset to UTF-8
+mysqli_set_charset($condb, "utf8mb4");

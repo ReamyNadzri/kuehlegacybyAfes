@@ -17,6 +17,8 @@
 
 namespace Google\Service\Spanner\Resource;
 
+use Google\Service\Spanner\AddSplitPointsRequest;
+use Google\Service\Spanner\AddSplitPointsResponse;
 use Google\Service\Spanner\ChangeQuorumRequest;
 use Google\Service\Spanner\CreateDatabaseRequest;
 use Google\Service\Spanner\Database;
@@ -43,6 +45,24 @@ use Google\Service\Spanner\UpdateDatabaseDdlRequest;
  */
 class ProjectsInstancesDatabases extends \Google\Service\Resource
 {
+  /**
+   * Adds split points to specified tables and indexes of a database.
+   * (databases.addSplitPoints)
+   *
+   * @param string $database Required. The database on whose tables or indexes the
+   * split points are to be added. Values are of the form
+   * `projects//instances//databases/`.
+   * @param AddSplitPointsRequest $postBody
+   * @param array $optParams Optional parameters.
+   * @return AddSplitPointsResponse
+   * @throws \Google\Service\Exception
+   */
+  public function addSplitPoints($database, AddSplitPointsRequest $postBody, $optParams = [])
+  {
+    $params = ['database' => $database, 'postBody' => $postBody];
+    $params = array_merge($params, $optParams);
+    return $this->call('addSplitPoints', [$params], AddSplitPointsResponse::class);
+  }
   /**
    * `ChangeQuorum` is strictly restricted to databases that use dual-region
    * instance configurations. Initiates a background operation to change the
@@ -323,7 +343,7 @@ class ProjectsInstancesDatabases extends \Google\Service\Resource
    * Updates the schema of a Cloud Spanner database by creating/altering/dropping
    * tables, columns, indexes, etc. The returned long-running operation will have
    * a name of the format `/operations/` and can be used to track execution of the
-   * schema change(s). The metadata field type is UpdateDatabaseDdlMetadata. The
+   * schema changes. The metadata field type is UpdateDatabaseDdlMetadata. The
    * operation has no response. (databases.updateDdl)
    *
    * @param string $database Required. The database to update.

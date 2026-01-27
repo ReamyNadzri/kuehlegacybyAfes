@@ -8,66 +8,64 @@ $foodName = trim($foodName);
 $foodName = htmlspecialchars($foodName, ENT_QUOTES, 'UTF-8');
 
 // Prepare SQL statement
-$sql = "SELECT k.KUEHID, k.KUEHNAME, LISTAGG(i.NAMEITEM, ', ') WITHIN GROUP (ORDER BY i.NAMEITEM) AS ITEMS
+$sql = "SELECT k.KUEHID, k.KUEHNAME, k.IMAGE, GROUP_CONCAT(i.NAMEITEM ORDER BY i.NAMEITEM SEPARATOR ', ') AS ITEMS
     FROM KUEH k
     JOIN ITEMS i ON k.KUEHID = i.KUEHID
     JOIN ORIGIN o ON k.ORIGINID = o.ORIGINCODE
-    WHERE UPPER(k.KUEHNAME) LIKE '%' || UPPER(:search) || '%' 
-    OR UPPER(o.NAMESTATE) LIKE '%' || UPPER(:search) || '%'";
+    WHERE UPPER(k.KUEHNAME) LIKE UPPER(CONCAT('%', ?, '%')) 
+    OR UPPER(o.NAMESTATE) LIKE UPPER(CONCAT('%', ?, '%'))
+    GROUP BY k.KUEHID, k.KUEHNAME, k.IMAGE ORDER BY k.KUEHID DESC";
 
-$sql .= " GROUP BY k.KUEHID, k.KUEHNAME ORDER BY k.KUEHID DESC";
-$stid = oci_parse($condb, $sql);
-
-// Bind search parameter
-oci_bind_by_name($stid, ':search', $foodName);
+$stmt = mysqli_prepare($condb, $sql);
+mysqli_stmt_bind_param($stmt, 'ss', $foodName, $foodName);
 
 // Execute the query
-if (oci_execute($stid)) {
+if (mysqli_stmt_execute($stmt)) {
     $recipes = [];
     $total_recipes = 0;
+    $result = mysqli_stmt_get_result($stmt);
 
-    while ($row = oci_fetch_assoc($stid)) {
-        $blobQuery = "SELECT IMAGE FROM KUEH WHERE KUEHID = :kuehID";
-        $blobStmt = oci_parse($condb, $blobQuery);
-        oci_bind_by_name($blobStmt, ':kuehID', $row['KUEHID']);
-        oci_execute($blobStmt);
-
-        if ($blobRow = oci_fetch_assoc($blobStmt)) {
-            $blobData = $blobRow['IMAGE']->load(); // Fetch BLOB data
-            $row['IMAGE_DATA_URI'] = 'data:image/jpeg;base64,' . base64_encode($blobData);
+    while ($row = mysqli_fetch_assoc($result)) {
+        // Convert image filename to file path
+        if (!empty($row['IMAGE'])) {
+            $imagePath = 'kueh_images/' . $row['IMAGE'];
+            $row['IMAGE_DATA_URI'] = file_exists($imagePath) ? $imagePath : 'sources/default-kueh.jpg';
+        } else {
+            $row['IMAGE_DATA_URI'] = 'sources/default-kueh.jpg';
         }
 
-        oci_free_statement($blobStmt);
-
-        $blobQuery = "SELECT COALESCE(u.NAME, a.NAME) AS NAME, u.IMAGE AS IMAGE
+        // Get creator details
+        $creatorQuery = "SELECT COALESCE(u.NAME, a.NAME) AS NAME, u.IMAGE AS IMAGE
                     FROM KUEH k
                     LEFT JOIN USERS u ON k.USERNAME = u.USERNAME
                     LEFT JOIN ADMIN a ON k.USERNAME = a.USERNAME
-                    WHERE k.KUEHID = :kuehID
+                    WHERE k.KUEHID = ?
                     ORDER BY k.KUEHID DESC";
 
-        $blobStmt = oci_parse($condb, $blobQuery);
-        oci_bind_by_name($blobStmt, ':kuehID', $row['KUEHID']);
-        oci_execute($blobStmt);
+        $creatorStmt = mysqli_prepare($condb, $creatorQuery);
+        mysqli_stmt_bind_param($creatorStmt, 'i', $row['KUEHID']);
+        mysqli_stmt_execute($creatorStmt);
+        $creatorResult = mysqli_stmt_get_result($creatorStmt);
 
-        if ($blobRow = oci_fetch_assoc($blobStmt)) {
-            $row['NAMECREATOR'] = $blobRow['NAME'];
-            $row['CREATORIMAGE'] = $blobRow['IMAGE'];
+        if ($creatorRow = mysqli_fetch_assoc($creatorResult)) {
+            $row['NAMECREATOR'] = $creatorRow['NAME'];
+            $row['CREATORIMAGE'] = $creatorRow['IMAGE'];
         }
 
-        oci_free_statement($blobStmt);
+        mysqli_stmt_close($creatorStmt);
 
         // Check if the kueh is in the user's favorites
         $username = $_SESSION['username'] ?? null;
         $isFavorite = false;
         if ($username) {
-            $sql_check = "SELECT COUNT(*) AS count FROM FAVORITE WHERE KUEHID = :kueh_id AND USERNAME = :username";
-            $stid_check = oci_parse($condb, $sql_check);
-            oci_bind_by_name($stid_check, ':kueh_id', $row['KUEHID']);
-            oci_bind_by_name($stid_check, ':username', $username);
-            oci_execute($stid_check);
-            $favoriteRow = oci_fetch_array($stid_check, OCI_ASSOC);
-            $isFavorite = ($favoriteRow['COUNT'] > 0);
+            $sql_check = "SELECT COUNT(*) AS count FROM FAVORITE WHERE KUEHID = ? AND USERNAME = ?";
+            $stmt_check = mysqli_prepare($condb, $sql_check);
+            mysqli_stmt_bind_param($stmt_check, 'is', $row['KUEHID'], $username);
+            mysqli_stmt_execute($stmt_check);
+            $favoriteResult = mysqli_stmt_get_result($stmt_check);
+            $favoriteRow = mysqli_fetch_assoc($favoriteResult);
+            $isFavorite = ($favoriteRow['count'] > 0);
+            mysqli_stmt_close($stmt_check);
         }
 
         $row['IS_FAVORITE'] = $isFavorite; // Add the favorite status to the row
@@ -76,12 +74,11 @@ if (oci_execute($stid)) {
     }
 } else {
     // Handle query execution error
-    $error = oci_error($stid);
-    $error_message = "Database error: " . $error['message'];
+    $error_message = "Database error: " . mysqli_error($condb);
 }
 
-oci_free_statement($stid);
-oci_close($condb);
+mysqli_stmt_close($stmt);
+mysqli_close($condb);
 
 $kuehName = ucfirst(strtolower($foodName)); // Convert first character to uppercase
 ?>
@@ -293,16 +290,14 @@ $kuehName = ucfirst(strtolower($foodName)); // Convert first character to upperc
                                                     </p>
                                                     <div class="d-flex align-items-center profile-section">
                                                         <?PHP
-                                                        if ($recipe['CREATORIMAGE'] != null) {
-                                                            ?><img src="<?= $recipe['CREATORIMAGE'] ?>"
-                                                                alt="Profile Picture" class="rounded-circle me-2 border" width="40"
-                                                                height="40"><?PHP
-                                                        } else {
-                                                            ?>
-                                                            <img src="sources/header/logo.png" alt="Profile Picture"
-                                                                class="rounded-circle me-2 border" width="40" height="40"><?PHP
-                                                        }
+                                                        $defaultProfileImage = 'https://static.vecteezy.com/system/resources/previews/024/983/914/non_2x/simple-user-default-icon-free-png.png';
+                                                        $profileImage = !empty($recipe['CREATORIMAGE']) ? $recipe['CREATORIMAGE'] : $defaultProfileImage;
                                                         ?>
+                                                        <img src="<?= htmlspecialchars($profileImage) ?>"
+                                                            alt="Profile Picture"
+                                                            class="rounded-circle me-2 border"
+                                                            width="40" height="40"
+                                                            onerror="this.src='<?= $defaultProfileImage ?>';">
                                                         <p class="card-text" style="font-size: 1.1rem;">
                                                             <?= htmlspecialchars($recipe['NAMECREATOR']) ?>
                                                         </p>
@@ -313,7 +308,7 @@ $kuehName = ucfirst(strtolower($foodName)); // Convert first character to upperc
                                     </div>
                                 </a>
                             </div>
-                            <?php
+                        <?php
                             $animate += 0.10;
                         endforeach; ?>
                     <?php else: ?>
@@ -364,7 +359,7 @@ $kuehName = ucfirst(strtolower($foodName)); // Convert first character to upperc
     <?php include('footer.php'); ?>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const withInput = document.getElementById('withInput');
             const withoutInput = document.getElementById('withoutInput');
             const withTagsContainer = document.getElementById('withTags');
@@ -383,7 +378,7 @@ $kuehName = ucfirst(strtolower($foodName)); // Convert first character to upperc
                 removeButton.className = 'ms-2';
                 removeButton.innerHTML = '&times;';
                 removeButton.style.cursor = 'pointer';
-                removeButton.onclick = function () {
+                removeButton.onclick = function() {
                     container.removeChild(tag);
                     const index = tagArray.indexOf(value);
                     if (index !== -1) {
@@ -426,7 +421,7 @@ $kuehName = ucfirst(strtolower($foodName)); // Convert first character to upperc
             }
 
             // Event listener for "With" input
-            withInput.addEventListener('keydown', function (e) {
+            withInput.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
                     const value = this.value.trim().toLowerCase();
@@ -439,7 +434,7 @@ $kuehName = ucfirst(strtolower($foodName)); // Convert first character to upperc
             });
 
             // Event listener for "Without" input
-            withoutInput.addEventListener('keydown', function (e) {
+            withoutInput.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
                     const value = this.value.trim().toLowerCase();
@@ -459,14 +454,14 @@ $kuehName = ucfirst(strtolower($foodName)); // Convert first character to upperc
 
             // Send an AJAX request to toggle the favorite status
             fetch('toggleFavorite.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    kueh_id: kueh_id
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        kueh_id: kueh_id
+                    })
                 })
-            })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {

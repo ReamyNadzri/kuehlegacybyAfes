@@ -3,9 +3,10 @@ include('header_admin.php');
 include('connection.php');
 
 // Fetch all users from the database
-$sql = "SELECT USERNAME, PASSWORD, EMAIL, PHONENUM, NAME FROM USERS";
-$stmt = oci_parse($condb, $sql);
-oci_execute($stmt);
+$sql = "SELECT USERNAME, PASSWORD, EMAIL, NAME FROM USERS";
+$stmt = mysqli_prepare($condb, $sql);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
 ?>
 
 <body class="" style="background-color: #FFFAF0;">
@@ -25,16 +26,16 @@ oci_execute($stmt);
             <td>Phone Number</td>
             <td>Password</td>
             <td>Full Name</td>
-            
+
         </tr>
         <?php
         $bil = 0;
-        while ($row = oci_fetch_assoc($stmt)) {
+        while ($row = mysqli_fetch_assoc($result)) {
             echo "<tr>
                     <td>" . ++$bil . "</td>
                     <td>{$row['USERNAME']}</td>
                     <td>{$row['EMAIL']}</td>
-                    <td>{$row['PHONENUM']}</td>
+                    <td>{$row['NAME']}</td>
                     <td>{$row['PASSWORD']}</td>
                     <td>{$row['NAME']}</td>
                   
@@ -45,8 +46,8 @@ oci_execute($stmt);
 
     <?php
     // Close the database connection
-    oci_free_statement($stmt);
-    oci_close($condb);
+    mysqli_stmt_close($stmt);
+    mysqli_close($condb);
     ?>
 
 </body>

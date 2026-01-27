@@ -21,38 +21,37 @@ if (!$kueh_id) {
 $username = $_SESSION['username'];
 
 // Check if the kueh is already in the user's favorites
-$sql_check = "SELECT COUNT(*) AS count FROM FAVORITE WHERE KUEHID = :kueh_id AND USERNAME = :username";
-$stid_check = oci_parse($condb, $sql_check);
-oci_bind_by_name($stid_check, ':kueh_id', $kueh_id);
-oci_bind_by_name($stid_check, ':username', $username);
-oci_execute($stid_check);
-$row = oci_fetch_array($stid_check, OCI_ASSOC);
-$isFavorite = ($row['COUNT'] > 0);
+$sql_check = "SELECT COUNT(*) AS count FROM FAVORITE WHERE KUEHID = ? AND USERNAME = ?";
+$stmt_check = mysqli_prepare($condb, $sql_check);
+mysqli_stmt_bind_param($stmt_check, 'is', $kueh_id, $username);
+mysqli_stmt_execute($stmt_check);
+$result = mysqli_stmt_get_result($stmt_check);
+$row = mysqli_fetch_assoc($result);
+$isFavorite = ($row['count'] > 0);
+mysqli_stmt_close($stmt_check);
 
 if ($isFavorite) {
     // Remove from favorites
-    $sql_delete = "DELETE FROM FAVORITE WHERE KUEHID = :kueh_id AND USERNAME = :username";
-    $stid_delete = oci_parse($condb, $sql_delete);
-    oci_bind_by_name($stid_delete, ':kueh_id', $kueh_id);
-    oci_bind_by_name($stid_delete, ':username', $username);
-    if (oci_execute($stid_delete)) {
+    $sql_delete = "DELETE FROM FAVORITE WHERE KUEHID = ? AND USERNAME = ?";
+    $stmt_delete = mysqli_prepare($condb, $sql_delete);
+    mysqli_stmt_bind_param($stmt_delete, 'is', $kueh_id, $username);
+    if (mysqli_stmt_execute($stmt_delete)) {
         echo json_encode(['success' => true, 'isFavorite' => false]);
     } else {
-        $e = oci_error($stid_delete);
-        echo json_encode(['success' => false, 'message' => $e['message']]);
+        echo json_encode(['success' => false, 'message' => mysqli_error($condb)]);
     }
+    mysqli_stmt_close($stmt_delete);
 } else {
     // Add to favorites
-    $sql_insert = "INSERT INTO FAVORITE (USERNAME, KUEHID, DATEFAV) VALUES (:username, :kueh_id, SYSDATE)";
-    $stid_insert = oci_parse($condb, $sql_insert);
-    oci_bind_by_name($stid_insert, ':username', $username);
-    oci_bind_by_name($stid_insert, ':kueh_id', $kueh_id);
-    if (oci_execute($stid_insert)) {
+    $sql_insert = "INSERT INTO FAVORITE (USERNAME, KUEHID, DATEFAV) VALUES (?, ?, NOW())";
+    $stmt_insert = mysqli_prepare($condb, $sql_insert);
+    mysqli_stmt_bind_param($stmt_insert, 'si', $username, $kueh_id);
+    if (mysqli_stmt_execute($stmt_insert)) {
         echo json_encode(['success' => true, 'isFavorite' => true]);
     } else {
-        $e = oci_error($stid_insert);
-        echo json_encode(['success' => false, 'message' => $e['message']]);
+        echo json_encode(['success' => false, 'message' => mysqli_error($condb)]);
     }
+    mysqli_stmt_close($stmt_insert);
 }
 
-oci_close($condb);
+mysqli_close($condb);

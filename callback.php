@@ -3,14 +3,18 @@ session_start();
 
 require __DIR__ . "/vendor/autoload.php";
 
+// Load environment variables
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
 $client = new Google\Client;
 
-$client->setClientId("86003731304-ujapfaslp3bk71imksdn5oq21ebl8i07.apps.googleusercontent.com");
-$client->setClientSecret("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");
-$client->setRedirectUri("http://localhost/kuehlegacybyAfes/callback.php");
+$client->setClientId($_ENV['GOOGLE_CLIENT_ID']);
+$client->setClientSecret($_ENV['GOOGLE_CLIENT_SECRET']);
+$client->setRedirectUri($_ENV['GOOGLE_REDIRECT_URI']);
 
 if (!isset($_GET["code"])) {
-     header("Location: login.php"); // Redirect back to the login page
+    header("Location: login.php"); // Redirect back to the login page
     exit();
 }
 
@@ -36,55 +40,49 @@ $_SESSION['google_user'] = [
 // Include the connection file
 include('connection.php');
 
-    $emailGoogle = $userinfo->email;
-    $nameGoogle = $userinfo->givenName;
-    $usernameGoogle = $userinfo->name;
-    $pictureGoogle = $userinfo->picture;
+$emailGoogle = $userinfo->email;
+$nameGoogle = $userinfo->givenName;
+$usernameGoogle = $userinfo->name;
+$pictureGoogle = $userinfo->picture;
 
-    $sql = "SELECT * FROM users WHERE email = :email";
+$sql = "SELECT * FROM users WHERE email = ?";
 
+$stmt = mysqli_prepare($condb, $sql);
+mysqli_stmt_bind_param($stmt, 's', $emailGoogle);
+mysqli_stmt_execute($stmt);
 
-    $stmt = oci_parse($condb, $sql);
-
-    oci_bind_by_name($stmt, ':email', $emailGoogle);
-
-
-    oci_execute($stmt);
-
-    // Fetch the result
-    $userG = oci_fetch_assoc($stmt);
+$result = mysqli_stmt_get_result($stmt);
+$userG = mysqli_fetch_assoc($result);
 
 
-    if(!$userG){
+if (!$userG) {
 
-        $sqlG = "INSERT INTO users (username, email, name, image) VALUES (:username, :email, :name, :image)";
+    $sqlG = "INSERT INTO users (username, email, name, image) VALUES (?, ?, ?, ?)";
 
-        $stmtG = oci_parse($condb, $sqlG);
+    $stmtG = mysqli_prepare($condb, $sqlG);
+    mysqli_stmt_bind_param($stmtG, 'ssss', $usernameGoogle, $emailGoogle, $nameGoogle, $pictureGoogle);
 
-        oci_bind_by_name($stmtG, ':username', $usernameGoogle);
-        oci_bind_by_name($stmtG, ':email', $emailGoogle);
-        oci_bind_by_name($stmtG, ':name', $nameGoogle);
-        oci_bind_by_name($stmtG, ':image', $pictureGoogle);
-
-        $resultG = oci_execute($stmtG);
-        if ($resultG) {
-            // Store session data
-             $_SESSION['username'] = $usernameGoogle;
-             $_SESSION['usernameimage'] = $pictureGoogle;
-
-            // Redirect to index page
-            header("Location: index.php");
-            exit();
-        } else {
-            echo "Error: Registration failed.";
-        }
-    }else{
-        // Successful login
-        $_SESSION['username'] = $userG['USERNAME'];
+    $resultG = mysqli_stmt_execute($stmtG);
+    if ($resultG) {
+        // Store session data
+        $_SESSION['username'] = $usernameGoogle;
+        $_SESSION['usernameimage'] = $pictureGoogle;
 
         // Redirect to index page
-         header("Location: index.php");
+        header("Location: index.php");
         exit();
-
+    } else {
+        echo "Error: Registration failed.";
     }
-?>
+    mysqli_stmt_close($stmtG);
+} else {
+    // Successful login
+    $_SESSION['username'] = $userG['USERNAME'];
+
+    // Redirect to index page
+    header("Location: index.php");
+    exit();
+}
+
+mysqli_stmt_close($stmt);
+mysqli_close($condb);
