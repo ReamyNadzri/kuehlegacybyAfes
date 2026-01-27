@@ -228,7 +228,7 @@ function getOptionsWithIdAndName($query, $idField, $nameField, $selectedValue = 
 // Populate dropdowns with existing values
 $foodtypeOptions = getOptionsWithIdAndName("SELECT FOODTYPECODE, TYPENAME FROM FOODTYPE", "FOODTYPECODE", "TYPENAME", $existingFoodType ?? null);
 $methodOptions = getOptionsWithIdAndName("SELECT METHODID, METHODNAME FROM METHOD", "METHODID", "METHODNAME", $existingMethod ?? null);
-$popularOptions = getOptionsWithIdAndName("SELECT POPULARID, LEVELSTAR FROM POPULARITY", "POPULARID", "LEVELSTAR", $existingPopularity ?? null);
+$popularOptions = getOptionsWithIdAndName("SELECT POPULARID, LEVEL FROM POPULARITY", "POPULARID", "LEVEL", $existingPopularity ?? null);
 $originOptions = getOptionsWithIdAndName("SELECT ORIGINCODE, NAMESTATE FROM ORIGIN", "ORIGINCODE", "NAMESTATE", $existingOrigin ?? null);
 
 
@@ -292,7 +292,16 @@ mysqli_close($condb);
         <div class="row">
             <div class="col-12 col-md-4 my-4" id="imageContainer">
                 <!-- Image Preview -->
-                <img id="previewImage" src="<?php echo isset($existingImage) ? 'data:image/jpeg;base64,' . base64_encode($existingImage) : 'sources/uploadimage.jpg'; ?>" class="img-fluid text-center rounded-3" alt="Uploaded Image Preview">
+                <?php
+                $imageSrc = 'sources/uploadimage.jpg';
+                if (!empty($existingImage)) {
+                    $imagePath = 'kueh_images/' . $existingImage;
+                    if (file_exists($imagePath)) {
+                        $imageSrc = $imagePath;
+                    }
+                }
+                ?>
+                <img id="previewImage" src="<?php echo $imageSrc; ?>" class="img-fluid text-center rounded-3" alt="Uploaded Image Preview">
                 <!-- Hidden File Input -->
                 <input type="file" name="image" id="imageUpload" accept="image/*">
             </div>

@@ -56,6 +56,9 @@ if (isset($_GET['kuehId'])) {
     if (!empty($kuehData['IMAGE'])) {
         $existingImagePath = '../kueh_images/' . $kuehData['IMAGE'];
     }
+} else {
+    // Initialize variables for non-edit mode
+    $existingImagePath = null;
 }
 
 if (isset($_POST['submit'])) {
@@ -219,21 +222,40 @@ $methodOptions = getOptionsWithIdAndName("SELECT METHODID, METHODNAME FROM METHO
 $popularOptions = getOptionsWithIdAndName("SELECT POPULARID, LEVEL FROM POPULARITY", "POPULARID", "LEVEL", $existingPopularity ?? null);
 $originOptions = getOptionsWithIdAndName("SELECT ORIGINCODE, NAMESTATE FROM ORIGIN", "ORIGINCODE", "NAMESTATE", $existingOrigin ?? null);
 
+// Fetch creator's details (user or admin who created this kueh)
+$username = '';
+$email = '';
 
-if (isset($_SESSION['adminid'])) {
-    $adminId = $_SESSION['adminid'];
-    $sql = "SELECT USERNAME, EMAIL, IMAGE FROM admin WHERE USERNAME = ?";
+if (isset($kuehData['USERNAME'])) {
+    $creatorUsername = $kuehData['USERNAME'];
+    
+    // Try to find in USERS table first
+    $sql = "SELECT USERNAME, EMAIL FROM USERS WHERE USERNAME = ?";
     $stmt = mysqli_prepare($condb, $sql);
-    mysqli_stmt_bind_param($stmt, "s", $adminId);
+    mysqli_stmt_bind_param($stmt, "s", $creatorUsername);
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
-    $adminData = mysqli_fetch_assoc($result);
-
-    if ($adminData) {
-        $username = $adminData['USERNAME'];
-        $email = $adminData['EMAIL'];
-    }
+    $userData = mysqli_fetch_assoc($result);
     mysqli_stmt_close($stmt);
+    
+    if ($userData) {
+        $username = $userData['USERNAME'];
+        $email = $userData['EMAIL'] ?? '';
+    } else {
+        // If not found in USERS, try ADMIN table
+        $sql = "SELECT USERNAME, EMAIL FROM ADMIN WHERE USERNAME = ?";
+        $stmt = mysqli_prepare($condb, $sql);
+        mysqli_stmt_bind_param($stmt, "s", $creatorUsername);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        $adminData = mysqli_fetch_assoc($result);
+        mysqli_stmt_close($stmt);
+        
+        if ($adminData) {
+            $username = $adminData['USERNAME'];
+            $email = $adminData['EMAIL'] ?? '';
+        }
+    }
 }
 
 mysqli_close($condb);
@@ -293,8 +315,8 @@ mysqli_close($condb);
                     <!-- Image Preview -->
                     <img id="previewImage"
                         src="<?php
-                                echo isset($existingImage) && !empty($existingImage)
-                                    ? 'data:image/jpeg;base64,' . base64_encode($existingImage)
+                                echo isset($existingImagePath) && !empty($existingImagePath) && file_exists($existingImagePath)
+                                    ? htmlspecialchars($existingImagePath)
                                     : 'sources/kueh_default.png';
                                 ?>"
                         class="img-fluid text-center rounded-3"
