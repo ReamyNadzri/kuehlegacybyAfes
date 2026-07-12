@@ -70,9 +70,10 @@
             // 2. Double-Bezel Cards Entrance Page-Load Stagger (Filter-safe & robust)
             const cards = gsap.utils.toArray('.double-bezel-outer');
             if (cards.length > 0) {
-                gsap.from(cards, {
-                    y: 35,
-                    opacity: 0,
+                gsap.set(cards, { opacity: 0, y: 35 });
+                gsap.to(cards, {
+                    y: 0,
+                    opacity: 1,
                     duration: 0.6,
                     stagger: 0.06,
                     ease: 'power2.out',

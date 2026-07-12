@@ -1,19 +1,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
-/* Heritage Paper Light Mode Theme System */
+/* Culinary Slate Dark Mode Theme System */
 :root {
-  --color-bg: #FAF9F6;           /* Refined Warm Paper / Bone */
-  --color-surface: #FFFFFF;      /* Clean White Card Background */
-  --color-sidebar-bg: #F3F1EC;  /* Soft Warm Neutral for Sidebar */
-  --color-text: #1A1A19;         /* Charcoal near-black */
-  --color-text-muted: #5C5A56;   /* Warm Slate Muted text */
-  --color-accent: #1C3F24;       /* Saturated Pandan Leaf Green */
-  --color-accent-hover: #142E1A; /* Darker Green */
-  --color-accent-light: #EBF2ED; /* Soft pastel green */
-  --color-amber: #D68C45;        /* Palm sugar / Gula Melaka amber */
-  --color-amber-light: #F9EFE4;  /* Soft amber tint */
-  --color-border: #E5E2DB;       /* Hairline warm gray border */
-  --color-border-hover: #C5C1B6; /* Darker border on hover */
+  --color-bg: #0A0A0A;           /* Deepest Charcoal-OLED Black */
+  --color-surface: #121212;      /* Elegant Dark Card Background */
+  --color-sidebar-bg: #161514;   /* Warm Dark Slate for Sidebar */
+  --color-text: #F5F5F0;         /* Soft Coconut White */
+  --color-text-muted: #A3A19C;   /* Warm Slate Muted text */
+  --color-accent: #3E8E5A;       /* Saturated Pandan Leaf Green */
+  --color-accent-hover: #4FA870; /* Lighter Pandan Green for hover */
+  --color-accent-light: #152A1D; /* Deep forest green tint */
+  --color-amber: #E09443;        /* Palm sugar / Gula Melaka amber */
+  --color-amber-light: #2E1F13;  /* Deep amber / caramel tint */
+  --color-border: #22201E;       /* Hairline charcoal border */
+  --color-border-hover: #33302C; /* Slightly lighter border on hover */
   
   --font-serif: 'Cinzel', Georgia, serif;
   --font-sans: 'Plus Jakarta Sans', -apple-system, sans-serif;
@@ -327,16 +327,17 @@ a:hover {
   border: 1px solid var(--color-border);
   padding: 8px;
   border-radius: 28px;
-  transition: border-color 0.4s var(--ease-custom), transform 0.4s var(--ease-custom);
+  transition: border-color 0.4s var(--ease-custom);
 }
 .double-bezel-inner {
   background-color: var(--color-surface);
   border-radius: calc(28px - 8px);
   padding: 1.5rem;
   height: 100%;
-  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.6);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.15);
   position: relative;
   overflow: hidden;
+  transition: transform 0.4s var(--ease-custom), box-shadow 0.4s var(--ease-custom);
 }
 
 /* Asymmetrical Bento Grid */
@@ -395,7 +396,10 @@ a:hover {
 
 .double-bezel-outer:hover {
   border-color: var(--color-border-hover);
+}
+.double-bezel-outer:hover .double-bezel-inner {
   transform: translateY(-4px);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.1), 0 8px 24px rgba(0, 0, 0, 0.25);
 }
 .double-bezel-outer:hover .bento-card-bg {
   scale: 1.04;
