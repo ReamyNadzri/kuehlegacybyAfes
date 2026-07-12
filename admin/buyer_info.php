@@ -3,7 +3,7 @@ include('header_admin.php');
 include('connection.php');
 
 // Fetch all users from the database
-$sql = "SELECT USERNAME, PASSWORD, EMAIL, NAME FROM USERS";
+$sql = "SELECT USERNAME, PASSWORD, EMAIL, PHONENUM, NAME FROM USERS";
 $stmt = mysqli_prepare($condb, $sql);
 mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
@@ -35,7 +35,7 @@ $result = mysqli_stmt_get_result($stmt);
                     <td>" . ++$bil . "</td>
                     <td>{$row['USERNAME']}</td>
                     <td>{$row['EMAIL']}</td>
-                    <td>{$row['NAME']}</td>
+                    <td>{$row['PHONENUM']}</td>
                     <td>{$row['PASSWORD']}</td>
                     <td>{$row['NAME']}</td>
                   

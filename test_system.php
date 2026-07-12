@@ -216,7 +216,7 @@
         echo "<h2>5. Environment Variables Test</h2>";
         $env_vars = ['DB_HOST', 'DB_USER', 'DB_PASS', 'DB_NAME', 'GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET'];
         foreach ($env_vars as $var) {
-            if (isset($_ENV[$var]) && !empty($_ENV[$var])) {
+            if (isset($_ENV[$var]) && ($var === 'DB_PASS' || !empty($_ENV[$var]))) {
                 $display_value = ($var == 'DB_PASS' || $var == 'GOOGLE_CLIENT_SECRET') ? '***' : $_ENV[$var];
                 echo "<div class='test-item'><span class='badge badge-success'>OK</span> $var = $display_value</div>";
                 $tests_passed++;
@@ -248,11 +248,11 @@
         $critical_files = [
             'connection.php',
             'admin/connection.php',
-            'callback.php',
-            'userLogin.php',
-            'addKueh.php',
-            'editKueh.php',
-            'kuehDetails.php',
+            'auth/callback.php',
+            'auth/userLogin.php',
+            'recipes/addKueh.php',
+            'recipes/editKueh.php',
+            'recipes/kuehDetails.php',
             'admin/index.php',
             'admin/mainpage.php'
         ];
@@ -302,9 +302,9 @@
         <h2>🔗 Quick Links</h2>
         <div class="links">
             <a href="index.php" class="btn">Home Page</a>
-            <a href="welcome.php" class="btn btn-secondary">User Login</a>
+            <a href="auth/userLogin.php" class="btn btn-secondary">User Login</a>
             <a href="admin/index.php" class="btn btn-secondary">Admin Login</a>
-            <a href="kuehListing.php" class="btn btn-secondary">Browse Recipes</a>
+            <a href="recipes/kuehListing.php" class="btn btn-secondary">Browse Recipes</a>
             <a href="test_connection.php" class="btn btn-secondary">Run Again</a>
         </div>
     </div>

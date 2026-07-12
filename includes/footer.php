@@ -1,0 +1,172 @@
+<footer class="footer-panel">
+    <div class="footer-content">
+        <div class="footer-brand-grid">
+            <div class="footer-about">
+                <h3>Tentang Kami</h3>
+                <p>
+                    Matlamat kami adalah untuk <strong>menjadikan penyediaan dan perkongsian resipi kueh sebagai satu pengalaman yang menyeronokkan.</strong> 
+                    Kami percaya bahawa kuih tradisional memainkan peranan penting dalam mengeratkan hubungan, melestarikan budaya, dan mencipta gaya hidup yang lebih bermakna. 
+                    Dengan platform kami, kami memperkasakan individu untuk berkongsi resipi dan ilmu berkaitan kueh, demi memelihara warisan serta menghubungkan komuniti.
+                </p>
+            </div>
+            <div class="footer-links-grid d-flex flex-column gap-2 text-start text-md-end">
+                <h5 class="font-mono text-uppercase tracking-wider" style="font-size: 0.8rem; color: var(--color-accent);">KuehLegacy</h5>
+                <a href="<?php echo $root_path; ?>index.php">Utama</a>
+                <a href="<?php echo $root_path; ?>recipes/kuehListing.php?search=">Carian Resipi</a>
+                <a href="<?php echo $root_path; ?>auth/userProfile.php">Resipi Anda</a>
+            </div>
+        </div>
+        
+        <div class="footer-copyright">
+            <span>Hak Cipta &copy; <?php echo date('Y'); ?> AbeFiwan Expert Studio. Hak Cipta Terpelihara.</span>
+            <span>Seni Warisan Kuih-Muih Tradisional Malaysia.</span>
+        </div>
+    </div>
+    
+    <?php if (file_exists($root_path . 'sources/footer/footer.png')): ?>
+        <img src="<?php echo $root_path; ?>sources/footer/footer.png" alt="Decorative Footer Graphic" style="width: 100%; height: auto; display: block; margin-top: 2rem; border-radius: 12px; filter: grayscale(1) opacity(0.15);">
+    <?php endif; ?>
+</footer>
+
+<!-- Studio Freight Lenis Smooth Scroll CDN -->
+<script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.27/dist/lenis.min.js"></script>
+
+<!-- Cinematic GSAP Animations Engine -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof gsap !== 'undefined') {
+            gsap.registerPlugin(ScrollTrigger);
+
+            // 1. Heritage Preloader Intro Wipe
+            const preloader = document.getElementById('preloader');
+            if (preloader) {
+                gsap.to('.preloader-wrap', { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' });
+                
+                let counter = { value: 0 };
+                gsap.to(counter, {
+                    value: 100,
+                    duration: 0.8,
+                    ease: 'power1.inOut',
+                    onUpdate: function() {
+                        const percentEl = document.querySelector('.preloader-percent');
+                        if (percentEl) {
+                            percentEl.textContent = Math.floor(counter.value).toString().padStart(2, '0') + '%';
+                        }
+                    },
+                    onComplete: function() {
+                        gsap.to(preloader, {
+                            yPercent: -100,
+                            duration: 0.6,
+                            ease: 'power3.inOut',
+                            onComplete: function() {
+                                preloader.style.display = 'none';
+                                ScrollTrigger.refresh();
+                            }
+                        });
+                    }
+                });
+            }
+
+            // 2. Double-Bezel Cards Entrance Page-Load Stagger (Filter-safe & robust)
+            const cards = gsap.utils.toArray('.double-bezel-outer');
+            if (cards.length > 0) {
+                gsap.from(cards, {
+                    y: 35,
+                    opacity: 0,
+                    duration: 0.6,
+                    stagger: 0.06,
+                    ease: 'power2.out',
+                    delay: 1.0, // Triggers after preloader slide completes
+                    force3D: true
+                });
+            }
+
+            // 3. Heading Titles Cinematic Mask-Slide Reveal
+            const headings = gsap.utils.toArray('h1, h2, h3, .sidebar-section-title');
+            headings.forEach(heading => {
+                gsap.from(heading, {
+                    scrollTrigger: {
+                        trigger: heading,
+                        start: 'top 95%',
+                        toggleActions: 'play none none none'
+                    },
+                    y: 20,
+                    opacity: 0,
+                    duration: 0.6,
+                    ease: 'power2.out',
+                    force3D: true
+                });
+            });
+
+            // 4. Split Page Columns Cinematic Slide (Details Page)
+            const coverCard = document.querySelector('.recipe-cover-card');
+            if (coverCard) {
+                gsap.from(coverCard, {
+                    x: -40,
+                    opacity: 0,
+                    duration: 0.8,
+                    ease: 'power3.out',
+                    force3D: true
+                });
+            }
+
+            const contentPanel = document.querySelector('.recipe-content-panel');
+            if (contentPanel) {
+                gsap.from(contentPanel, {
+                    x: 40,
+                    opacity: 0,
+                    duration: 0.8,
+                    ease: 'power3.out',
+                    delay: 0.05,
+                    force3D: true
+                });
+            }
+
+            // 5. Magnetic Buttons Micro-Interactions (Only on CTA buttons)
+            const magneticButtons = gsap.utils.toArray('.btn-primary-custom, .btn-secondary-custom');
+            magneticButtons.forEach(btn => {
+                btn.addEventListener('mousemove', (e) => {
+                    const bounding = btn.getBoundingClientRect();
+                    const x = e.clientX - bounding.left - bounding.width / 2;
+                    const y = e.clientY - bounding.top - bounding.height / 2;
+                    
+                    gsap.to(btn, {
+                        x: x * 0.25,
+                        y: y * 0.25,
+                        duration: 0.3,
+                        ease: 'power2.out',
+                        force3D: true
+                    });
+                });
+                
+                btn.addEventListener('mouseleave', () => {
+                    gsap.to(btn, {
+                        x: 0,
+                        y: 0,
+                        duration: 0.5,
+                        ease: 'elastic.out(1, 0.3)',
+                        force3D: true
+                    });
+                });
+            });
+
+            // 6. Lenis Smooth Scroll Initialization
+            if (typeof Lenis !== 'undefined') {
+                const lenis = new Lenis({
+                    duration: 1.0,
+                    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+                    smooth: true,
+                    smoothTouch: false
+                });
+
+                function raf(time) {
+                    lenis.raf(time);
+                    requestAnimationFrame(raf);
+                }
+                requestAnimationFrame(raf);
+
+                lenis.on('scroll', ScrollTrigger.update);
+            }
+        }
+    });
+</script>

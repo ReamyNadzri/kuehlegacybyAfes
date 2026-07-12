@@ -383,6 +383,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `NAME` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `PASSWORD` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `EMAIL` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `PHONENUM` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `IMAGE` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `OAUTH_PROVIDER` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `OAUTH_UID` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
