@@ -34,26 +34,257 @@ if (in_array($current_dir, ['auth', 'recipes', 'favorites', 'admin'])) {
 
 <body>
 
-    <!-- Heritage Loading Preloader -->
-    <div id="preloader">
+    <!-- Heritage Loading Preloader — Progress-Driven Flipping Book Frames -->
+    <div id="preloader" style="position: fixed; inset: 0; background-color: #ffffff !important; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; will-change: opacity, transform;">
         <div class="preloader-wrap text-center" style="opacity: 0; transform: translateY(20px);">
-            <h1 class="font-serif fw-bold mb-2" style="font-size: 3rem; color: var(--color-accent); letter-spacing: 0.05em; font-family: var(--font-serif) !important;">KUEHLEGACY</h1>
-            <p class="font-mono text-muted tracking-wider text-uppercase" style="font-size: 0.8rem; letter-spacing: 0.2em;">Melestarikan Warisan Rasa</p>
-            <div class="font-mono mt-4 fw-bold preloader-percent" style="font-size: 1.5rem; color: var(--color-amber);">00%</div>
+            <!-- Video Frames Canvas (borderless, blended background) -->
+            <div style="width: 360px; height: 203px; margin: 0 auto 1.5rem auto; position: relative; overflow: hidden; background: transparent;">
+                <canvas id="preloader-canvas" width="360" height="203" style="display: block; width: 100%; height: 100%; object-fit: cover;"></canvas>
+            </div>
+            
+            <h1 class="font-serif fw-bold mb-2" style="font-size: 2.8rem; color: var(--color-text) !important; letter-spacing: -0.02em; font-family: var(--font-serif) !important;">KuehLegacy</h1>
+            <p class="font-mono text-muted tracking-wider text-uppercase" style="font-size: 0.8rem; letter-spacing: 0.25em; color: var(--color-text-muted) !important;">Preserving the Sweet Heritage</p>
+            <!-- Progress bar track -->
+            <div class="preloader-bar-track" style="width: 200px; height: 3px; background: var(--color-border); border-radius: 100px; margin: 1.25rem auto 0; overflow: hidden;">
+                <div id="preloader-bar-fill" style="width: 0%; height: 100%; background: var(--color-accent); border-radius: 100px; transition: width 0.3s ease;"></div>
+            </div>
+            <div class="font-mono mt-3 fw-bold preloader-percent" id="preloader-percent" style="font-size: 1.5rem; color: var(--color-amber);">0%</div>
         </div>
+        
         <script>
-            // Fail-safe: hide preloader after 1.5 seconds if GSAP fails or stalls
-            setTimeout(function() {
-                var loader = document.getElementById('preloader');
-                if (loader && loader.style.display !== 'none') {
-                    loader.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
-                    loader.style.opacity = '0';
-                    loader.style.transform = 'translateY(-100%)';
-                    setTimeout(function() {
-                        loader.style.display = 'none';
-                    }, 400);
+            /* ─────────────────────────────────────────────────────
+               PROGRESS-DRIVEN FRAME ANIMATION PRELOADER (192 FRAMES)
+               Preloads 192 JPEG frames (padded to 5 digits) and draws
+               the corresponding frame to canvas based on page load progress.
+               Enforces a minimum duration to guarantee smooth visibility.
+               ───────────────────────────────────────────────────── */
+
+            (function initVideoFramePreloader() {
+                const canvas = document.getElementById('preloader-canvas');
+                const preloader = document.getElementById('preloader');
+                if (!canvas || !preloader) return;
+
+                // Check if preloader has already run in this session
+                if (sessionStorage.getItem('preloaderRun')) {
+                    preloader.style.display = 'none';
+                    return;
                 }
-            }, 1500);
+                sessionStorage.setItem('preloaderRun', 'true');
+
+                const ctx = canvas.getContext('2d');
+
+                const totalFrames = 192;
+                const rootPath = '<?php echo $root_path; ?>';
+                const images = [];
+                let preloadedFrames = 0;
+                const startTime = Date.now();
+
+                const loadState = {
+                    currentProgress: 0,   // smoothed progress 0 -> 1
+                    targetProgress: 0,    // target progress 0 -> 1
+                    loaded: 0,
+                    total: 0,
+                    done: false,
+                    dismissed: false
+                };
+
+                // Gather other page resources (images, scripts, styles)
+                function countResources() {
+                    const imgs = Array.from(document.querySelectorAll('img')).filter(img => !img.src.includes('book_frames'));
+                    const scripts = document.querySelectorAll('script[src]');
+                    const links = document.querySelectorAll('link[rel="stylesheet"]');
+                    
+                    loadState.total = imgs.length + scripts.length + links.length + totalFrames;
+                    if (loadState.total === 0) loadState.total = 1;
+
+                    imgs.forEach(img => {
+                         if (img.complete) { bump(); return; }
+                         img.addEventListener('load', bump, { once: true });
+                         img.addEventListener('error', bump, { once: true });
+                    });
+
+                    scripts.forEach(() => bump());
+                    links.forEach(link => {
+                         if (link.sheet) { bump(); return; }
+                         link.addEventListener('load', bump, { once: true });
+                         link.addEventListener('error', bump, { once: true });
+                    });
+                }
+
+                function bump() {
+                    loadState.loaded++;
+                    loadState.targetProgress = Math.min(loadState.loaded / loadState.total, 1);
+                }
+
+                window.addEventListener('load', function() {
+                    loadState.targetProgress = 1;
+                    loadState.done = true;
+                });
+
+                setTimeout(function() {
+                    if (!loadState.done) {
+                        loadState.targetProgress = 1;
+                        loadState.done = true;
+                    }
+                }, 9000);
+
+                // Start resource counting
+                countResources();
+
+                const percentEl = document.getElementById('preloader-percent');
+                const barFill   = document.getElementById('preloader-bar-fill');
+
+                let lastDrawnFrameIndex = 0;
+
+                function drawFrame(index) {
+                    let img = images[index];
+                    if (img && img.complete && img.naturalWidth !== 0) {
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        const cropY = Math.round(img.naturalHeight * 0.03); // Crop 3% off top/bottom to hide black bars
+                        const cropHeight = img.naturalHeight - (cropY * 2);
+                        ctx.drawImage(img, 0, cropY, img.naturalWidth, cropHeight, 0, 0, canvas.width, canvas.height);
+                        lastDrawnFrameIndex = index;
+                    } else {
+                        // Fallback to the last successfully drawn frame to avoid flash-to-start stutter
+                        let fallbackImg = images[lastDrawnFrameIndex];
+                        if (fallbackImg && fallbackImg.complete && fallbackImg.naturalWidth !== 0) {
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                            const cropY = Math.round(fallbackImg.naturalHeight * 0.03);
+                            const cropHeight = fallbackImg.naturalHeight - (cropY * 2);
+                            ctx.drawImage(fallbackImg, 0, cropY, fallbackImg.naturalWidth, cropHeight, 0, 0, canvas.width, canvas.height);
+                        }
+                    }
+                }
+
+                // Preload first frame, then start batch loading the rest
+                const firstImg = new Image();
+                firstImg.src = `${rootPath}sources/book_frames/frame_00001.jpg`;
+                firstImg.onload = () => {
+                    images[0] = firstImg;
+                    preloadedFrames++;
+                    bump();
+                    
+                    // Draw first frame immediately
+                    drawFrame(0);
+                    
+                    // Fade-in preloader contents
+                    const wrap = document.querySelector('.preloader-wrap');
+                    if (wrap && typeof gsap !== 'undefined') {
+                        gsap.to(wrap, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" });
+                    } else if (wrap) {
+                        wrap.style.opacity = '1';
+                        wrap.style.transform = 'translateY(0)';
+                    }
+                    
+                    // Start loop
+                    requestAnimationFrame(update);
+                    
+                    // Start batch loading remaining frames with a 250ms delay to prevent initial main thread stutter
+                    setTimeout(loadRemainingFramesInBatches, 250);
+                };
+                firstImg.onerror = () => {
+                    preloadedFrames++;
+                    bump();
+                    requestAnimationFrame(update);
+                    setTimeout(loadRemainingFramesInBatches, 250);
+                };
+
+                function loadRemainingFramesInBatches() {
+                    const batchSize = 15;
+                    let currentFrame = 2;
+                    
+                    function nextBatch() {
+                        if (currentFrame > totalFrames) return;
+                        let loadedInBatch = 0;
+                        const limit = Math.min(currentFrame + batchSize - 1, totalFrames);
+                        const count = limit - currentFrame + 1;
+                        
+                        for (let i = currentFrame; i <= limit; i++) {
+                            const img = new Image();
+                            const frameNum = String(i).padStart(5, '0');
+                            img.src = `${rootPath}sources/book_frames/frame_${frameNum}.jpg`;
+                            img.onload = () => {
+                                images[i - 1] = img;
+                                preloadedFrames++;
+                                bump();
+                                loadedInBatch++;
+                                if (loadedInBatch === count) {
+                                    currentFrame += batchSize;
+                                    nextBatch();
+                                }
+                             };
+                             img.onerror = () => {
+                                 preloadedFrames++;
+                                 bump();
+                                 loadedInBatch++;
+                                 if (loadedInBatch === count) {
+                                     currentFrame += batchSize;
+                                     nextBatch();
+                                 }
+                             };
+                        }
+                    }
+                    nextBatch();
+                }
+
+                // Animation & progress updates loop
+                function update() {
+                    if (loadState.dismissed) return;
+
+                    const elapsed = (Date.now() - startTime) / 1000;
+                    const minDuration = 3.0;
+                    const timeProgress = Math.min(elapsed / minDuration, 1);
+                    const cappedProgress = Math.min(loadState.targetProgress, timeProgress);
+
+                    loadState.currentProgress += (cappedProgress - loadState.currentProgress) * 0.08;
+
+                    if (loadState.currentProgress > 0.998) {
+                        loadState.currentProgress = 1;
+                    }
+
+                    const frameIndex = Math.floor(loadState.currentProgress * (totalFrames - 1));
+                    drawFrame(frameIndex);
+
+                    const pct = Math.round(loadState.currentProgress * 100);
+                    if (percentEl) percentEl.textContent = pct + '%';
+                    if (barFill)   barFill.style.width = pct + '%';
+
+                    if (loadState.currentProgress >= 1) {
+                        loadState.dismissed = true;
+                        setTimeout(dismissPreloader, 600);
+                        return;
+                    }
+
+                    requestAnimationFrame(update);
+                }
+
+                function dismissPreloader() {
+                    const preloader = document.getElementById('preloader');
+                    if (!preloader) return;
+
+                    if (typeof gsap !== 'undefined') {
+                        gsap.to(preloader, {
+                            opacity: 0,
+                            y: -60,
+                            duration: 0.45,
+                            ease: "power2.out",
+                            onComplete: () => {
+                                preloader.style.display = 'none';
+                                if (typeof ScrollTrigger !== 'undefined') {
+                                    ScrollTrigger.refresh();
+                                }
+                            }
+                        });
+                    } else {
+                        preloader.style.transition = 'opacity 0.45s ease, transform 0.45s ease';
+                        preloader.style.opacity = '0';
+                        preloader.style.transform = 'translateY(-60px)';
+                        setTimeout(() => {
+                            preloader.style.display = 'none';
+                        }, 450);
+                    }
+                }
+            })();
         </script>
     </div>
 
@@ -62,8 +293,13 @@ if (in_array($current_dir, ['auth', 'recipes', 'favorites', 'admin'])) {
         
         <!-- Sidebar Panel (Left) -->
         <aside class="sidebar-panel">
-            <a href="<?php echo $root_path; ?>index.php" class="sidebar-logo">
-                <img src="<?php echo $root_path; ?>sources/header/logofull.svg" alt="KuehLegacy Logo">
+            <a href="<?php echo $root_path; ?>index.php" class="brand-logo-wrap mb-4">
+                <svg class="brand-monogram" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20,16 H48 V22 H41 V78 H48 V84 H20 V78 H27 V22 H20 Z" fill="var(--color-text)" />
+                    <path d="M41,45 C41,45 45,39 52,32 C50,34 47,38 46,42 C51,36 58,30 65,24 C61,28 57,33 55,39 C61,32 69,26 77,20 C71,26 65,33 62,41 C69,32 79,25 88,18 C79,30 69,42 58,51 C52,56 46,55 41,51 Z" fill="var(--color-accent)" />
+                    <path d="M41,51 C48,57 56,66 64,75 C68,79 73,80 77,80 C77,77 73,74 69,70 C60,62 50,54 41,46 Z" fill="var(--color-text)" />
+                </svg>
+                <span class="brand-logo-text">KuehLegacy</span>
             </a>
             
             <hr class="sidebar-divider">

@@ -1,27 +1,44 @@
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
-/* Culinary Slate Dark Mode Theme System */
+/* Heritage Paper Light Mode Theme System */
 :root {
-  --color-bg: #0A0A0A;           /* Deepest Charcoal-OLED Black */
-  --color-surface: #121212;      /* Elegant Dark Card Background */
-  --color-sidebar-bg: #161514;   /* Warm Dark Slate for Sidebar */
-  --color-text: #F5F5F0;         /* Soft Coconut White */
-  --color-text-muted: #A3A19C;   /* Warm Slate Muted text */
-  --color-accent: #3E8E5A;       /* Saturated Pandan Leaf Green */
-  --color-accent-hover: #4FA870; /* Lighter Pandan Green for hover */
-  --color-accent-light: #152A1D; /* Deep forest green tint */
-  --color-amber: #E09443;        /* Palm sugar / Gula Melaka amber */
-  --color-amber-light: #2E1F13;  /* Deep amber / caramel tint */
-  --color-border: #22201E;       /* Hairline charcoal border */
-  --color-border-hover: #33302C; /* Slightly lighter border on hover */
-  
-  --font-serif: 'Cinzel', Georgia, serif;
+  --color-bg: #FAF9F6;
+  /* Refined Warm Paper / Bone */
+  --color-surface: #FFFFFF;
+  /* Clean White Card Background */
+  --color-sidebar-bg: #F3F1EC;
+  /* Soft Warm Neutral for Sidebar */
+  --color-text: #1A1A19;
+  /* Charcoal near-black */
+  --color-text-muted: #5C5A56;
+  /* Warm Slate Muted text */
+  --color-accent: #1C3F24;
+  /* Saturated Pandan Leaf Green */
+  --color-accent-hover: #142E1A;
+  /* Darker Green */
+  --color-accent-light: #EBF2ED;
+  /* Soft pastel green */
+  --color-amber: #D68C45;
+  /* Palm sugar / Gula Melaka amber */
+  --color-amber-light: #F9EFE4;
+  /* Soft amber tint */
+  --color-border: #E5E2DB;
+  /* Hairline warm gray border */
+  --color-border-hover: #C5C1B6;
+  /* Darker border on hover */
+
+  --font-serif: 'Playfair Display', Georgia, serif;
   --font-sans: 'Plus Jakarta Sans', -apple-system, sans-serif;
   --font-mono: 'Space Mono', monospace;
-  
+
+  /* Brand Kit Embossed Journal Textures */
+  --shadow-embossed: inset 0 2px 4px rgba(0, 0, 0, 0.04), inset 0 -1px 2px rgba(255, 255, 255, 0.7), 0 1px 3px rgba(0, 0, 0, 0.03);
+  --shadow-card-hover: inset 0 2px 6px rgba(0, 0, 0, 0.06), 0 12px 32px rgba(0, 0, 0, 0.06);
+  --linen-bg: linear-gradient(135deg, rgba(243, 241, 236, 0.4) 0%, rgba(250, 249, 246, 0.2) 50%, rgba(243, 241, 236, 0.3) 100%);
+
   --ease-custom: cubic-bezier(0.32, 0.72, 0, 1);
   --transition-speed: 0.5s;
-  
+
   /* Layout variables */
   --sidebar-width: 280px;
   --header-height: 80px;
@@ -37,11 +54,17 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-serif) !important;
   color: var(--color-text);
   margin-top: 0;
   font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 p {
@@ -54,6 +77,7 @@ a {
   text-decoration: none;
   transition: all 0.3s var(--ease-custom);
 }
+
 a:hover {
   color: var(--color-accent);
 }
@@ -81,14 +105,37 @@ a:hover {
   box-sizing: border-box;
 }
 
-.sidebar-logo {
-  display: block;
-  margin-bottom: 2rem;
-  text-align: center;
+.brand-logo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none !important;
+  transition: opacity 0.3s var(--ease-custom);
+  color: inherit;
 }
-.sidebar-logo img {
-  max-width: 100%;
-  height: auto;
+
+.brand-logo-wrap:hover {
+  opacity: 0.85;
+}
+
+.brand-monogram {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  transition: transform 0.4s var(--ease-custom);
+  color: var(--color-accent);
+}
+
+.brand-logo-wrap:hover .brand-monogram {
+  transform: rotate(-8deg) scale(1.05);
+}
+
+.brand-logo-text {
+  font-family: var(--font-serif) !important;
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--color-text);
+  letter-spacing: -0.02em;
 }
 
 .sidebar-nav {
@@ -105,9 +152,11 @@ a:hover {
 .sidebar-nav::-webkit-scrollbar {
   width: 4px;
 }
+
 .sidebar-nav::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .sidebar-nav::-webkit-scrollbar-thumb {
   background: var(--color-border);
   border-radius: 10px;
@@ -124,17 +173,22 @@ a:hover {
   color: var(--color-text-muted);
   transition: all 0.3s var(--ease-custom);
 }
+
 .sidebar-item i {
   font-size: 1.25rem;
   color: var(--color-text-muted);
   transition: color 0.3s var(--ease-custom);
 }
-.sidebar-item:hover, .sidebar-item.active {
+
+.sidebar-item:hover,
+.sidebar-item.active {
   background-color: var(--color-surface);
   color: var(--color-accent);
   box-shadow: 0 4px 12px rgba(28, 63, 36, 0.03);
 }
-.sidebar-item:hover i, .sidebar-item.active i {
+
+.sidebar-item:hover i,
+.sidebar-item.active i {
   color: var(--color-accent);
 }
 
@@ -161,18 +215,22 @@ a:hover {
   flex-direction: column;
   gap: 0.75rem;
 }
+
 .state-pill {
   position: relative;
   overflow: hidden;
   border-radius: 12px;
-  height: 60px; /* Slightly taller for better readability of baked-in text */
+  height: 60px;
+  /* Slightly taller for better readability of baked-in text */
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: transparent; /* Transparent background to prevent transparency bleeding */
+  background-color: transparent;
+  /* Transparent background to prevent transparency bleeding */
   transition: transform 0.4s var(--ease-custom);
   will-change: transform;
 }
+
 .state-pill img {
   position: absolute;
   inset: 0;
@@ -182,26 +240,35 @@ a:hover {
   transition: transform 0.4s var(--ease-custom);
   will-change: transform;
 }
+
 .state-pill::after {
   content: '';
   position: absolute;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.03); /* Subtle tint overlay */
+  background-color: rgba(0, 0, 0, 0.03);
+  /* Subtle tint overlay */
   transition: background-color 0.4s var(--ease-custom);
   z-index: 1;
   pointer-events: none;
 }
+
 .state-pill span {
-  display: none; /* Hide overlay text because names are already baked into the assets */
+  display: none;
+  /* Hide overlay text because names are already baked into the assets */
 }
+
 .state-pill:hover {
   transform: translateY(-2px);
 }
+
 .state-pill:hover img {
-  transform: scale(1.04); /* GPU-accelerated transform scale */
+  transform: scale(1.04);
+  /* GPU-accelerated transform scale */
 }
+
 .state-pill:hover::after {
-  background-color: rgba(0, 0, 0, 0.12); /* Darken slightly on hover */
+  background-color: rgba(0, 0, 0, 0.12);
+  /* Darken slightly on hover */
 }
 
 /* Main Content Area */
@@ -251,14 +318,17 @@ a:hover {
   transition: all 0.3s var(--ease-custom);
   cursor: pointer;
 }
+
 .btn-primary-custom:hover {
   background-color: var(--color-accent-hover);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(28, 63, 36, 0.15);
 }
+
 .btn-primary-custom:active {
   transform: translateY(0) scale(0.98);
 }
+
 .btn-primary-custom .icon-wrapper {
   background-color: rgba(255, 255, 255, 0.15);
   width: 24px;
@@ -270,6 +340,7 @@ a:hover {
   font-size: 0.8rem;
   transition: transform 0.3s var(--ease-custom);
 }
+
 .btn-primary-custom:hover .icon-wrapper {
   transform: rotate(45deg);
 }
@@ -287,6 +358,7 @@ a:hover {
   gap: 0.5rem;
   transition: all 0.3s var(--ease-custom);
 }
+
 .btn-secondary-custom:hover {
   border-color: var(--color-border-hover);
   background-color: var(--color-bg);
@@ -303,6 +375,7 @@ a:hover {
   font-weight: 500;
   font-size: 0.9rem;
 }
+
 .profile-badge img {
   width: 32px;
   height: 32px;
@@ -329,12 +402,14 @@ a:hover {
   border-radius: 28px;
   transition: border-color 0.4s var(--ease-custom);
 }
+
 .double-bezel-inner {
   background-color: var(--color-surface);
+  background-image: var(--linen-bg);
   border-radius: calc(28px - 8px);
   padding: 1.5rem;
   height: 100%;
-  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.15);
+  box-shadow: var(--shadow-embossed);
   position: relative;
   overflow: hidden;
   transition: transform 0.4s var(--ease-custom), box-shadow 0.4s var(--ease-custom);
@@ -357,20 +432,55 @@ a:hover {
   position: relative;
   overflow: hidden;
 }
+
 .bento-card-bg {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  filter: contrast(1.1) brightness(0.8) sepia(0.06);
   transition: scale 0.6s var(--ease-custom), filter 0.6s var(--ease-custom);
 }
+
+.double-bezel-outer:hover .bento-card-bg {
+  scale: 1.04;
+  filter: contrast(1.15) brightness(0.85) sepia(0.04);
+}
+
 .bento-card-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(26, 26, 25, 0.8) 0%, rgba(26, 26, 25, 0.1) 70%);
+  background: radial-gradient(circle at center, rgba(26, 26, 25, 0) 30%, rgba(26, 26, 25, 0.4) 100%), linear-gradient(to top, rgba(26, 26, 25, 0.9) 0%, rgba(26, 26, 25, 0.15) 75%);
   z-index: 1;
+  transition: opacity 0.4s var(--ease-custom);
 }
+
+.double-bezel-outer:hover .bento-card-overlay {
+  opacity: 0.95;
+}
+
+/* Embossed Linen Recipe Journal Watermark */
+.recipe-card-watermark {
+  position: absolute;
+  right: -15px;
+  bottom: -20px;
+  width: 110px;
+  height: 110px;
+  color: var(--color-accent);
+  opacity: 0.035;
+  pointer-events: none;
+  transform: rotate(-15deg);
+  transition: transform 0.6s var(--ease-custom), opacity 0.6s var(--ease-custom);
+  mix-blend-mode: multiply;
+  z-index: 0;
+}
+
+.double-bezel-outer:hover .recipe-card-watermark {
+  transform: rotate(-5deg) scale(1.15);
+  opacity: 0.065;
+}
+
 .bento-card-content {
   position: relative;
   z-index: 2;
@@ -380,12 +490,14 @@ a:hover {
   justify-content: flex-end;
   color: #FFFFFF;
 }
+
 .bento-card-title {
   font-family: var(--font-serif) !important;
   color: #FFFFFF !important;
   font-size: 1.5rem;
   margin-bottom: 0.25rem;
 }
+
 .bento-card-subtitle {
   font-family: var(--font-mono);
   font-size: 0.75rem;
@@ -399,8 +511,9 @@ a:hover {
 }
 .double-bezel-outer:hover .double-bezel-inner {
   transform: translateY(-4px);
-  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.1), 0 8px 24px rgba(0, 0, 0, 0.25);
+  box-shadow: var(--shadow-card-hover);
 }
+
 .double-bezel-outer:hover .bento-card-bg {
   scale: 1.04;
 }
@@ -414,9 +527,11 @@ a:hover {
   border: 1px solid var(--color-border);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
 }
+
 .hero-carousel .carousel-item {
   height: 480px;
 }
+
 .hero-carousel .carousel-item img {
   height: 100%;
   object-fit: cover;
@@ -433,6 +548,7 @@ a:hover {
   border: none;
   transition: all 0.3s var(--ease-custom);
 }
+
 .carousel-indicators .active {
   opacity: 1;
   background-color: var(--color-accent);
@@ -445,18 +561,25 @@ a:hover {
   margin-bottom: 2rem;
   position: relative;
 }
+
 .section-tagline {
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   text-transform: uppercase;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.25em;
   color: var(--color-accent);
-  display: block;
-  margin-bottom: 0.5rem;
+  display: inline-block;
+  margin-bottom: 0.75rem;
+  padding: 4px 12px;
+  border: 1px solid var(--color-accent);
+  border-radius: 100px;
+  opacity: 0.8;
 }
+
 .section-title {
-  font-size: 2.25rem;
+  font-size: 2.5rem;
   letter-spacing: -0.02em;
+  font-weight: 700;
 }
 
 /* Custom Recipe Cards Grid */
@@ -473,12 +596,14 @@ a:hover {
   position: relative;
   margin-bottom: 1.25rem;
 }
+
 .recipe-card-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: scale 0.6s var(--ease-custom);
 }
+
 .recipe-card-tag {
   position: absolute;
   top: 12px;
@@ -493,11 +618,13 @@ a:hover {
   border-radius: 100px;
   font-weight: 600;
 }
+
 .recipe-card-title {
   font-size: 1.25rem;
   margin-bottom: 0.5rem;
   font-family: var(--font-serif);
 }
+
 .recipe-card-meta {
   font-family: var(--font-mono);
   font-size: 0.75rem;
@@ -513,6 +640,7 @@ a:hover {
   position: relative;
   width: 100%;
 }
+
 .search-input-custom {
   width: 100%;
   padding: 0.75rem 1.5rem 0.75rem 3rem;
@@ -524,12 +652,14 @@ a:hover {
   color: var(--color-text);
   transition: all 0.3s var(--ease-custom);
 }
+
 .search-input-custom:focus {
   outline: none;
   border-color: var(--color-accent);
   background-color: var(--color-surface);
   box-shadow: 0 0 0 4px rgba(28, 63, 36, 0.08);
 }
+
 .search-icon-custom {
   position: absolute;
   left: 1.25rem;
@@ -553,6 +683,7 @@ hr.custom-divider {
   padding: 5rem 3rem 4rem 3rem;
   margin-top: 6rem;
 }
+
 .footer-content {
   max-width: 1400px;
   margin: 0 auto;
@@ -560,20 +691,24 @@ hr.custom-divider {
   flex-direction: column;
   gap: 3rem;
 }
+
 .footer-brand-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 4rem;
 }
+
 .footer-about h3 {
   font-size: 1.75rem;
   margin-bottom: 1.25rem;
 }
+
 .footer-about p {
   font-size: 1rem;
   max-width: 70ch;
   line-height: 1.7;
 }
+
 .footer-copyright {
   border-top: 1px solid var(--color-border);
   padding-top: 2rem;
@@ -589,26 +724,33 @@ hr.custom-divider {
   :root {
     --sidebar-width: 0px;
   }
+
   .sidebar-panel {
     transform: translateX(-100%);
     transition: transform 0.4s var(--ease-custom);
   }
+
   .sidebar-panel.open {
     transform: translateX(0);
     width: 280px;
   }
+
   .main-layout {
     margin-left: 0;
   }
+
   .top-nav {
     padding: 0 1.5rem;
   }
+
   .content-body {
     padding: 2rem 1.5rem;
   }
+
   .bento-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+
   .recipes-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -618,16 +760,20 @@ hr.custom-divider {
   .bento-grid {
     grid-template-columns: 1fr;
   }
+
   .bento-col-2 {
     grid-column: span 1;
   }
+
   .recipes-grid {
     grid-template-columns: 1fr;
   }
+
   .footer-brand-grid {
     grid-template-columns: 1fr;
     gap: 2rem;
   }
+
   .top-nav {
     padding: 0 1rem;
   }
@@ -646,10 +792,8 @@ hr.custom-divider {
   overflow: hidden;
 }
 
-/* Lenis smooth scroll adjustments */
-html.lenis {
-  height: auto;
-}
-.lenis-clean-scroll {
-  will-change: transform;
+
+/* Native smooth scroll */
+html {
+  scroll-behavior: smooth;
 }

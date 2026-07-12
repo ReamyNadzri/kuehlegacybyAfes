@@ -259,7 +259,16 @@ mysqli_close($condb);
     <!-- Ingredients Panel -->
     <div class="col-12 col-md-5 col-lg-4">
         <div class="ingredients-card">
-            <h3 class="font-serif mb-4" style="font-size: 1.5rem;"><i class="bi bi-egg-fried me-2 text-success"></i> Ramuan</h3>
+            <h3 class="font-serif mb-4" style="font-size: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <svg style="width: 28px; height: 28px; color: var(--color-accent);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 18V9a6 6 0 0 1 12 0v9"></path>
+                    <path d="M3 18h18a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1Z"></path>
+                    <path d="M12 6V3"></path>
+                    <path d="M9 7v-2"></path>
+                    <path d="M15 7v-2"></path>
+                </svg>
+                Ramuan
+            </h3>
             <div class="table-responsive">
                 <table class="table table-borderless align-middle mb-0">
                     <tbody>
@@ -278,7 +287,18 @@ mysqli_close($condb);
     <!-- Steps Panel -->
     <div class="col-12 col-md-7 col-lg-8">
         <div class="steps-card">
-            <h3 class="font-serif mb-4" style="font-size: 1.5rem;"><i class="bi bi-list-ol me-2 text-success"></i> Langkah Penyediaan</h3>
+            <h3 class="font-serif mb-4" style="font-size: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <svg style="width: 28px; height: 28px; color: var(--color-accent);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 8h18"></path>
+                    <path d="M5 8v10a3 3 0 0 0 3 3h8a3 3 0 0 0 3-3V8"></path>
+                    <path d="M9 3v5"></path>
+                    <path d="M15 3v5"></path>
+                    <path d="M12 3h.01"></path>
+                    <path d="M2 12h2"></path>
+                    <path d="M20 12h2"></path>
+                </svg>
+                Langkah Penyediaan
+            </h3>
             <div class="d-flex flex-column gap-4">
                 <?php foreach ($steps as $index => $step): ?>
                     <div class="d-flex gap-3">

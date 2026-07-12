@@ -187,6 +187,12 @@ $display_jh = !empty($recipes_jh) ? $recipes_jh : $fallback_jh;
     ?>
         <a href="recipes/kuehDetails.php?id=<?php echo $kueh['KUEHID']; ?>" class="double-bezel-outer">
             <div class="double-bezel-inner">
+                <!-- Embossed Monogram Watermark -->
+                <svg class="recipe-card-watermark" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M 28 20 L 36 20 L 36 23 L 33 23 L 33 77 L 36 77 L 36 80 L 28 80 L 28 77 L 31 77 L 31 23 L 28 23 Z" fill="currentColor"/>
+                    <path d="M 33 50 C 37 43 47 31 73 24 C 71 29 67 34 62 37 C 65 35 69 33 72 30 C 69 35 64 40 56 44 C 60 42 63 40 66 37 C 61 44 54 49 45 52 C 48 50 51 48 53 45 C 47 51 40 55 33 56 Z" fill="currentColor"/>
+                    <path d="M 33 53 C 41 59 50 67 58 75 C 60 77 63 78 66 78 C 66 76 64 74 62 72 C 54 65 45 57 37 49 Z" fill="currentColor"/>
+                </svg>
                 <div class="recipe-card-img-wrapper">
                     <img src="<?php echo htmlspecialchars($img); ?>" alt="<?php echo htmlspecialchars($kueh['KUEHNAME']); ?>" class="recipe-card-img">
                     <span class="recipe-card-tag">Terengganu</span>
@@ -218,6 +224,12 @@ $display_jh = !empty($recipes_jh) ? $recipes_jh : $fallback_jh;
     ?>
         <a href="recipes/kuehDetails.php?id=<?php echo $kueh['KUEHID']; ?>" class="double-bezel-outer">
             <div class="double-bezel-inner">
+                <!-- Embossed Monogram Watermark -->
+                <svg class="recipe-card-watermark" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M 28 20 L 36 20 L 36 23 L 33 23 L 33 77 L 36 77 L 36 80 L 28 80 L 28 77 L 31 77 L 31 23 L 28 23 Z" fill="currentColor"/>
+                    <path d="M 33 50 C 37 43 47 31 73 24 C 71 29 67 34 62 37 C 65 35 69 33 72 30 C 69 35 64 40 56 44 C 60 42 63 40 66 37 C 61 44 54 49 45 52 C 48 50 51 48 53 45 C 47 51 40 55 33 56 Z" fill="currentColor"/>
+                    <path d="M 33 53 C 41 59 50 67 58 75 C 60 77 63 78 66 78 C 66 76 64 74 62 72 C 54 65 45 57 37 49 Z" fill="currentColor"/>
+                </svg>
                 <div class="recipe-card-img-wrapper">
                     <img src="<?php echo htmlspecialchars($img); ?>" alt="<?php echo htmlspecialchars($kueh['KUEHNAME']); ?>" class="recipe-card-img">
                     <span class="recipe-card-tag">Johor</span>
