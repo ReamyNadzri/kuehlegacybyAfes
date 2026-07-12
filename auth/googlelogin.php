@@ -1,3 +1,10 @@
+<?php
+require __DIR__ . "/../vendor/autoload.php";
+if (!isset($_ENV['GOOGLE_CLIENT_ID'])) {
+    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
+    $dotenv->load();
+}
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -5,10 +12,10 @@
 </head>
 <body>
 <div id="g_id_onload"
-    data-client_id="86003731304-ujapfaslp3bk71imksdn5oq21ebl8i07.apps.googleusercontent.com"
+    data-client_id="<?php echo $_ENV['GOOGLE_CLIENT_ID'] ?? ''; ?>"
     data-context="signin"
     data-ux_mode="popup"
-    data-login_uri="http://localhost/kuehlegacybyAfes/auth/callback.php"
+    data-login_uri="<?php echo $_ENV['GOOGLE_REDIRECT_URI'] ?? 'http://localhost/kuehlegacybyAfes/auth/callback.php'; ?>"
     data-auto_select="true"
     >
  </div>

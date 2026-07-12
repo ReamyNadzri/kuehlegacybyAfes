@@ -2,11 +2,16 @@
 
 require __DIR__ . "/../vendor/autoload.php";
 
+if (!isset($_ENV['GOOGLE_CLIENT_ID'])) {
+    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
+    $dotenv->load();
+}
+
 $client = new Google\Client;
 
-$client->setClientId("86003731304-ujapfaslp3bk71imksdn5oq21ebl8i07.apps.googleusercontent.com");
-$client->setClientSecret("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");
-$client->setRedirectUri("http://localhost/kuehlegacybyAfes/auth/callback.php");
+$client->setClientId($_ENV['GOOGLE_CLIENT_ID']);
+$client->setClientSecret($_ENV['GOOGLE_CLIENT_SECRET']);
+$client->setRedirectUri($_ENV['GOOGLE_REDIRECT_URI']);
 
 $client->addScope("email");
 $client->addScope("profile");

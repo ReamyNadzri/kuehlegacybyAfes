@@ -28,8 +28,8 @@
     <?php endif; ?>
 </footer>
 
-<!-- Studio Freight Lenis Smooth Scroll CDN -->
-<script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.27/dist/lenis.min.js"></script>
+<!-- Studio Freight Lenis Smooth Scroll CDN (Browser UMD bundle) -->
+<script src="https://unpkg.com/lenis@1.1.5/dist/lenis.min.js"></script>
 
 <!-- Cinematic GSAP Animations Engine -->
 <script>
